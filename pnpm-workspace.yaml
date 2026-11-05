@@ -1,0 +1,10 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Never install a version published less than 14 days ago (in minutes).
+minimumReleaseAge: 20160
+
+# Dependencies allowed to run install scripts.
+allowBuilds:
+  esbuild: true

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Balise - Gestion des cookies</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+<style>
+body{margin:0;background:#FAF8F4}
+a{color:#0E5C4A}a:hover{color:#0B4A3C}
+</style>
+</helmet>
+<div style="min-height: 1180px; background: #FAF8F4; color: #1B1F1D; font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif; font-size: 17px; line-height: 26px; display: flex; flex-direction: column">
+  <header style="border-bottom: 1px solid #D9D4CA">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 12px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #1B1F1D">
+        <img src="/_blob/7790b909834b9e0daa35a89911b7fcc0" alt="" style="width: 40px; height: 40px">
+        <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.3px">Balise</span>
+      </a>
+    </div>
+  </header>
+
+  <main style="flex: 1; width: 100%; max-width: 760px; box-sizing: border-box; margin: 0 auto; padding: 48px 24px 72px; display: flex; flex-direction: column; gap: 32px">
+    <nav aria-label="Fil d'Ariane" style="font-size: 15px"><a href="Main.dc.html">Accueil</a> <span aria-hidden="true" style="color: #5A635F">/</span> <span aria-current="page">Gestion des cookies</span></nav>
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <h1 style="margin: 0; font-size: 32px; line-height: 40px; font-weight: 700">Gestion des cookies</h1>
+      <p style="margin: 0; color: #5A635F">Vous pouvez modifier ou retirer votre choix à tout moment. Il est conservé 6 mois, puis redemandé.</p>
+    </div>
+
+    <section aria-labelledby="necessaires" style="background: #FFFFFF; border: 1px solid #D9D4CA; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+      <h2 id="necessaires" style="margin: 0; font-size: 19px; line-height: 26px">Stockage nécessaire au fonctionnement</h2>
+      <p style="margin: 0; font-size: 15px; line-height: 22px">Toujours actif, exempté de consentement. Balise mémorise dans votre navigateur votre choix de cookies, votre thème et votre préférence d'animations. Rien n'est transmis à un tiers.</p>
+    </section>
+
+    <section aria-labelledby="audience" style="background: #FFFFFF; border: 1px solid #D9D4CA; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+        <h2 id="audience" style="margin: 0; font-size: 19px; line-height: 26px">Mesure d'audience (Google Analytics 4)</h2>
+        <label for="ga4" style="display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-weight: 700">
+          <input id="ga4" type="checkbox" checked="{{accepted}}" onChange="{{toggle}}" style="width: 24px; height: 24px; accent-color: #0E5C4A">
+          {{statusLabel}}
+        </label>
+      </div>
+      <p style="margin: 0; font-size: 15px; line-height: 22px">Sert uniquement à savoir combien de personnes visitent Balise et quelles pages elles consultent. Aucun usage publicitaire. Les données sont traitées par Google, y compris aux États-Unis, dans le cadre du Data Privacy Framework.</p>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; border-collapse: collapse; font-size: 15px; line-height: 22px">
+          <caption style="text-align: left; padding-bottom: 8px; color: #5A635F">Cookies déposés si vous acceptez</caption>
+          <thead>
+            <tr>
+              <th scope="col" style="text-align: left; padding: 8px; border-bottom: 1px solid #8A918D">Nom</th>
+              <th scope="col" style="text-align: left; padding: 8px; border-bottom: 1px solid #8A918D">Finalité</th>
+              <th scope="col" style="text-align: left; padding: 8px; border-bottom: 1px solid #8A918D">Durée</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #D9D4CA; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px">_ga</td>
+              <td style="padding: 8px; border-bottom: 1px solid #D9D4CA">Distinguer les visiteurs</td>
+              <td style="padding: 8px; border-bottom: 1px solid #D9D4CA">[DURÉE À CONFIGURER]</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #D9D4CA; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px">_ga_[ID]</td>
+              <td style="padding: 8px; border-bottom: 1px solid #D9D4CA">Conserver l'état de la session</td>
+              <td style="padding: 8px; border-bottom: 1px solid #D9D4CA">[DURÉE À CONFIGURER]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+      <button type="button" style="height: 48px; padding: 0 24px; border-radius: 10px; border: 2px solid #0E5C4A; background: #0E5C4A; color: #FFFFFF; font: inherit; font-weight: 700">Enregistrer mes choix</button>
+      <p role="status" style="margin: 0; font-size: 15px; color: #5A635F">{{savedHint}}</p>
+    </div>
+  </main>
+
+  <footer style="border-top: 1px solid #D9D4CA">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 16px; font-size: 15px; line-height: 22px; color: #5A635F">
+      <nav aria-label="Liens de pied de page">
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 24px">
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="Gestion-cookies.dc.html" aria-current="page">Gestion des cookies</a></li>
+          <li><a href="#">Accessibilité : partiellement conforme</a></li>
+          <li><a href="#">Conditions d'utilisation</a></li>
+          <li><a href="#">Plan du site</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="https://github.com/Mvth1s">Code source</a></li>
+        </ul>
+      </nav>
+      <p style="margin: 0">Balise, par Mvth1s. Scores indicatifs, sans valeur de certification RGAA.</p>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { accepted: false };
+  }
+  renderVals() {
+    const accepted = this.state.accepted;
+    return {
+      accepted: accepted,
+      toggle: () => this.setState({ accepted: !accepted }),
+      statusLabel: accepted ? "Accepté" : "Refusé",
+      savedHint: accepted ? "Choix actuel : mesure d'audience acceptée." : "Choix actuel : mesure d'audience refusée."
+    };
+  }
+}
+</script>
+</body>
+</html>

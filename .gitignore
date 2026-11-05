@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.vercel/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+test-results/
+playwright-report/
+blob-report/
+.lighthouseci/
+.cache/
+*.tsbuildinfo
+.vite-ssg-temp/

@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+dist/
+coverage/
+docs/maquette/
+docs/charte/
+docs/specs/
+CHANGELOG.md
+packages/rgaa-mapping/src/data/
+apps/web/src/demo/reports/

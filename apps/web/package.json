@@ -1,0 +1,32 @@
+{
+  "name": "@balise/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Interface web de Balise.",
+  "author": "Mvth1s",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite-ssg build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@balise/analyzer": "workspace:*",
+    "@fontsource-variable/atkinson-hyperlegible-next": "5.3.0",
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@lucide/vue": "1.61.0",
+    "@unhead/vue": "3.4.3",
+    "vue": "3.5.44",
+    "vue-router": "5.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.10",
+    "@vue/test-utils": "2.5.1",
+    "beasties": "0.5.5",
+    "vite": "8.3.5",
+    "vite-ssg": "28.3.0",
+    "vue-tsc": "3.3.13"
+  }
+}

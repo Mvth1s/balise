@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Balise - Bandeau cookies</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#FAF8F4}
+a{color:#0E5C4A}a:hover{color:#0B4A3C}
+</style>
+</helmet>
+<div style="position: relative; width: 1280px; height: 860px; overflow: hidden; background: #FAF8F4; color: #1B1F1D; font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif; font-size: 17px; line-height: 26px">
+  <header style="border-bottom: 1px solid #D9D4CA">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 12px">
+      <img src="/_blob/7790b909834b9e0daa35a89911b7fcc0" alt="" style="width: 40px; height: 40px">
+      <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.3px">Balise</span>
+    </div>
+  </header>
+  <main style="max-width: 1120px; margin: 0 auto; padding: 72px 24px; display: flex; flex-direction: column; gap: 24px">
+    <p style="margin: 0; font-size: 15px; font-weight: 700; color: #0E5C4A">Pré-diagnostic d'accessibilité RGAA 4.1.2</p>
+    <h1 style="margin: 0; max-width: 720px; font-size: 48px; line-height: 52px; font-weight: 800; letter-spacing: -0.5px">Repérez en une minute les erreurs d'accessibilité de votre page.</h1>
+    <p style="margin: 0; max-width: 560px; color: #5A635F">La page reste lisible et utilisable pendant que le bandeau est affiché : il ne bloque ni le défilement ni la saisie.</p>
+  </main>
+
+  <section aria-labelledby="cookies-titre" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 24px; background: #FFFFFF; border-top: 1px solid #8A918D">
+    <div style="max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 24px">
+      <div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+        <h2 id="cookies-titre" style="margin: 0; font-size: 19px; line-height: 26px">Mesure d'audience</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 22px">Balise utilise Google Analytics pour compter les visites, uniquement si vous l'acceptez. Les données sont alors transmises à Google, y compris aux États-Unis. Votre choix est conservé 6 mois et modifiable à tout moment depuis « Gestion des cookies ».</p>
+        <a href="Gestion-cookies.dc.html" style="align-self: flex-start; font-size: 15px; font-weight: 700">Personnaliser mes choix</a>
+      </div>
+      <div style="flex: 1 1 280px; display: flex; gap: 12px">
+        <button type="button" style="flex: 1; height: 48px; border-radius: 10px; border: 2px solid #0E5C4A; background: #0E5C4A; color: #FFFFFF; font: inherit; font-weight: 700">Tout refuser</button>
+        <button type="button" style="flex: 1; height: 48px; border-radius: 10px; border: 2px solid #0E5C4A; background: #0E5C4A; color: #FFFFFF; font: inherit; font-weight: 700">Tout accepter</button>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

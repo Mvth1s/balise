@@ -1,0 +1,23 @@
+{
+  "name": "@balise/rgaa-mapping",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Référentiel RGAA et correspondance règles de test → critères.",
+  "author": "Mvth1s",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "name": "balise",
+  "version": "0.0.0-development",
+  "private": true,
+  "description": "Pré-diagnostic d'accessibilité RGAA à partir d'une URL : score indicatif par thématique, erreurs détectées et critères à vérifier manuellement.",
+  "author": "Mvth1s <mag.d3v+balise@pm.me>",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mvth1s/balise.git"
+  },
+  "homepage": "https://github.com/Mvth1s/balise#readme",
+  "bugs": {
+    "url": "https://github.com/Mvth1s/balise/issues"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "pnpm@12.15.0",
+  "scripts": {
+    "build": "pnpm build:packages && pnpm --filter @balise/web build",
+    "build:packages": "pnpm --filter @balise/rgaa-mapping build && pnpm --filter @balise/analyzer build",
+    "dev": "pnpm --filter @balise/web dev",
+    "dev:api": "node --experimental-strip-types scripts/dev-api.ts",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p tsconfig.json --noEmit && pnpm -r --parallel typecheck",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "demo:build": "node --experimental-strip-types scripts/demo-build.ts",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@balise/analyzer": "workspace:*",
+    "@balise/rgaa-mapping": "workspace:*",
+    "@upstash/ratelimit": "2.2.0",
+    "@upstash/redis": "1.39.0",
+    "@vercel/functions": "3.10.3",
+    "nanoid": "6.0.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
+    "@eslint/js": "10.0.1",
+    "@lhci/cli": "0.15.1",
+    "@playwright/test": "1.63.0",
+    "@semantic-release/changelog": "7.0.0",
+    "@semantic-release/git": "11.0.1",
+    "@types/node": "24.19.2",
+    "@vercel/node": "27.0.0",
+    "@vitest/coverage-v8": "5.0.5",
+    "conventional-changelog-conventionalcommits": "10.4.1",
+    "eslint": "10.13.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-vue": "10.11.1",
+    "eslint-plugin-vuejs-accessibility": "2.6.3",
+    "globals": "17.13.0",
+    "husky": "9.1.7",
+    "jsdom": "30.1.3",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "semantic-release": "25.0.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "5.0.5",
+    "vue-eslint-parser": "10.4.1"
+  },
+  "lint-staged": {
+    "*.{ts,vue,js,mjs}": [
+      "eslint --max-warnings=0 --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "prettier --write"
+    ]
+  }
+}

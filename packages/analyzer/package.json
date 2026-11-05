@@ -1,0 +1,41 @@
+{
+  "name": "@balise/analyzer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Moteur d'analyse Balise : navigateur headless, axe-core, contrôles maison, scores RGAA indicatifs.",
+  "author": "Mvth1s",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "source": "./src/types.ts",
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./scoring": {
+      "source": "./src/scoring.ts",
+      "types": "./dist/scoring.d.ts",
+      "default": "./dist/scoring.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@balise/rgaa-mapping": "workspace:*",
+    "@sparticuz/chromium": "153.0.0",
+    "axe-core": "4.14.0",
+    "ipaddr.js": "2.5.0",
+    "playwright-core": "1.63.0"
+  }
+}
