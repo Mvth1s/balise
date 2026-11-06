@@ -30,7 +30,7 @@ Audit outillé de l’interface de Balise elle-même (pas des sites analysés), 
 
 ## Pages et états audités
 
-Chaque état a été audité en thème clair et en thème sombre (112 combinaisons pour axe, plus 8 pour le bandeau de consentement).
+Chaque état a été audité en thème clair et en thème sombre (56 combinaisons pour axe, plus 8 pour le bandeau de consentement).
 
 | Page                                                          | États                                                                                                                                                                                                                                               |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
