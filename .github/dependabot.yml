@@ -15,6 +15,18 @@ updates:
       default-days: 14
     versioning-strategy: increase
     open-pull-requests-limit: 10
+    ignore:
+      # Types must match the Node.js runtime (24.x, see .nvmrc).
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      # Playwright embeds one Chromium version: upgrade it by hand together with
+      # @sparticuz/chromium (same Chromium major), see docs/exploitation.md.
+      - dependency-name: 'playwright-core'
+        update-types: ['version-update:semver-minor', 'version-update:semver-major']
+      - dependency-name: '@playwright/test'
+        update-types: ['version-update:semver-minor', 'version-update:semver-major']
+      - dependency-name: '@sparticuz/chromium'
+        update-types: ['version-update:semver-major']
     commit-message:
       prefix: chore
       include: scope
