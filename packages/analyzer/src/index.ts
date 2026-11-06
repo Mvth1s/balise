@@ -1,1 +1,13 @@
 export * from './types.js';
+export * from './errors.js';
+export * from './url-guard.js';
+export * from './safe-fetch.js';
+export * from './browser.js';
+export * from './navigate.js';
+export * from './results.js';
+export * from './run-axe.js';
+export * from './map-results.js';
+export * from './scoring.js';
+export * from './analyze.js';
+export * from './checks/index.js';
+export { BALISE_ENGINE_VERSION } from './version.js';
