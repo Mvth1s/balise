@@ -65,6 +65,18 @@ describe('checkSkipLink', () => {
     expect(late.outcome).toBe('fail');
     expect(late.nodes[0]!.html).toBe('<body>');
     expect(run('<a href="#%E0%A4%A">bad</a>').outcome).toBe('fail');
+    // A valid skip link does not hide a broken quick-access link further down.
+    expect(
+      run(
+        '<a href="#m">Aller au contenu</a><main id="m"><a href="#x">Aller au   programme</a><a href="#y">Lire</a></main>',
+      ),
+    ).toMatchObject({
+      outcome: 'fail',
+      nodes: [{ html: '<a href="#x">Aller au   programme</a>' }],
+    });
+    expect(
+      run('<a href="#m">Aller au contenu</a><main id="m"><a href="#y">Lire</a></main>').outcome,
+    ).toBe('pass');
   });
   it('ignores hidden inputs, disabled and negative tabindex; inapplicable without focusable', () => {
     expect(

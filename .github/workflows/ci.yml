@@ -51,6 +51,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Integration tests run the analyzer against the local demo pages.
       - run: pnpm exec playwright install --with-deps chromium
+      # The demo non-regression test analyses the pages of apps/web/dist.
+      - run: pnpm build
       - run: pnpm test:coverage
       - name: Upload coverage
         if: ${{ !cancelled() }}

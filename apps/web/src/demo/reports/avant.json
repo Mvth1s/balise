@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "id": "exemple-avant",
-  "url": "https://balise.example/demo/avant",
-  "finalUrl": "https://balise.example/demo/avant",
-  "analyzedAt": "2026-11-05T13:32:00.000Z",
-  "durationMs": 8400,
+  "id": "demo-avant",
+  "url": "https://balise.vercel.app/demo/avant",
+  "finalUrl": "https://balise.vercel.app/demo/avant",
+  "analyzedAt": "2026-11-06T00:00:00.000Z",
+  "durationMs": 8000,
   "reference": {
     "name": "RGAA 4.1.2",
     "version": "4.1.2"
   },
   "engine": {
-    "balise": "0.0.0",
+    "balise": "1.0.0",
     "axe": "4.14.0",
-    "chromium": "153.0.0"
+    "chromium": "153.0.8010.12"
   },
   "page": {
     "title": "Démonstration : page avec erreurs volontaires – Balise",
@@ -20,143 +20,143 @@
   },
   "scores": {
     "global": {
-      "score": 48,
-      "tier": "bad",
-      "tested": 27,
+      "conformes": 2,
+      "nonConformes": 13,
+      "tested": 15,
       "total": 106,
-      "conformes": 13,
-      "nonConformes": 14
+      "score": 13,
+      "tier": "bad"
     },
     "themes": [
       {
         "theme": 1,
         "title": "Images",
-        "score": 0,
-        "tier": "bad",
+        "conformes": 0,
+        "nonConformes": 1,
         "tested": 1,
         "total": 9,
-        "conformes": 0,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 2,
         "title": "Cadres",
-        "score": 50,
-        "tier": "warn",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 1,
+        "tested": 1,
         "total": 2,
-        "conformes": 1,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 3,
         "title": "Couleurs",
-        "score": 0,
-        "tier": "bad",
+        "conformes": 0,
+        "nonConformes": 1,
         "tested": 1,
         "total": 3,
-        "conformes": 0,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 4,
         "title": "Multimédia",
-        "score": null,
-        "tier": null,
+        "conformes": 0,
+        "nonConformes": 0,
         "tested": 0,
         "total": 13,
-        "conformes": 0,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 5,
         "title": "Tableaux",
-        "score": 0,
-        "tier": "bad",
+        "conformes": 0,
+        "nonConformes": 1,
         "tested": 1,
         "total": 8,
-        "conformes": 0,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 6,
         "title": "Liens",
-        "score": 0,
-        "tier": "bad",
+        "conformes": 0,
+        "nonConformes": 1,
         "tested": 1,
         "total": 2,
-        "conformes": 0,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 7,
         "title": "Scripts",
-        "score": 50,
-        "tier": "warn",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 1,
+        "tested": 1,
         "total": 5,
-        "conformes": 1,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 8,
         "title": "Éléments obligatoires",
-        "score": 80,
-        "tier": "warn",
-        "tested": 5,
+        "conformes": 2,
+        "nonConformes": 1,
+        "tested": 3,
         "total": 10,
-        "conformes": 4,
-        "nonConformes": 1
+        "score": 67,
+        "tier": "warn"
       },
       {
         "theme": 9,
         "title": "Structuration de l’information",
-        "score": 0,
-        "tier": "bad",
+        "conformes": 0,
+        "nonConformes": 2,
         "tested": 2,
         "total": 4,
-        "conformes": 0,
-        "nonConformes": 2
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 10,
         "title": "Présentation de l’information",
-        "score": 75,
-        "tier": "warn",
-        "tested": 4,
+        "conformes": 0,
+        "nonConformes": 1,
+        "tested": 1,
         "total": 14,
-        "conformes": 3,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 11,
         "title": "Formulaires",
-        "score": 50,
-        "tier": "warn",
-        "tested": 4,
+        "conformes": 0,
+        "nonConformes": 1,
+        "tested": 1,
         "total": 13,
-        "conformes": 2,
-        "nonConformes": 2
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 12,
         "title": "Navigation",
-        "score": 50,
-        "tier": "warn",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 1,
+        "tested": 1,
         "total": 11,
-        "conformes": 1,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       },
       {
         "theme": 13,
         "title": "Consultation",
-        "score": 50,
-        "tier": "warn",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 1,
+        "tested": 1,
         "total": 12,
-        "conformes": 1,
-        "nonConformes": 1
+        "score": 0,
+        "tier": "bad"
       }
     ]
   },
@@ -182,11 +182,11 @@
           "engine": "axe",
           "explanation": "Cette image n’a pas d’alternative textuelle : un lecteur d’écran ne peut pas la décrire.",
           "fix": "Ajoutez un attribut alt décrivant l’information portée par l’image, ou alt=\"\" si elle est décorative.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/image-alt?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/image-alt?application=playwright",
           "count": 1,
           "nodes": [
             {
-              "selector": ".demo-site > img",
+              "selector": "img",
               "html": "<img src=\"/demo/lecture.svg\" width=\"480\" height=\"240\">"
             }
           ]
@@ -280,12 +280,12 @@
           "engine": "axe",
           "explanation": "Ce cadre (iframe) n’a pas de titre : on ne sait pas ce qu’il contient avant d’y entrer.",
           "fix": "Ajoutez un attribut title décrivant le contenu du cadre, par exemple title=\"Carte d’accès\".",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/frame-title?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/frame-title?application=playwright",
           "count": 1,
           "nodes": [
             {
-              "selector": ".demo-frame",
-              "html": "<iframe class=\"demo-frame\" srcdoc=\"<!doctype html>…\"></iframe>"
+              "selector": "iframe",
+              "html": "<iframe class=\"demo-frame\" srcdoc=\"<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\"><title>Plan d’accès</title></head><body><p>Médiathèque des Tilleuls : 12 rue des Tilleuls. Arrêt de bus « Les Tilleuls », lignes 3 et 7.</p></body></html>\">"
             }
           ]
         }
@@ -296,7 +296,7 @@
       "theme": 2,
       "title": "Pour chaque cadre ayant un titre de cadre, ce titre de cadre est-il pertinent ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#2.2",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "frame-title-unique"
       ],
@@ -326,12 +326,12 @@
           "engine": "axe",
           "explanation": "Ce texte n’est pas assez contrasté avec son arrière-plan : il est difficile à lire, en particulier pour les personnes malvoyantes.",
           "fix": "Augmentez le contraste jusqu’à 4,5:1 au moins (3:1 pour un texte de 24 px, ou 18,5 px en gras).",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=playwright",
           "count": 1,
           "nodes": [
             {
               "selector": ".demo-faint",
-              "html": "<p class=\"demo-faint\">Les inscriptions sont gratuites pour les moins de 18 ans.</p>"
+              "html": "<p class=\"demo-faint\"> Les inscriptions sont gratuites pour les moins de 18 ans. </p>"
             }
           ]
         }
@@ -369,7 +369,7 @@
       "theme": 4,
       "title": "Chaque média temporel synchronisé pré-enregistré a-t-il, si nécessaire, des sous-titres synchronisés (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.3",
-      "status": "non-applicable",
+      "status": "a-verifier",
       "rules": [
         "video-caption"
       ],
@@ -434,7 +434,7 @@
       "theme": 4,
       "title": "Chaque son déclenché automatiquement est-il contrôlable par l’utilisateur ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.10",
-      "status": "non-applicable",
+      "status": "a-verifier",
       "rules": [
         "no-autoplay-audio"
       ],
@@ -538,12 +538,12 @@
           "engine": "axe",
           "explanation": "Cette cellule fait référence, via l’attribut headers, à des en-têtes qui n’existent pas dans le tableau.",
           "fix": "Corrigez l’attribut headers pour qu’il liste les id des <th> du même tableau.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/td-headers-attr?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/td-headers-attr?application=playwright",
           "count": 1,
           "nodes": [
             {
-              "selector": ".demo-block > table",
-              "html": "<table><caption>Horaires d’ouverture</caption>…</table>"
+              "selector": "table",
+              "html": "<table>"
             }
           ]
         }
@@ -582,12 +582,12 @@
           "engine": "axe",
           "explanation": "Ce lien n’a pas d’intitulé : un lecteur d’écran annonce seulement « lien », sans destination.",
           "fix": "Ajoutez un texte au lien, ou une alternative textuelle à l’image qu’il contient.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/link-name?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/link-name?application=playwright",
           "count": 1,
           "nodes": [
             {
               "selector": ".demo-icon-link",
-              "html": "<a href=\"#acces\" class=\"demo-icon-link\"><svg aria-hidden=\"true\" …></svg></a>"
+              "html": "<a href=\"#acces\" class=\"demo-icon-link\">"
             }
           ]
         }
@@ -622,7 +622,7 @@
           "engine": "axe",
           "explanation": "Cet élément a une valeur de rôle ARIA invalide : son rôle n’est pas annoncé.",
           "fix": "Utilisez une valeur de rôle ARIA valide ou un élément HTML natif.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-roles?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-roles?application=playwright",
           "count": 1,
           "nodes": [
             {
@@ -647,7 +647,7 @@
       "theme": 7,
       "title": "Chaque script est-il contrôlable par le clavier et par tout dispositif de pointage (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#7.3",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "frame-focusable-content",
         "scrollable-region-focusable"
@@ -686,7 +686,7 @@
       "theme": 8,
       "title": "Pour chaque page web, le code source généré est-il valide selon le type de document spécifié ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8.2",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "duplicate-id-aria"
       ],
@@ -709,7 +709,7 @@
       "theme": 8,
       "title": "Pour chaque page web ayant une langue par défaut, le code de langue est-il pertinent ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8.4",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "html-lang-valid",
         "html-xml-lang-mismatch",
@@ -762,11 +762,11 @@
           "engine": "axe",
           "explanation": "Ce passage indique une langue avec un code invalide : il ne sera pas lu avec la bonne prononciation.",
           "fix": "Utilisez un code de langue valide (BCP 47), par exemple lang=\"en\".",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/valid-lang?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/valid-lang?application=playwright",
           "count": 1,
           "nodes": [
             {
-              "selector": "q[lang=\"anglais\"]",
+              "selector": "q",
               "html": "<q lang=\"anglais\">Books are a uniquely portable magic</q>"
             }
           ]
@@ -843,12 +843,12 @@
           "engine": "axe",
           "explanation": "Cette liste contient des éléments autres que des <li> : sa structure est mal restituée.",
           "fix": "Placez uniquement des balises <li> (ou <script>, <template>) directement dans <ul> et <ol>.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/list?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/list?application=playwright",
           "count": 1,
           "nodes": [
             {
               "selector": "#programme > ul",
-              "html": "<ul><div>Mercredi 10 h : contes pour les 3-6 ans</div>…</ul>"
+              "html": "<ul><div>Mercredi 10 h : contes pour les 3-6 ans</div><div>Mercredi 15 h : contes pour les 7-10 ans</div></ul>"
             }
           ]
         }
@@ -895,7 +895,7 @@
       "theme": 10,
       "title": "Dans chaque page web, le texte reste-t-il lisible lorsque la taille des caractères est augmentée jusqu’à 200 %, au moins (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.4",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "meta-viewport"
       ],
@@ -915,7 +915,7 @@
       "theme": 10,
       "title": "Dans chaque page web, chaque lien dont la nature n’est pas évidente est-il visible par rapport au texte environnant ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.6",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "link-in-text-block"
       ],
@@ -946,7 +946,7 @@
           "engine": "axe",
           "explanation": "Cet élément est masqué aux lecteurs d’écran mais reste atteignable au clavier : le focus arrive sur un contenu muet.",
           "fix": "Retirez aria-hidden, ou rendez le contenu non focalisable (tabindex=\"-1\", inert).",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-hidden-focus?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-hidden-focus?application=playwright",
           "count": 1,
           "nodes": [
             {
@@ -989,7 +989,7 @@
       "theme": 10,
       "title": "Dans chaque page web, les propriétés d’espacement du texte peuvent-elles être redéfinies par l’utilisateur sans perte de contenu ou de fonctionnalité (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.12",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "avoid-inline-spacing"
       ],
@@ -1018,35 +1018,20 @@
       "theme": 11,
       "title": "Chaque champ de formulaire a-t-il une étiquette ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.1",
-      "status": "non-conforme",
+      "status": "a-verifier",
       "rules": [
         "label",
         "select-name",
         "aria-input-field-name"
       ],
-      "findings": [
-        {
-          "rule": "label",
-          "engine": "axe",
-          "explanation": "Ce champ de formulaire n’a pas d’étiquette : on ne sait pas quoi y saisir.",
-          "fix": "Associez une balise <label for=\"…\"> au champ, ou ajoutez aria-labelledby vers un texte visible.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label?application=axeAPI",
-          "count": 1,
-          "nodes": [
-            {
-              "selector": "input[type=\"email\"]",
-              "html": "<input type=\"email\" class=\"field-input\" placeholder=\"Votre e-mail\" autocomplete=\"email\">"
-            }
-          ]
-        }
-      ]
+      "findings": []
     },
     {
       "id": "11.2",
       "theme": 11,
       "title": "Chaque étiquette associée à un champ de formulaire est-elle pertinente (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.2",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "form-field-multiple-labels"
       ],
@@ -1123,12 +1108,12 @@
           "engine": "axe",
           "explanation": "Ce bouton n’a pas d’intitulé : un lecteur d’écran annonce seulement « bouton ».",
           "fix": "Ajoutez un texte au bouton, ou un attribut aria-label s’il ne contient qu’une icône.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/button-name?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/button-name?application=playwright",
           "count": 1,
           "nodes": [
             {
-              "selector": ".demo-form > button",
-              "html": "<button type=\"submit\" class=\"btn\"><svg aria-hidden=\"true\" …></svg></button>"
+              "selector": "button[type=\"submit\"]",
+              "html": "<button type=\"submit\" class=\"btn\">"
             }
           ]
         }
@@ -1166,7 +1151,7 @@
       "theme": 11,
       "title": "La finalité d’un champ de saisie peut-elle être déduite pour faciliter le remplissage automatique des champs avec les données de l’utilisateur ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.13",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "autocomplete-valid"
       ],
@@ -1222,7 +1207,7 @@
       "theme": 12,
       "title": "Les zones de regroupement de contenus présentes dans plusieurs pages web (zones d’en-tête, de navigation principale, de contenu principal, de pied de page et de moteur de recherche) peuvent-elles être atteintes ou évitées ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.6",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "bypass"
       ],
@@ -1241,15 +1226,14 @@
       ],
       "findings": [
         {
-          "rule": "skip-link",
-          "engine": "axe",
-          "explanation": "Ce lien d’évitement pointe vers une cible inexistante ou non focalisable : il ne fonctionne pas.",
-          "fix": "Faites pointer le lien vers l’id d’un élément existant, par exemple <main id=\"contenu\">.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/skip-link?application=axeAPI",
+          "rule": "balise-skip-link",
+          "engine": "balise",
+          "explanation": "La page ne commence pas par un lien d’évitement vers le contenu principal : au clavier, il faut traverser tout l’en-tête.",
+          "fix": "Ajoutez en tout début de page un lien « Aller au contenu » vers l’id de la balise <main>, visible au moins au focus.",
           "count": 1,
           "nodes": [
             {
-              "selector": ".demo-skip",
+              "selector": "#contenu > div > div:nth-of-type(2) > a",
               "html": "<a href=\"#programme-introuvable\" class=\"demo-skip\">Aller au programme</a>"
             }
           ]
@@ -1297,7 +1281,7 @@
       "theme": 13,
       "title": "Pour chaque page web, l’utilisateur a-t-il le contrôle de chaque limite de temps modifiant le contenu (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.1",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "meta-refresh"
       ],
@@ -1373,7 +1357,7 @@
           "engine": "axe",
           "explanation": "Ce texte clignote sans possibilité de l’arrêter : il distrait et peut gêner la lecture.",
           "fix": "Supprimez la balise <blink>.",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/blink?application=axeAPI",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/blink?application=playwright",
           "count": 1,
           "nodes": [
             {
