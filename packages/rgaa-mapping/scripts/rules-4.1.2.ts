@@ -588,9 +588,9 @@ export const RULES: RuleMapping[] = [
     'balise-skip-link',
     ['12.7'],
     'partial',
-    'Test 12.7.1 : un lien d’évitement vers le contenu principal doit être présent ; sa place, son ordre et sa visibilité au focus dans l’ensemble des pages (test 12.7.2) restent à vérifier.',
-    'La page ne commence pas par un lien d’évitement vers le contenu principal : au clavier, il faut traverser tout l’en-tête.',
-    'Ajoutez en tout début de page un lien « Aller au contenu » vers l’id de la balise <main>, visible au moins au focus.',
+    'Test 12.7.1 : un lien d’évitement vers le contenu principal doit être présent et fonctionnel ; sa place, son ordre et sa visibilité au focus dans l’ensemble des pages (test 12.7.2) restent à vérifier.',
+    'Le lien d’évitement vers le contenu principal est absent du début de la page, ou un lien d’accès rapide (« Aller au… ») pointe vers une cible qui n’existe pas : au clavier, il faut traverser tout l’en-tête.',
+    'Ajoutez en tout début de page un lien « Aller au contenu » vers l’id de la balise <main>, visible au moins au focus, et vérifiez que chaque lien d’accès rapide pointe vers un id présent dans la page.',
   ),
   balise(
     'balise-heading-hierarchy',

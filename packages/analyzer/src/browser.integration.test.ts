@@ -110,6 +110,10 @@ beforeAll(async () => {
     '/redirect-loop': { status: 302, headers: { location: '/redirect-loop' } },
     '/redirect-file': { status: 301, headers: { location: 'file:///etc/passwd' } },
     '/img-redirect': { status: 307, headers: { location: '/img.png' } },
+    '/img-redirect-cross': {
+      status: 302,
+      headers: { location: 'http://other.test:{PORT}/img.png?cross' },
+    },
     '/img-redirect-private': {
       status: 302,
       headers: { location: 'http://127.0.0.1:{PORT}/secret-img' },
@@ -117,7 +121,11 @@ beforeAll(async () => {
     '/sub-redirects': {
       body: html(
         `<h1>r</h1><img src="/img-redirect" alt="a"><img src="/img-redirect-private" alt="b">
-         <script>fetch('/form-post', { method: 'POST', body: 'x' }).catch(() => 0);</script>`,
+         <img src="/img-redirect-cross" alt="c">
+         <script>
+           fetch('/form-post', { method: 'POST', body: 'x' }).catch(() => 0);
+           fetch('/form-post', { method: 'PUT' }).catch(() => 0);
+         </script>`,
       ),
     },
     '/form-post': { status: 303, headers: { location: '/img.png' } },
@@ -138,6 +146,12 @@ beforeAll(async () => {
       ),
     },
     '/slow': { body: html('<h1>lent</h1>'), delayMs: 3000 },
+    // Freezes the renderer as soon as axe-core is injected (after loading).
+    '/axe-trap': {
+      body: html(
+        `<h1>piège</h1><script>Object.defineProperty(window, 'axe', { configurable: false, get() { return undefined; }, set() { for (;;) {} } });</script>`,
+      ),
+    },
   });
   browser = await launchBrowser();
 }, 60_000);
@@ -236,7 +250,7 @@ describe('navigate', () => {
     });
   });
 
-  it('follows sub-resource redirects in Node, re-checking every hop', async () => {
+  it('follows same-origin sub-resource redirects in Node, only for GET/HEAD', async () => {
     const seen: string[] = [];
     const spy: FetchFn = async (req, options) => {
       seen.push(`${req.method} ${new URL(req.url).pathname}`);
@@ -247,16 +261,18 @@ describe('navigate', () => {
       const res = await navigate(page, siteUrl('/sub-redirects'), { fetch: spy });
       expect(res.stats.blocked).toBeGreaterThanOrEqual(1);
     });
-    // 307 keeps the method; 303 turns the POST into a GET.
     expect(seen).toEqual(
       expect.arrayContaining([
         'GET /img-redirect',
         'GET /img.png',
         'GET /img-redirect-private',
-        'POST /form-post',
+        'GET /img-redirect-cross',
       ]),
     );
-    expect(seen.filter((x) => x === 'GET /img.png').length).toBeGreaterThanOrEqual(2);
+    // POST/PUT never leave the browser; cross-origin redirect hops are not followed.
+    expect(seen.some((x) => x.includes('/form-post'))).toBe(false);
+    expect(server.hits).not.toContain('/form-post');
+    expect(seen.filter((x) => x === 'GET /img.png')).toHaveLength(1);
     expect(server.hits.filter((h) => h === '/secret-img').length).toBe(before);
   });
 
@@ -383,7 +399,7 @@ describe('axe and custom checks in the page', () => {
       expect(byRule.get('image-alt')?.failures).toHaveLength(2);
       expect(byRule.has('region')).toBe(true);
       expect(byRule.has('not-a-real-rule')).toBe(false);
-      expect(byRule.get('image-alt')?.helpUrl).toMatch(/^https:\/\/dequeuniversity\.com/);
+      expect(byRule.get('image-alt')?.helpUrl).toMatch(/^https:\/\/dequeuniversity\.com\//);
     });
   });
 });
@@ -495,6 +511,23 @@ describe('analyzePage', () => {
         },
       }),
     ).rejects.toBeInstanceOf(AnalysisAbortedError);
+  }, 60_000);
+
+  it('can be interrupted while a page script blocks axe-core', async () => {
+    const controller = new AbortController();
+    const started = Date.now();
+    const run = analyzePage(siteUrl('/axe-trap'), {
+      reference: REF,
+      lookup: loopback,
+      allowPrivateHosts: true,
+      launch,
+      signal: controller.signal,
+      onStep: (s) => {
+        if (s === 'loading') setTimeout(() => controller.abort(), 500);
+      },
+    });
+    await expect(run).rejects.toBeInstanceOf(AnalysisAbortedError);
+    expect(Date.now() - started).toBeLessThan(20_000);
   }, 60_000);
 
   it('exposes typed errors', () => {

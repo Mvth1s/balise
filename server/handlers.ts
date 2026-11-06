@@ -32,7 +32,10 @@ import {
   clientIp,
   createMemoryRateLimiter,
   createUpstashRateLimiter,
+  GLOBAL_RATE_LIMIT_KEY,
+  GLOBAL_RATE_LIMIT_MAX,
   hashClientKey,
+  rateLimitSubject,
   type RateLimiter,
 } from './rate-limit.ts';
 import {
@@ -50,6 +53,8 @@ export interface HandlerDeps {
   env: NodeJS.ProcessEnv;
   store?: AnalysisStore;
   rateLimiter?: RateLimiter;
+  /** Global ceiling shared by every client (key GLOBAL_RATE_LIMIT_KEY). */
+  globalRateLimiter?: RateLimiter;
   /** Keeps the function alive after the response (Vercel `waitUntil`). */
   waitUntil?: (promise: Promise<unknown>) => void;
   analyze?: AnalyzeFn;
@@ -65,6 +70,11 @@ export interface HandlerDeps {
 }
 
 const MAX_BODY_LENGTH = 8 * 1024;
+/**
+ * A pending/running analysis not updated for this long has lost its worker
+ * (function killed at maxDuration 300 s): it is reported as failed.
+ */
+export const STALE_ANALYSIS_MS = 300_000;
 const ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
 /** Public address answered by the fake lookup in end-to-end test mode (never connected to). */
 const FAKE_PUBLIC_ADDRESS = '1.1.1.1';
@@ -122,6 +132,7 @@ const internalError = (): Response =>
 interface Infrastructure {
   store: AnalysisStore;
   rateLimiter: RateLimiter;
+  globalRateLimiter: RateLimiter;
   salt: string;
 }
 
@@ -142,9 +153,34 @@ function defaultInfrastructure(deps: HandlerDeps): Infrastructure | string {
     store: deps.store ?? (redis ? createRedisStore(redis) : createMemoryStore()),
     rateLimiter:
       deps.rateLimiter ?? (redis ? createUpstashRateLimiter(redis) : createMemoryRateLimiter()),
+    globalRateLimiter:
+      deps.globalRateLimiter ??
+      (redis
+        ? createUpstashRateLimiter(redis, GLOBAL_RATE_LIMIT_MAX, 'balise:ratelimit:global')
+        : createMemoryRateLimiter(GLOBAL_RATE_LIMIT_MAX)),
     // Local only: a per-process random salt still never exposes the IP.
     salt: salt ?? crypto.randomUUID(),
   };
+}
+
+/** Reads the body as text, or null beyond `max` bytes (declared or streamed). */
+async function readBodyCapped(request: Request, max: number): Promise<string | null> {
+  if (Number(request.headers.get('content-length') ?? 0) > max) return null;
+  if (!request.body) return '';
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.length;
+    if (size > max) {
+      await reader.cancel().catch(() => undefined);
+      return null;
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString('utf8');
 }
 
 export function createHandlers(deps: HandlerDeps): ApiHandler {
@@ -171,15 +207,20 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
     log(`configuration incomplète : ${infra}`);
     return async () => internalError();
   }
-  const { store, rateLimiter, salt } = infra;
+  const { store, rateLimiter, globalRateLimiter, salt } = infra;
 
   async function runAnalysis(id: string, url: string): Promise<void> {
     const controller = new AbortController();
     let timedOut = false;
-    const timer = setTimeout(() => {
-      timedOut = true;
-      controller.abort();
-    }, maxAnalysisMs);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    // Hard ceiling even if the engine ignores the abort signal.
+    const deadline = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+        reject(new AnalysisAbortedError());
+      }, maxAnalysisMs);
+    });
     const poll = setInterval(() => {
       store
         .get(id)
@@ -203,11 +244,13 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
 
     try {
       await save({ state: 'running', step: 'queued' });
-      const { report, screenshot } = await analyze(url, {
+      const running = analyze(url, {
         id,
         signal: controller.signal,
         onStep: (step) => save({ step }),
       });
+      running.catch(() => undefined); // may settle after the deadline
+      const { report, screenshot } = await Promise.race([running, deadline]);
       if (screenshot.length > 0) await store.putScreenshot(id, screenshot);
       await save({
         state: 'done',
@@ -230,10 +273,26 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
   }
 
   async function create(request: Request): Promise<Response> {
-    const text = await request.text();
+    // Browsers always send Sec-Fetch-Site: refuse submissions from other sites.
+    if (request.headers.get('sec-fetch-site') === 'cross-site') {
+      return errorResponse(
+        403,
+        'forbidden_origin',
+        'Les analyses ne peuvent être demandées que depuis le site de Balise.',
+      );
+    }
+    const type = request.headers.get('content-type')?.split(';')[0]?.trim().toLowerCase();
+    if (type !== 'application/json') {
+      return errorResponse(
+        415,
+        'unsupported_media_type',
+        'Le corps de la requête doit être envoyé en JSON (Content-Type: application/json).',
+      );
+    }
+    const text = await readBodyCapped(request, MAX_BODY_LENGTH);
     let input: unknown;
     try {
-      if (text.length > MAX_BODY_LENGTH) throw new Error('too long');
+      if (text === null) throw new Error('too long');
       input = (JSON.parse(text) as { url?: unknown } | null)?.url;
     } catch {
       input = undefined;
@@ -251,7 +310,7 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
       return analysisErrorResponse(toAnalysisError(error));
     }
 
-    let clientKey = clientIp(request.headers);
+    let clientKey = rateLimitSubject(clientIp(request.headers));
     // End-to-end test mode only: lets each test use its own rate-limit bucket.
     const e2eClient = fake ? request.headers.get('x-balise-e2e-client') : null;
     if (e2eClient) clientKey += `|${e2eClient}`;
@@ -262,6 +321,18 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
         429,
         'rate_limited',
         'Vous avez atteint la limite de 10 analyses par heure. Réessayez plus tard.',
+        { 'retry-after': String(retryAfter) },
+      );
+    }
+    // Checked after the per-client limit so that a blocked client does not
+    // consume the global budget. Not applied in end-to-end test mode.
+    const global = fake ? null : await globalRateLimiter.limit(GLOBAL_RATE_LIMIT_KEY);
+    if (global && !global.success) {
+      const retryAfter = Math.max(1, Math.ceil((global.reset - now().getTime()) / 1000));
+      return errorResponse(
+        429,
+        'rate_limited',
+        'Balise a atteint son nombre maximal d’analyses pour cette heure. Réessayez plus tard.',
         { 'retry-after': String(retryAfter) },
       );
     }
@@ -290,6 +361,24 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
       { id, url: status.url, state: status.state },
       { location: `/api/analyses/${id}` },
     );
+  }
+
+  /** Reports (and stores) an analysis whose worker disappeared as failed. */
+  async function expireStale(status: AnalysisStatus): Promise<AnalysisStatus> {
+    const active = status.state === 'pending' || status.state === 'running';
+    const age = now().getTime() - Date.parse(status.updatedAt);
+    if (!active || !(age > STALE_ANALYSIS_MS)) return status;
+    const failed: AnalysisStatus = {
+      ...status,
+      state: 'error',
+      error: {
+        code: 'internal',
+        message: "L'analyse s'est interrompue avant la fin (durée maximale dépassée). Relancez-la.",
+      },
+      updatedAt: now().toISOString(),
+    };
+    await store.put(failed).catch((error: unknown) => log('stale analysis update failed', error));
+    return failed;
   }
 
   async function cancel(id: string): Promise<Response> {
@@ -337,7 +426,8 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
     if (!ID_PATTERN.test(id)) return notFound();
     if (method === 'DELETE') return cancel(id);
     const status = await store.get(id);
-    return status ? json(200, status) : notFound();
+    if (!status) return notFound();
+    return json(200, await expireStale(status));
   }
 
   return async (request) => {

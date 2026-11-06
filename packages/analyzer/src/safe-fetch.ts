@@ -37,6 +37,11 @@ export interface SafeFetchOptions {
   timeoutMs?: number;
   /** Maximum size of the (decompressed) body. */
   maxBytes?: number;
+  /**
+   * Shared byte budget (several requests of one page): decremented as chunks
+   * arrive, `too_large` once exhausted.
+   */
+  budget?: { remaining: number };
   signal?: AbortSignal;
   /** Optional keep-alive agents shared by one analysis. */
   agents?: { http: http.Agent; https: https.Agent };
@@ -145,14 +150,19 @@ function tooLarge(): AnalysisError {
   );
 }
 
-/** Reads a stream into a Buffer, failing as soon as `maxBytes` is exceeded. */
-async function readCapped(stream: Readable, maxBytes: number): Promise<Buffer> {
+/** Reads a stream into a Buffer, failing as soon as `maxBytes` or the shared budget is exceeded. */
+async function readCapped(
+  stream: Readable,
+  maxBytes: number,
+  budget?: { remaining: number },
+): Promise<Buffer> {
   const chunks: Buffer[] = [];
   let total = 0;
   for await (const chunk of stream) {
     const buf = chunk as Buffer;
     total += buf.length;
-    if (total > maxBytes) {
+    if (budget) budget.remaining -= buf.length;
+    if (total > maxBytes || (budget && budget.remaining < 0)) {
       stream.destroy();
       throw tooLarge();
     }
@@ -254,7 +264,7 @@ export async function safeFetch(
         const makeDecoder = DECODERS[encoding];
         const stream: Readable = makeDecoder ? res.pipe(makeDecoder()) : res;
         if (makeDecoder) res.on('error', (e) => stream.destroy(e));
-        readCapped(stream, maxBytes)
+        readCapped(stream, maxBytes, options.budget)
           .then((body) => {
             if (settled) return;
             settled = true;

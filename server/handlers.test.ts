@@ -169,6 +169,66 @@ describe('POST /api/analyses', () => {
     ).toBe(429);
   });
 
+  it('counts IPv6 clients per /64 and applies a global ceiling', async () => {
+    const keys: string[] = [];
+    const limiter = createMemoryRateLimiter();
+    const { post } = setup({
+      analyze: okAnalyze,
+      rateLimiter: { limit: (key) => (keys.push(key), limiter.limit(key)) },
+      env: { RATE_LIMIT_SALT: 'sel' },
+    });
+    await post({ url: 'https://exemple.fr/' }, { 'x-real-ip': '2001:db8:1:2::a' });
+    await post({ url: 'https://exemple.fr/' }, { 'x-real-ip': '2001:db8:1:2:ffff::b' });
+    await post({ url: 'https://exemple.fr/' }, { 'x-real-ip': '2001:db8:1:3::a' });
+    expect(keys[0]).toBe(keys[1]);
+    expect(keys[2]).not.toBe(keys[0]);
+
+    const globalKeys: string[] = [];
+    const global = createMemoryRateLimiter(2);
+    const capped = setup({
+      analyze: okAnalyze,
+      globalRateLimiter: { limit: (key) => (globalKeys.push(key), global.limit(key)) },
+    });
+    for (const ip of ['198.51.100.1', '198.51.100.2'])
+      expect((await capped.post({ url: 'https://exemple.fr/' }, { 'x-real-ip': ip })).status).toBe(
+        202,
+      );
+    const res = await capped.post({ url: 'https://exemple.fr/' }, { 'x-real-ip': '198.51.100.3' });
+    expect(res.status).toBe(429);
+    expect(res.headers.get('retry-after')).toBeTruthy();
+    expect((await body<{ error: { code: string; message: string } }>(res)).error).toMatchObject({
+      code: 'rate_limited',
+      message: expect.stringContaining('nombre maximal'),
+    });
+    expect(globalKeys).toEqual(['global', 'global', 'global']);
+  });
+
+  it('requires JSON and refuses cross-site submissions', async () => {
+    const { post } = setup({ analyze: okAnalyze });
+    const plain = await post('{"url":"https://exemple.fr/"}', { 'content-type': 'text/plain' });
+    expect(plain.status).toBe(415);
+    expect((await body<{ error: { code: string } }>(plain)).error.code).toBe(
+      'unsupported_media_type',
+    );
+    const cross = await post({ url: 'https://exemple.fr/' }, { 'sec-fetch-site': 'cross-site' });
+    expect(cross.status).toBe(403);
+    expect((await body<{ error: { code: string; message: string } }>(cross)).error).toMatchObject({
+      code: 'forbidden_origin',
+      message: expect.stringContaining('Balise'),
+    });
+    for (const site of ['same-origin', 'none'])
+      expect(
+        (
+          await post(
+            { url: 'https://exemple.fr/' },
+            { 'sec-fetch-site': site, 'content-type': 'application/json; charset=utf-8' },
+          )
+        ).status,
+      ).toBe(202);
+    const big = await post({ url: 'https://exemple.fr/' }, { 'content-length': '9000' });
+    expect(big.status).toBe(400);
+  });
+
   it('stores analysis errors with their code and French message', async () => {
     const { post, get, settle } = setup({
       analyze: async () => {
@@ -214,6 +274,46 @@ describe('POST /api/analyses', () => {
       state: 'error',
       error: { code: 'unreachable', message: "L'analyse a dépassé la durée maximale autorisée." },
     });
+  });
+});
+
+describe('analysis time limits', () => {
+  it('stops waiting for an engine that ignores the abort signal', async () => {
+    const { post, get, settle } = setup({
+      maxAnalysisMs: 20,
+      analyze: () => new Promise(() => undefined),
+    });
+    await post({ url: 'https://exemple.fr/' });
+    await settle();
+    expect(await body(await get('/api/analyses/analysis1'))).toMatchObject({
+      state: 'error',
+      error: { code: 'unreachable' },
+    });
+  });
+
+  it('reports a pending or running analysis older than 300 s as failed', async () => {
+    let t = Date.parse('2026-11-06T10:00:00.000Z');
+    const { get, store } = setup({ now: () => new Date(t) });
+    const at = new Date(t).toISOString();
+    // Worker lost (function killed): the stored state never moves again.
+    await store.put({
+      id: 'analysis1',
+      url: 'https://exemple.fr/',
+      state: 'running',
+      step: 'loading',
+      createdAt: at,
+      updatedAt: at,
+    });
+    t += 300_000;
+    expect(await body(await get('/api/analyses/analysis1'))).toMatchObject({ state: 'running' });
+    t += 1;
+    const status = await body<AnalysisStatus>(await get('/api/analyses/analysis1'));
+    expect(status).toMatchObject({
+      state: 'error',
+      error: { code: 'internal', message: expect.stringContaining('durée maximale') },
+      updatedAt: new Date(t).toISOString(),
+    });
+    expect((await store.get('analysis1'))?.state).toBe('error');
   });
 });
 
