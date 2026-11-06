@@ -55,7 +55,7 @@ docs: explain the scoring formula
 
 Types courants : `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `perf`, `build`. Un `!` après le type ou un pied `BREAKING CHANGE:` signale une rupture de compatibilité.
 
-Les versions, le journal des modifications (`CHANGELOG.md`) et les releases GitHub sont produits automatiquement par semantic-release à partir de ces messages : `fix` donne une version corrective, `feat` une version mineure, une rupture une version majeure.
+Les versions (tags) et les releases GitHub, dont les notes tiennent lieu de journal des modifications, sont produites automatiquement par semantic-release à partir de ces messages : `fix` donne une version corrective, `feat` une version mineure, une rupture une version majeure.
 
 Le code, les identifiants et les commits sont en anglais ; les textes d'interface et la documentation sont en français, avec vouvoiement.
 
