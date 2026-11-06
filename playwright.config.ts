@@ -27,6 +27,9 @@ export default defineConfig({
     baseURL,
     locale: 'fr-FR',
     timezoneId: 'Europe/Paris',
+    // Fades and count-ups skew axe contrast checks mid-animation; the animated
+    // behaviour has its own test (e2e/display.spec.ts) that opts back in.
+    reducedMotion: 'reduce',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     ...(externalBaseUrl && bypassSecret
@@ -60,7 +63,8 @@ export default defineConfig({
     : {
         command: 'node --experimental-strip-types scripts/e2e-server.ts',
         url: `http://127.0.0.1:${LOCAL_PORT}/`,
-        env: { PORT: String(LOCAL_PORT) },
+        // Fake engine: fast, no browser, no network ("unreachable" in the URL → error).
+        env: { PORT: String(LOCAL_PORT), BALISE_E2E_FAKE_ANALYZER: '1' },
         reuseExistingServer: !isCI,
         timeout: 60_000,
         stdout: 'pipe',
