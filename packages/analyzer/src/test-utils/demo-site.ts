@@ -11,7 +11,7 @@ import { extname, join, resolve, sep } from 'node:path';
 import type { AnalysisReport } from '../types.js';
 
 /** Public base of the demo pages. shortcut: placeholder, update once the production domain is known. */
-export const DEMO_PUBLIC_BASE = 'https://balise.vercel.app';
+export const DEMO_PUBLIC_BASE = 'https://balise-tau.vercel.app';
 export const DEMO_ANALYZED_AT = '2026-11-06T00:00:00.000Z';
 /** Illustrative duration: the real one varies from run to run. */
 export const DEMO_DURATION_MS = 8000;
