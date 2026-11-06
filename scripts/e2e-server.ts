@@ -243,6 +243,9 @@ async function handleStatic(
     res.end();
     return;
   }
+  // Collapses leading slashes and backslashes: "//host" in a Location header
+  // would be a protocol-relative URL (open redirect).
+  pathname = pathname.replace(/^[/\\]+/, '/');
   // trailingSlash: false
   if (pathname.length > 1 && pathname.endsWith('/')) {
     redirect(res, pathname.replace(/\/+$/, '') + url.search);
@@ -288,7 +291,9 @@ async function main(): Promise<void> {
   const api = await loadApiHandler();
 
   const server = createServer((req, res) => {
-    const url = new URL(req.url ?? '/', `http://${req.headers.host ?? `${HOST}:${PORT}`}`);
+    // A request target starting with "//" would otherwise be parsed as a host.
+    const target = (req.url ?? '/').replace(/^[/\\]+/, '/');
+    const url = new URL(target, `http://${req.headers.host ?? `${HOST}:${PORT}`}`);
     const task =
       url.pathname === '/api' || url.pathname.startsWith('/api/')
         ? handleApi(req, res, url, api)
