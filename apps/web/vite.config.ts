@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
+import { appendFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { transformHtmlTemplate } from '@unhead/vue/server';
@@ -57,7 +57,8 @@ export default defineConfig(({ mode }) => {
         const lastmod = new Date().toISOString().slice(0, 10);
         writeFileSync(`${outDir}/sitemap.xml`, buildSitemapXml(siteUrl, lastmod), 'utf8');
         const robots = `${outDir}/robots.txt`;
-        if (existsSync(robots)) appendFileSync(robots, `\nSitemap: ${siteUrl}/sitemap.xml\n`);
+        // robots.txt always ships from public/.
+        appendFileSync(robots, `\nSitemap: ${siteUrl}/sitemap.xml\n`);
       },
     },
   };

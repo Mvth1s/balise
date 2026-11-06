@@ -46,12 +46,13 @@ test.describe('Mesure d’audience', () => {
         if (!pattern.test(body)) throw new Error('GA4 id pattern not found in the app chunk');
         await route.fulfill({ response, body: body.replace(pattern, `$1=\`${TEST_ID}\`,$2`) });
       });
-      await page.route(/googletagmanager\.com\/gtag\/js/, async (route) => {
+      await page.route(/^https:\/\/www\.googletagmanager\.com\/gtag\/js/, async (route) => {
         gtagLoads.push(route.request().url());
         await route.fulfill({ contentType: 'text/javascript', body: '/* gtag stub */' });
       });
-      await page.route(/google-analytics\.com|analytics\.google\.com/, (route) =>
-        route.fulfill({ status: 204 }),
+      await page.route(
+        /^https:\/\/([a-z0-9-]+\.)*(google-analytics\.com|analytics\.google\.com)\//,
+        (route) => route.fulfill({ status: 204 }),
       );
     });
 

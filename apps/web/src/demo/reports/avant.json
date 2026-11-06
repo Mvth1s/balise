@@ -21,8 +21,8 @@
   "scores": {
     "global": {
       "conformes": 2,
-      "nonConformes": 13,
-      "tested": 15,
+      "nonConformes": 14,
+      "tested": 16,
       "total": 106,
       "score": 13,
       "tier": "bad"
@@ -132,8 +132,8 @@
         "theme": 11,
         "title": "Formulaires",
         "conformes": 0,
-        "nonConformes": 1,
-        "tested": 1,
+        "nonConformes": 2,
+        "tested": 2,
         "total": 13,
         "score": 0,
         "tier": "bad"
@@ -1018,13 +1018,28 @@
       "theme": 11,
       "title": "Chaque champ de formulaire a-t-il une étiquette ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.1",
-      "status": "a-verifier",
+      "status": "non-conforme",
       "rules": [
         "label",
         "select-name",
         "aria-input-field-name"
       ],
-      "findings": []
+      "findings": [
+        {
+          "rule": "label",
+          "engine": "axe",
+          "explanation": "Ce champ de formulaire n’a pas d’étiquette : on ne sait pas quoi y saisir.",
+          "fix": "Associez une balise <label for=\"…\"> au champ, ou ajoutez aria-labelledby vers un texte visible.",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label?application=playwright",
+          "count": 1,
+          "nodes": [
+            {
+              "selector": "input",
+              "html": "<input type=\"email\" class=\"field-input\" autocomplete=\"email\" style=\"\">"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "11.2",
@@ -1228,8 +1243,8 @@
         {
           "rule": "balise-skip-link",
           "engine": "balise",
-          "explanation": "La page ne commence pas par un lien d’évitement vers le contenu principal : au clavier, il faut traverser tout l’en-tête.",
-          "fix": "Ajoutez en tout début de page un lien « Aller au contenu » vers l’id de la balise <main>, visible au moins au focus.",
+          "explanation": "Le lien d’évitement vers le contenu principal est absent du début de la page, ou un lien d’accès rapide (« Aller au… ») pointe vers une cible qui n’existe pas : au clavier, il faut traverser tout l’en-tête.",
+          "fix": "Ajoutez en tout début de page un lien « Aller au contenu » vers l’id de la balise <main>, visible au moins au focus, et vérifiez que chaque lien d’accès rapide pointe vers un id présent dans la page.",
           "count": 1,
           "nodes": [
             {
