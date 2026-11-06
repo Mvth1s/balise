@@ -10,7 +10,10 @@
     "dev": "vite",
     "build": "vite-ssg build",
     "preview": "vite preview --port 4173 --strictPort",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run --project web --root ../..",
+    "tokens": "node --experimental-strip-types scripts/build-tokens.ts"
   },
   "dependencies": {
     "@balise/analyzer": "workspace:*",
