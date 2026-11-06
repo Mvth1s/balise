@@ -6,7 +6,7 @@
 
 Pré-diagnostic d'accessibilité RGAA à partir d'une URL : score indicatif par thématique, erreurs détectées et critères à vérifier manuellement.
 
-- Application : [À COMPLÉTER : URL de production]
+- Application : https://balise-tau.vercel.app
 - Documentation : [`docs/`](docs/)
 
 > **Scores indicatifs.** Ils ne constituent pas un taux de conformité RGAA et ne doivent pas être repris dans une déclaration d'accessibilité.
@@ -27,15 +27,9 @@ Une démonstration est disponible sans lancer d'analyse : une page fictive avec 
 
 ## Captures
 
-[À COMPLÉTER : captures d'écran à ajouter dans `docs/captures/`]
+![Accueil de Balise : champ d'adresse et bouton « Analyser la page »](docs/captures/accueil.png)
 
-- Accueil : `docs/captures/accueil.png` (à venir)
-- Rapport : `docs/captures/rapport.png` (à venir)
-
-<!-- Une fois les images ajoutées, remplacer la liste ci-dessus par :
-![Accueil de Balise : champ « Adresse de la page » et bouton « Analyser la page »](docs/captures/accueil.png)
-![Rapport de Balise : jauge globale, jauges par thématique et couverture des tests](docs/captures/rapport.png)
--->
+![Rapport d'exemple : score global indicatif, couverture et scores par thématique](docs/captures/rapport.png)
 
 ## Démarrage local
 

@@ -2,7 +2,7 @@
 
 L'API de Balise sert à lancer une analyse, suivre son avancement, récupérer le rapport et la capture d'écran. Elle est publique, sans authentification, et limitée à 10 analyses par heure et par adresse IP.
 
-- Base : `https://[À COMPLÉTER : URL de production]/api` ; en local, `http://localhost:<port>/api` avec `pnpm dev:api`.
+- Base : `https://balise-tau.vercel.app/api` ; en local, `http://localhost:<port>/api` avec `pnpm dev:api`.
 - Format : JSON (UTF-8), sauf la capture d'écran (`image/jpeg`).
 - Types de référence : `packages/analyzer/src/types.ts` (importables en type seul : `@balise/analyzer/types`).
 - Client du front : `apps/web/src/lib/api.ts`.
@@ -54,7 +54,7 @@ L'identifiant est généré par `nanoid` (21 caractères `A-Za-z0-9_-`). Consid�
 À la création, l'analyse est enregistrée avec `state: "pending"` et `step: "validated"`. L'analyse elle-même dure au plus 240 s (sous la limite de 300 s de la fonction) ; au-delà, elle passe en erreur `unreachable` avec le message « L'analyse a dépassé la durée maximale autorisée. ».
 
 ```sh
-curl -sS -X POST https://[À COMPLÉTER : URL de production]/api/analyses \
+curl -sS -X POST https://balise-tau.vercel.app/api/analyses \
   -H 'Content-Type: application/json' \
   -d '{"url":"https://exemple.fr/"}'
 ```
@@ -64,7 +64,7 @@ curl -sS -X POST https://[À COMPLÉTER : URL de production]/api/analyses \
 Renvoie l'état de l'analyse (`AnalysisStatus`). Interrogez ce point d'accès à intervalle régulier jusqu'à un état final : `done`, `error` ou `cancelled`. [À COMPLÉTER : intervalle d'interrogation retenu par le front.]
 
 ```sh
-curl -sS https://[À COMPLÉTER : URL de production]/api/analyses/<id>
+curl -sS https://balise-tau.vercel.app/api/analyses/<id>
 ```
 
 Exemple pendant l'analyse :
@@ -110,7 +110,7 @@ Demande l'annulation d'une analyse. Répond toujours `202 Accepted` avec l'`Anal
 - analyse inconnue ou expirée : `404 not_found`.
 
 ```sh
-curl -sS -X DELETE https://[À COMPLÉTER : URL de production]/api/analyses/<id>
+curl -sS -X DELETE https://balise-tau.vercel.app/api/analyses/<id>
 ```
 
 ### `GET /api/analyses/:id/screenshot`
@@ -118,7 +118,7 @@ curl -sS -X DELETE https://[À COMPLÉTER : URL de production]/api/analyses/<id>
 Renvoie la capture d'écran de la zone visible de la page (JPEG, 1280 × 800 pixels, qualité 60), avec `Cache-Control: private, max-age=86400`. Disponible seulement si `report.hasScreenshot` vaut `true` ; sinon, `404 not_found`.
 
 ```sh
-curl -sS -o capture.jpg https://[À COMPLÉTER : URL de production]/api/analyses/<id>/screenshot
+curl -sS -o capture.jpg https://balise-tau.vercel.app/api/analyses/<id>/screenshot
 ```
 
 ## Erreurs
