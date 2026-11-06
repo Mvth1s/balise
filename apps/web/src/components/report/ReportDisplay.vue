@@ -187,7 +187,6 @@ onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
           </button>
         </div>
         <div class="filters__group">
-          <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -- associated with for/id -->
           <label for="filtre-theme" class="filters__label">Thématique</label>
           <select id="filtre-theme" class="field-input filters__select" @change="onThemeChange">
             <option value="">Toutes les thématiques</option>

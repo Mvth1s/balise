@@ -22,7 +22,7 @@ function save() {
 <template>
   <LegalPage
     title="Gestion des cookies"
-    updated="2026-11-05"
+    updated="2026-11-06"
     description="Gérez votre consentement à la mesure d’audience de Balise et consultez la liste des cookies et du stockage local utilisés."
   >
     <p>

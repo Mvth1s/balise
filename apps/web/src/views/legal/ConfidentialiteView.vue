@@ -1,14 +1,15 @@
 <template>
   <!-- Sources :
-    - https://vercel.com/legal/privacy-policy (consulté le 2026-11-05 : Vercel déclare adhérer au Data Privacy Framework UE–États-Unis et recourir aux clauses contractuelles types si nécessaire)
-    - https://upstash.com/trust/privacy.pdf (consulté le 2026-11-05 : Upstash déclare adhérer au Data Privacy Framework UE–États-Unis ; clauses contractuelles types avec ses sous-traitants)
-    - https://upstash.com/trust/dpa.pdf (consulté le 2026-11-05 : Upstash, Inc., société du Delaware)
-    - https://policies.google.com/privacy/frameworks?hl=fr (consulté le 2026-11-05 : Google LLC certifiée Data Privacy Framework ; clauses contractuelles types)
-    - https://support.google.com/analytics/answer/7667196?hl=fr (consulté le 2026-11-05 : conservation des données GA4, 2 ou 14 mois)
-    - https://www.cnil.fr/fr/saisir-la-cnil/nous-contacter (consulté le 2026-11-05 : adresse postale de la CNIL)
-    - https://www.cnil.fr/fr/plaintes (consulté le 2026-11-05 : plainte en ligne)
+    - https://vercel.com/legal/privacy-policy (consulté le 2026-11-06 : Vercel déclare adhérer au Data Privacy Framework UE–États-Unis et recourir aux clauses contractuelles types si nécessaire)
+    - https://upstash.com/trust/privacy.pdf (consulté le 2026-11-06 : Upstash déclare adhérer au Data Privacy Framework UE–États-Unis ; clauses contractuelles types avec ses sous-traitants)
+    - https://upstash.com/trust/dpa.pdf (consulté le 2026-11-06 : Upstash, Inc., société du Delaware)
+    - https://policies.google.com/privacy/frameworks?hl=fr (consulté le 2026-11-06 : Google LLC certifiée Data Privacy Framework ; clauses contractuelles types)
+    - https://support.google.com/analytics/answer/7667196?hl=fr (consulté le 2026-11-06 : conservation des données GA4, 2 ou 14 mois)
+    - https://www.cnil.fr/fr/saisir-la-cnil/nous-contacter (consulté le 2026-11-06 : adresse postale de la CNIL)
+    - https://www.cnil.fr/fr/plaintes (consulté le 2026-11-06 : plainte en ligne)
+    - server/rate-limit.ts (fenêtre glissante d'1 heure, clé HMAC-SHA-256 de l'IP avec sel secret) (consulté le 2026-11-06)
   -->
-  <LegalPage title="Politique de confidentialité" updated="2026-11-05">
+  <LegalPage title="Politique de confidentialité" updated="2026-11-06">
     <p>
       Cette page explique quelles données Balise traite, pourquoi, combien de temps, et quels sont
       vos droits. Elle répond à l'article 13 du règlement général sur la protection des données
@@ -36,8 +37,18 @@
         adresse IP n'est jamais stockée en clair. Cette empreinte sert uniquement à limiter le
         nombre d'analyses.
       </li>
+      <li>
+        Votre adresse IP et des informations techniques de connexion (navigateur, date, page
+        demandée), traitées par l'hébergeur Vercel pour acheminer les requêtes et tenir ses journaux
+        techniques.
+      </li>
     </ul>
     <p>Balise ne vous demande ni compte, ni nom, ni adresse électronique pour analyser une page.</p>
+    <p>
+      La seule donnée que vous devez fournir est l'adresse de la page à analyser : sans elle,
+      l'analyse est impossible. Le refus de la mesure d'audience n'a aucune conséquence sur l'usage
+      de Balise.
+    </p>
 
     <h3>Préférences enregistrées dans votre navigateur</h3>
     <p>
@@ -87,6 +98,11 @@
           <td>Intérêt légitime : sécurité et disponibilité du service</td>
         </tr>
         <tr>
+          <th scope="row">Journaux techniques de l'hébergeur</th>
+          <td>Adresse IP, navigateur, date, page demandée</td>
+          <td>Intérêt légitime : sécurité et fonctionnement du service</td>
+        </tr>
+        <tr>
           <th scope="row">Mémoriser vos préférences</th>
           <td>Thème, animations, choix de consentement, liste de vérification</td>
           <td>Intérêt légitime ; stockage strictement nécessaire, exempté de consentement</td>
@@ -117,7 +133,17 @@
         </tr>
         <tr>
           <th scope="row">Empreinte de l'adresse IP</th>
-          <td>24 heures au maximum</td>
+          <td>
+            2 heures au plus : les compteurs de la fenêtre glissante d'une heure expirent au bout de
+            deux fenêtres
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Journaux techniques de l'hébergeur</th>
+          <td>
+            [À COMPLÉTER : durée de conservation des journaux de requêtes par Vercel ; journaux
+            d'exécution consultables 1 heure sur l'offre Hobby]
+          </td>
         </tr>
         <tr>
           <th scope="row">Choix concernant la mesure d'audience</th>
@@ -189,6 +215,10 @@
         >le site du Data Privacy Framework (dataprivacyframework.gov, en anglais)</a
       >.
     </p>
+    <p>
+      Vous pouvez obtenir une copie des garanties applicables (clauses contractuelles types) en
+      écrivant à <a href="mailto:mag.d3v+balise@pm.me">mag.d3v+balise@pm.me</a>.
+    </p>
 
     <h2>Vos droits</h2>
     <p>Vous disposez des droits suivants sur vos données :</p>
@@ -208,7 +238,7 @@
       Pour exercer ces droits, écrivez à
       <a href="mailto:mag.d3v+balise@pm.me">mag.d3v+balise@pm.me</a>. Pour la suppression d'un
       rapport, indiquez son lien. Balise ne vous identifie pas : l'empreinte de votre adresse IP ne
-      permet pas de retrouver vos analyses, et elle disparaît au bout de 24 heures.
+      permet pas de retrouver vos analyses, et elle disparaît au bout de deux heures au plus.
     </p>
 
     <h2>Décision automatisée</h2>

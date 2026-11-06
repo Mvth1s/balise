@@ -1,9 +1,9 @@
 <template>
   <!-- Sources :
-    - https://support.google.com/analytics/answer/11397207?hl=fr (consulté le 2026-11-05 : cookies _ga et _ga_<ID>, finalités, durée par défaut 2 ans)
-    - https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies/que-dit-la-loi (consulté le 2026-11-05 : traceurs exemptés de consentement)
-    - https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies-solutions-pour-les-outils-de-mesure-daudience (consulté le 2026-11-05 : durée de vie de 13 mois)
-    - https://policies.google.com/privacy/frameworks?hl=fr (consulté le 2026-11-05 : Google LLC certifiée Data Privacy Framework)
+    - https://support.google.com/analytics/answer/11397207?hl=fr (consulté le 2026-11-06 : cookies _ga et _ga_<ID>, finalités, durée par défaut 2 ans)
+    - https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies/que-dit-la-loi (consulté le 2026-11-06 : traceurs exemptés de consentement)
+    - https://www.cnil.fr/fr/cookies-et-autres-traceurs/regles/cookies-solutions-pour-les-outils-de-mesure-daudience (consulté le 2026-11-06 : durée de vie de 13 mois)
+    - https://policies.google.com/privacy/frameworks?hl=fr (consulté le 2026-11-06 : Google LLC certifiée Data Privacy Framework)
   -->
   <!-- Note : l'interrupteur GA4 est rendu par la vue parente (frontend). Ce composant ne contient que le texte informatif. -->
   <section aria-labelledby="cookies-necessaire">
@@ -23,6 +23,48 @@
       tiers. La CNIL exempte de consentement les traceurs qui conservent votre choix sur les cookies
       et ceux qui personnalisent l'interface à votre demande.
     </p>
+
+    <table>
+      <caption>
+        Stockage local utilisé par Balise
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Nom</th>
+          <th scope="col">Finalité</th>
+          <th scope="col">Émetteur</th>
+          <th scope="col">Durée</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row"><code>balise:consent</code></th>
+          <td>Conserver votre choix concernant la mesure d'audience</td>
+          <td>Balise</td>
+          <td>6 mois</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>balise:theme</code></th>
+          <td>Mémoriser le thème choisi (clair ou sombre)</td>
+          <td>Balise</td>
+          <td>Jusqu'à effacement</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>balise:motion</code></th>
+          <td>Mémoriser votre préférence d'animations</td>
+          <td>Balise</td>
+          <td>Jusqu'à effacement</td>
+        </tr>
+        <tr>
+          <th scope="row"><code>balise:checklist:&lt;identifiant du rapport&gt;</code></th>
+          <td>
+            Conserver les critères cochés dans la liste « À vérifier manuellement » d'un rapport
+          </td>
+          <td>Balise</td>
+          <td>Jusqu'à effacement</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 
   <section aria-labelledby="cookies-audience">
@@ -82,9 +124,9 @@
     </p>
     <p>
       Vous pouvez modifier ou retirer votre consentement à tout moment avec l'interrupteur « Mesure
-      d'audience » de cette page. Si vous le retirez, Balise ne charge plus Google Analytics. Pour
-      effacer les cookies <code>_ga</code> et <code>_ga_&lt;ID&gt;</code> déjà déposés, utilisez
-      aussi les réglages de votre navigateur.
+      d'audience » de cette page. Si vous le retirez, Balise désactive Google Analytics et efface
+      les cookies <code>_ga</code> et <code>_ga_&lt;ID&gt;</code> qu'il a déposés. Vous pouvez aussi
+      les supprimer dans les réglages de votre navigateur.
     </p>
     <p>
       Pour en savoir plus sur les données traitées et vos droits, consultez la

@@ -26,7 +26,6 @@ function onThemeChange(event: Event) {
       </nav>
       <div class="site-header__prefs">
         <div class="pref">
-          <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -- associated with for/id -->
           <label for="pref-theme">Thème</label>
           <select id="pref-theme" class="field-input" :value="state.theme" @change="onThemeChange">
             <option v-for="[value, label] in themes" :key="value" :value="value">

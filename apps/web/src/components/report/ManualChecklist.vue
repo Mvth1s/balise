@@ -39,7 +39,6 @@ const inputId = (id: string) => `manuel-${id.replace(/\W/g, '-')}`;
           @change="toggle(c.id, $event)"
         />
         <div class="checklist__text">
-          <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -- associated with for/id -->
           <label :for="inputId(c.id)">
             <strong>Critère {{ c.id }}</strong> ({{ themeName(c.theme) }}) : {{ c.title }}
           </label>

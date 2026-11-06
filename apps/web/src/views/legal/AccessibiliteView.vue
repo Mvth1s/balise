@@ -3,7 +3,7 @@
     - https://accessibilite.numerique.gouv.fr/obligations/declaration-accessibilite/ (consulté le 2026-11-05 : structure du modèle de déclaration)
     - https://www.defenseurdesdroits.fr/nous-contacter-355 (consulté le 2026-11-05 : formulaire, Acceo, délégués, téléphone, adresse Libre réponse)
   -->
-  <LegalPage title="Déclaration d'accessibilité" updated="2026-11-05">
+  <LegalPage title="Déclaration d'accessibilité" updated="2026-11-06">
     <p>
       Mvth1s s'engage à rendre son service Balise accessible, conformément à l'esprit de l'article
       47 de la loi n° 2005-102 du 11 février 2005.
@@ -50,7 +50,9 @@
           La page de démonstration « avant » (adresse <code>/demo/avant</code>) contient
           volontairement des erreurs d'accessibilité. Elle sert à montrer ce que Balise détecte, à
           des fins pédagogiques. Elle est signalée par un bandeau d'avertissement et n'est pas
-          indexée par les moteurs de recherche.
+          indexée par les moteurs de recherche. Cette exclusion est un choix éditorial : cette page
+          n'a pas d'autre fonction que la démonstration, et sa version corrigée offre le même
+          contenu.
         </p>
         <p>
           Sa version corrigée est disponible :
@@ -80,7 +82,7 @@
       [À COMPLÉTER : agents utilisateurs et technologies d'assistance utilisés pour l'audit manuel]
     </p>
 
-    <h3>Outils pour évaluer l'accessibilité</h3>
+    <h3>Outils utilisés pour évaluer l'accessibilité</h3>
     <ul>
       <li>axe-core, moteur de tests d'accessibilité automatiques</li>
       <li>
