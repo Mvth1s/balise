@@ -1,0 +1,87 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    # pnpm workspace: the root manifest and pnpm-lock.yaml cover every package.
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Paris
+    # Same rule as `minimumReleaseAge` in pnpm-workspace.yaml: never propose a
+    # version published less than 14 days ago.
+    cooldown:
+      default-days: 14
+    versioning-strategy: increase
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # Chromium, Playwright and axe must move together (same Chromium major).
+      browser-engine:
+        patterns:
+          - playwright-core
+          - '@playwright/*'
+          - '@sparticuz/chromium'
+          - axe-core
+          - '@axe-core/*'
+      vue:
+        patterns:
+          - vue
+          - vue-router
+          - vue-tsc
+          - vite
+          - vite-ssg
+          - '@vitejs/*'
+          - '@vue/*'
+          - '@unhead/*'
+          - beasties
+      lint-format:
+        patterns:
+          - eslint
+          - eslint-*
+          - '@eslint/*'
+          - typescript-eslint
+          - vue-eslint-parser
+          - prettier
+          - globals
+      test:
+        patterns:
+          - vitest
+          - '@vitest/*'
+          - jsdom
+          - '@lhci/*'
+      release-tooling:
+        patterns:
+          - semantic-release
+          - '@semantic-release/*'
+          - conventional-changelog-*
+          - '@commitlint/*'
+          - husky
+          - lint-staged
+      # Remaining minor and patch updates, one PR per dependency type.
+      production-minor-patch:
+        dependency-type: production
+        update-types: [minor, patch]
+      development-minor-patch:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Paris
+    cooldown:
+      default-days: 14
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      github-actions:
+        patterns:
+          - '*'

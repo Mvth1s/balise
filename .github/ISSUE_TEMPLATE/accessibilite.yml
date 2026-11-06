@@ -1,0 +1,53 @@
+name: Accessibilité de Balise
+description: Signaler une difficulté d'accès ou d'utilisation de l'interface de Balise elle-même.
+title: '[Accessibilité] '
+labels: [accessibilite]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ce formulaire concerne l'accessibilité de **Balise** (ses pages, son bandeau de cookies, ses rapports), pas le résultat d'une analyse d'un autre site.
+        Si vous préférez ne pas utiliser GitHub, écrivez à mag.d3v+balise@pm.me : nous vous répondrons et pourrons vous fournir l'information sous une autre forme.
+  - type: input
+    id: page
+    attributes:
+      label: Page concernée
+      description: Adresse ou nom de la page (accueil, rapport, gestion des cookies…).
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Difficulté rencontrée
+      description: Que vouliez-vous faire et qu'est-ce qui vous en a empêché ?
+    validations:
+      required: true
+  - type: dropdown
+    id: context
+    attributes:
+      label: Mode de navigation
+      multiple: true
+      options:
+        - Clavier uniquement
+        - Lecteur d'écran
+        - Agrandissement ou zoom
+        - Contrôle vocal
+        - Contraste élevé ou thème forcé
+        - Petit écran (mobile)
+        - Autre
+  - type: input
+    id: environment
+    attributes:
+      label: Environnement
+      description: Navigateur, système et technologie d'assistance avec leurs versions.
+      placeholder: Safari 19, iOS 26, VoiceOver
+  - type: input
+    id: rgaa
+    attributes:
+      label: Critère RGAA concerné (facultatif)
+      description: Si vous le connaissez, par exemple 10.7 (focus visible).
+  - type: textarea
+    id: details
+    attributes:
+      label: Informations complémentaires
+      description: Captures, transcription de la restitution vocale, suggestion de correction.
