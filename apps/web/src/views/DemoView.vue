@@ -83,7 +83,7 @@ const PLAN_HTML =
         Les inscriptions sont gratuites pour les moins de 18 ans.
       </p>
 
-      <!-- ERREUR 8.4 / 8.8 : code de langue invalide. -->
+      <!-- ERREUR 8.8 : code de langue invalide. -->
       <p>
         Notre devise :
         <q :lang="broken ? 'anglais' : 'en'">Books are a uniquely portable magic</q> (Stephen King).
@@ -145,18 +145,34 @@ const PLAN_HTML =
         </p>
       </section>
 
+      <section aria-labelledby="video" class="demo-block">
+        <h2 id="video">Présentation en vidéo</h2>
+        <!-- ERREUR 4.3 : vidéo sans sous-titres. -->
+        <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -- intentional demo error -->
+        <video v-if="broken" class="demo-video" controls preload="none" width="320" height="180">
+          <source src="/demo/presentation.webm" type="video/webm" />
+        </video>
+        <template v-else>
+          <video class="demo-video" controls preload="none" width="320" height="180">
+            <source src="/demo/presentation.webm" type="video/webm" />
+            <track kind="captions" srclang="fr" src="/demo/presentation.vtt" label="Français" />
+          </video>
+          <p>
+            Transcription : « Bienvenue à la médiathèque des Tilleuls. L’atelier conte a lieu chaque
+            mercredi. » La vidéo montre un carré orange qui traverse un fond vert, sans son.
+          </p>
+        </template>
+      </section>
+
       <section aria-labelledby="lettre" class="demo-block">
         <h2 id="lettre">Lettre d’information</h2>
         <form class="demo-form" @submit.prevent>
-          <!-- ERREUR 11.1 : champ sans étiquette (le texte indicatif ne suffit pas). -->
-          <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -- intentional demo error -->
-          <input
-            v-if="broken"
-            type="email"
-            class="field-input"
-            placeholder="Votre e-mail"
-            autocomplete="email"
-          />
+          <!-- ERREUR 11.1 : champ sans étiquette ; le texte visible voisin n'est pas associé au champ. -->
+          <template v-if="broken">
+            <span class="demo-form__text">Votre e-mail</span>
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -- intentional demo error -->
+            <input type="email" class="field-input" autocomplete="email" />
+          </template>
           <template v-else>
             <label for="demo-email">Votre adresse électronique</label>
             <input
@@ -278,7 +294,8 @@ const PLAN_HTML =
   gap: var(--space-2) var(--space-4);
 }
 
-.demo-form label {
+.demo-form label,
+.demo-form__text {
   flex-basis: 100%;
   font-weight: 700;
 }
@@ -286,6 +303,12 @@ const PLAN_HTML =
 .demo-form input {
   flex: 1 1 14rem;
   width: auto;
+}
+
+.demo-video {
+  max-width: 100%;
+  height: auto;
+  background: var(--color-ink);
 }
 
 .demo-frame {
