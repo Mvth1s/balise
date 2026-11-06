@@ -317,6 +317,8 @@ onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
 }
 
 .filters__group {
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -330,6 +332,7 @@ onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
 
 .filters__select {
   width: auto;
+  min-width: 0;
   max-width: 100%;
 }
 

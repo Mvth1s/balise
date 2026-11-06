@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Mail, Share2, TriangleAlert, Check } from '@lucide/vue';
+import { onMounted, ref } from 'vue';
 import { usePageMeta } from '@/composables/usePageMeta';
 
 /**
@@ -11,6 +12,22 @@ import { usePageMeta } from '@/composables/usePageMeta';
  * warning banner.
  */
 const props = defineProps<{ broken: boolean }>();
+
+// The frame document (srcdoc, same origin) takes the focus itself and cannot
+// carry a style (CSP): its focus ring is drawn on the <iframe> (RGAA 10.7).
+const frame = ref<HTMLIFrameElement | null>(null);
+const frameFocused = ref(false);
+function watchFrameFocus() {
+  const win = frame.value?.contentWindow;
+  if (!win) return;
+  win.addEventListener('focus', () => (frameFocused.value = true));
+  win.addEventListener('blur', () => (frameFocused.value = false));
+}
+onMounted(() => {
+  watchFrameFocus();
+  // Each load creates a new window: listen again.
+  frame.value?.addEventListener('load', watchFrameFocus);
+});
 
 usePageMeta({
   title: props.broken
@@ -195,10 +212,18 @@ const PLAN_HTML =
         <h2 id="acces">Accès</h2>
         <!-- ERREUR 2.1 : cadre sans titre. -->
         <!-- eslint-disable-next-line vuejs-accessibility/iframe-has-title -- intentional demo error -->
-        <iframe v-if="broken" class="demo-frame" :srcdoc="PLAN_HTML" />
+        <iframe
+          v-if="broken"
+          ref="frame"
+          class="demo-frame"
+          :class="{ 'demo-frame--focus': frameFocused }"
+          :srcdoc="PLAN_HTML"
+        />
         <iframe
           v-else
+          ref="frame"
           class="demo-frame"
+          :class="{ 'demo-frame--focus': frameFocused }"
           title="Plan d’accès à la médiathèque"
           :srcdoc="PLAN_HTML"
         />
@@ -316,6 +341,11 @@ const PLAN_HTML =
   height: 6rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+}
+
+.demo-frame--focus {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
 }
 
 .demo-icon-link {

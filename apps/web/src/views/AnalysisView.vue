@@ -58,11 +58,15 @@ const progress = computed(() => Math.round((doneCount.value / STEPS.length) * 10
 
 usePageMeta({
   title: () =>
-    report.value
-      ? `Rapport : ${shortUrl(report.value.url)}`
-      : error.value
-        ? error.value.title
-        : 'Analyse en cours',
+    !mounted.value
+      ? 'Analyse'
+      : !id.value
+        ? 'Aucune analyse indiquée'
+        : report.value
+          ? `Rapport : ${shortUrl(report.value.url)}`
+          : error.value
+            ? error.value.title
+            : 'Analyse en cours',
   description: 'Analyse d’accessibilité RGAA d’une page web par Balise, avec scores indicatifs.',
   noindex: true,
 });

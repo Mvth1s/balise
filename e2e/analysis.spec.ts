@@ -111,9 +111,14 @@ test.describe('Rapport', () => {
 
     await page.getByLabel('Thématique', { exact: true }).selectOption({ label: '1. Images' });
     await expect(items.first()).toBeVisible();
-    for (const text of await items.locator('.criterion__title').allTextContents()) {
-      expect(text).toMatch(/^\s*Critère 1\.\d+/);
-    }
+    // Filtered-out items leave the list on the next frames (TransitionGroup): poll.
+    await expect
+      .poll(async () =>
+        (await items.locator('.criterion__title').allTextContents()).every((text) =>
+          /^\s*Critère 1\.\d+/.test(text),
+        ),
+      )
+      .toBe(true);
     await expectNoAxeViolations(page);
 
     await nonConformes.click();

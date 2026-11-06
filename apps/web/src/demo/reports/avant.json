@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "id": "demo-avant",
-  "url": "https://balise.vercel.app/demo/avant",
-  "finalUrl": "https://balise.vercel.app/demo/avant",
+  "url": "https://balise-tau.vercel.app/demo/avant",
+  "finalUrl": "https://balise-tau.vercel.app/demo/avant",
   "analyzedAt": "2026-11-06T00:00:00.000Z",
   "durationMs": 8000,
   "reference": {
