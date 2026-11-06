@@ -130,3 +130,4 @@ En pratique, un score Balise élevé est compatible avec un taux de conformité 
 - Une analyse porte sur une page dans un état donné : pas d'interaction (menus ouverts, formulaires soumis, fenêtres modales), pas de pages derrière une authentification.
 - Le résultat dépend de la version d'axe-core, de Chromium et de la correspondance RGAA, indiquées dans chaque rapport.
 - Les poids de thématique sont un choix de présentation, pas une règle du RGAA.
+- axe-core et les contrôles maison s'exécutent **dans la page analysée**, à côté de ses propres scripts. Une page peut donc, volontairement ou non, fausser son résultat (masquer des éléments au moment du test, modifier les objets du navigateur). Balise revalide le format des résultats côté serveur et reconstruit lui-même les liens de documentation, mais ne peut pas garantir que la page n'a pas influencé les statuts : c'est une raison de plus de considérer les scores comme indicatifs.
