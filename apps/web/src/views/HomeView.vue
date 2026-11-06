@@ -87,7 +87,6 @@ const describedBy = computed(() =>
         </p>
 
         <form class="url-form" novalidate @submit.prevent="submit">
-          <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -- associated with for/id -->
           <label for="url" class="url-form__label">Adresse de la page à analyser</label>
           <div class="url-form__row">
             <div class="url-form__field">

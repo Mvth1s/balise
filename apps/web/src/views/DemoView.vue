@@ -158,7 +158,6 @@ const PLAN_HTML =
             autocomplete="email"
           />
           <template v-else>
-            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -- associated with for/id -->
             <label for="demo-email">Votre adresse électronique</label>
             <input
               id="demo-email"
