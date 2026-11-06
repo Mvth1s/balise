@@ -1,0 +1,37 @@
+name: Amélioration
+description: Proposer une nouvelle fonctionnalité ou l'amélioration d'une fonctionnalité existante.
+title: '[Amélioration] '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Besoin
+      description: Quel problème cette amélioration résoudrait-elle ? Pour qui ?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposition
+      description: Décrivez la solution envisagée.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+  - type: input
+    id: rgaa
+    attributes:
+      label: Critère(s) RGAA concerné(s) (facultatif)
+      description: Par exemple 1.1, 8.5 ou 11.1, si la proposition porte sur la détection d'un critère.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: J'ai vérifié qu'aucun ticket existant ne propose déjà cette amélioration.
+          required: true
+        - label: La proposition ne promet pas de conformité RGAA (Balise donne des scores indicatifs).
+          required: true

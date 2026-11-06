@@ -1,0 +1,14 @@
+# Files not needed to build or run Balise on Vercel.
+# Keep docs/charte/ (design tokens may be imported by the front build).
+.claude/
+.github/
+docs/maquette/
+docs/specs/
+docs/adr/
+docs/accessibilite/
+e2e/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.lighthouseci/
