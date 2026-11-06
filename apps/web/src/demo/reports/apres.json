@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "id": "exemple-apres",
-  "url": "https://balise.example/demo/apres",
-  "finalUrl": "https://balise.example/demo/apres",
-  "analyzedAt": "2026-11-05T13:32:00.000Z",
-  "durationMs": 8400,
+  "id": "demo-apres",
+  "url": "https://balise.vercel.app/demo/apres",
+  "finalUrl": "https://balise.vercel.app/demo/apres",
+  "analyzedAt": "2026-11-06T00:00:00.000Z",
+  "durationMs": 8000,
   "reference": {
     "name": "RGAA 4.1.2",
     "version": "4.1.2"
   },
   "engine": {
-    "balise": "0.0.0",
+    "balise": "1.0.0",
     "axe": "4.14.0",
-    "chromium": "153.0.0"
+    "chromium": "153.0.8010.12"
   },
   "page": {
     "title": "Démonstration : page corrigée – Balise",
@@ -20,143 +20,143 @@
   },
   "scores": {
     "global": {
-      "score": 100,
-      "tier": "good",
-      "tested": 27,
+      "conformes": 3,
+      "nonConformes": 0,
+      "tested": 3,
       "total": 106,
-      "conformes": 27,
-      "nonConformes": 0
+      "score": 100,
+      "tier": "good"
     },
     "themes": [
       {
         "theme": 1,
         "title": "Images",
-        "score": 100,
-        "tier": "good",
-        "tested": 1,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 9,
-        "conformes": 1,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 2,
         "title": "Cadres",
-        "score": 100,
-        "tier": "good",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 2,
-        "conformes": 2,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 3,
         "title": "Couleurs",
-        "score": 100,
-        "tier": "good",
-        "tested": 1,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 3,
-        "conformes": 1,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 4,
         "title": "Multimédia",
-        "score": null,
-        "tier": null,
+        "conformes": 0,
+        "nonConformes": 0,
         "tested": 0,
         "total": 13,
-        "conformes": 0,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 5,
         "title": "Tableaux",
-        "score": 100,
-        "tier": "good",
-        "tested": 1,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 8,
-        "conformes": 1,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 6,
         "title": "Liens",
-        "score": 100,
-        "tier": "good",
+        "conformes": 1,
+        "nonConformes": 0,
         "tested": 1,
         "total": 2,
-        "conformes": 1,
-        "nonConformes": 0
+        "score": 100,
+        "tier": "good"
       },
       {
         "theme": 7,
         "title": "Scripts",
-        "score": 100,
-        "tier": "good",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 5,
-        "conformes": 2,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 8,
         "title": "Éléments obligatoires",
-        "score": 100,
-        "tier": "good",
-        "tested": 5,
+        "conformes": 2,
+        "nonConformes": 0,
+        "tested": 2,
         "total": 10,
-        "conformes": 5,
-        "nonConformes": 0
+        "score": 100,
+        "tier": "good"
       },
       {
         "theme": 9,
         "title": "Structuration de l’information",
-        "score": 100,
-        "tier": "good",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 4,
-        "conformes": 2,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 10,
         "title": "Présentation de l’information",
-        "score": 100,
-        "tier": "good",
-        "tested": 4,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 14,
-        "conformes": 4,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 11,
         "title": "Formulaires",
-        "score": 100,
-        "tier": "good",
-        "tested": 4,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 13,
-        "conformes": 4,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 12,
         "title": "Navigation",
-        "score": 100,
-        "tier": "good",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 11,
-        "conformes": 2,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       },
       {
         "theme": 13,
         "title": "Consultation",
-        "score": 100,
-        "tier": "good",
-        "tested": 2,
+        "conformes": 0,
+        "nonConformes": 0,
+        "tested": 0,
         "total": 12,
-        "conformes": 2,
-        "nonConformes": 0
+        "score": null,
+        "tier": null
       }
     ]
   },
@@ -166,7 +166,7 @@
       "theme": 1,
       "title": "Chaque image porteuse d’information a-t-elle une alternative textuelle ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.1",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "image-alt",
         "input-image-alt",
@@ -255,7 +255,7 @@
       "theme": 2,
       "title": "Chaque cadre a-t-il un titre de cadre ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#2.1",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "frame-title"
       ],
@@ -266,7 +266,7 @@
       "theme": 2,
       "title": "Pour chaque cadre ayant un titre de cadre, ce titre de cadre est-il pertinent ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#2.2",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "frame-title-unique"
       ],
@@ -286,7 +286,7 @@
       "theme": 3,
       "title": "Dans chaque page web, le contraste entre la couleur du texte et la couleur de son arrière-plan est-il suffisamment élevé (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#3.2",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "color-contrast"
       ],
@@ -324,7 +324,7 @@
       "theme": 4,
       "title": "Chaque média temporel synchronisé pré-enregistré a-t-il, si nécessaire, des sous-titres synchronisés (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.3",
-      "status": "non-applicable",
+      "status": "a-verifier",
       "rules": [
         "video-caption"
       ],
@@ -389,7 +389,7 @@
       "theme": 4,
       "title": "Chaque son déclenché automatiquement est-il contrôlable par l’utilisateur ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.10",
-      "status": "non-applicable",
+      "status": "a-verifier",
       "rules": [
         "no-autoplay-audio"
       ],
@@ -481,7 +481,7 @@
       "theme": 5,
       "title": "Pour chaque tableau de données, la technique appropriée permettant d’associer chaque cellule avec ses en-têtes est-elle utilisée (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.7",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "th-has-data-cells",
         "td-headers-attr",
@@ -523,7 +523,7 @@
       "theme": 7,
       "title": "Chaque script est-il, si nécessaire, compatible avec les technologies d’assistance ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#7.1",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "aria-allowed-attr",
         "aria-conditional-attr",
@@ -557,7 +557,7 @@
       "theme": 7,
       "title": "Chaque script est-il contrôlable par le clavier et par tout dispositif de pointage (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#7.3",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "frame-focusable-content",
         "scrollable-region-focusable"
@@ -596,7 +596,7 @@
       "theme": 8,
       "title": "Pour chaque page web, le code source généré est-il valide selon le type de document spécifié ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8.2",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "duplicate-id-aria"
       ],
@@ -619,7 +619,7 @@
       "theme": 8,
       "title": "Pour chaque page web ayant une langue par défaut, le code de langue est-il pertinent ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8.4",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "html-lang-valid",
         "html-xml-lang-mismatch",
@@ -662,7 +662,7 @@
       "theme": 8,
       "title": "Dans chaque page web, le code de langue de chaque changement de langue est-il valide et pertinent ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8.8",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "valid-lang"
       ],
@@ -691,7 +691,7 @@
       "theme": 9,
       "title": "Dans chaque page web, l’information est-elle structurée par l’utilisation appropriée de titres ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#9.1",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "balise-heading-hierarchy"
       ],
@@ -711,7 +711,7 @@
       "theme": 9,
       "title": "Dans chaque page web, chaque liste est-elle correctement structurée ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#9.3",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "list",
         "listitem",
@@ -761,7 +761,7 @@
       "theme": 10,
       "title": "Dans chaque page web, le texte reste-t-il lisible lorsque la taille des caractères est augmentée jusqu’à 200 %, au moins (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.4",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "meta-viewport"
       ],
@@ -781,7 +781,7 @@
       "theme": 10,
       "title": "Dans chaque page web, chaque lien dont la nature n’est pas évidente est-il visible par rapport au texte environnant ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.6",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "link-in-text-block"
       ],
@@ -801,7 +801,7 @@
       "theme": 10,
       "title": "Pour chaque page web, les contenus cachés ont-ils vocation à être ignorés par les technologies d’assistance ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.8",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "aria-hidden-body",
         "aria-hidden-focus"
@@ -840,7 +840,7 @@
       "theme": 10,
       "title": "Dans chaque page web, les propriétés d’espacement du texte peuvent-elles être redéfinies par l’utilisateur sans perte de contenu ou de fonctionnalité (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.12",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "avoid-inline-spacing"
       ],
@@ -869,7 +869,7 @@
       "theme": 11,
       "title": "Chaque champ de formulaire a-t-il une étiquette ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.1",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "label",
         "select-name",
@@ -882,7 +882,7 @@
       "theme": 11,
       "title": "Chaque étiquette associée à un champ de formulaire est-elle pertinente (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.2",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "form-field-multiple-labels"
       ],
@@ -947,7 +947,7 @@
       "theme": 11,
       "title": "Dans chaque formulaire, l’intitulé de chaque bouton est-il pertinent (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.9",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "button-name",
         "input-button-name",
@@ -987,7 +987,7 @@
       "theme": 11,
       "title": "La finalité d’un champ de saisie peut-elle être déduite pour faciliter le remplissage automatique des champs avec les données de l’utilisateur ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.13",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "autocomplete-valid"
       ],
@@ -1043,7 +1043,7 @@
       "theme": 12,
       "title": "Les zones de regroupement de contenus présentes dans plusieurs pages web (zones d’en-tête, de navigation principale, de contenu principal, de pied de page et de moteur de recherche) peuvent-elles être atteintes ou évitées ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.6",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "bypass"
       ],
@@ -1054,7 +1054,7 @@
       "theme": 12,
       "title": "Dans chaque page web, un lien d’évitement ou d’accès rapide à la zone de contenu principal est-il présent (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.7",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "bypass",
         "skip-link",
@@ -1103,7 +1103,7 @@
       "theme": 13,
       "title": "Pour chaque page web, l’utilisateur a-t-il le contrôle de chaque limite de temps modifiant le contenu (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.1",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "meta-refresh"
       ],
@@ -1168,7 +1168,7 @@
       "theme": 13,
       "title": "Dans chaque page web, chaque contenu en mouvement ou clignotant est-il contrôlable par l’utilisateur ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.8",
-      "status": "conforme",
+      "status": "a-verifier",
       "rules": [
         "blink",
         "marquee"
