@@ -227,7 +227,8 @@ textarea {
 .btn[aria-disabled='true'],
 .btn:disabled {
   cursor: not-allowed;
-  opacity: 0.75;
+  /* 0.85 keeps the label at 4.5:1 or more in both themes. */
+  opacity: 0.85;
 }
 
 .btn-secondary {
@@ -564,13 +565,9 @@ input:checked + .switch__track > .switch__thumb {
   html[data-motion='on'] .list-enter-active {
     transition: opacity 200ms ease-out;
   }
-
-  html[data-motion='on'] .list-leave-active {
-    transition: opacity 150ms ease-out;
-  }
 }
 
-.list-enter-from,
-.list-leave-to {
+/* No leave transition: filtered-out criteria disappear at once (lists stay exact). */
+.list-enter-from {
   opacity: 0;
 }

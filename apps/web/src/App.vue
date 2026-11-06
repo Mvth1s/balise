@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useHead } from '@unhead/vue';
 import { nextTick, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { isNavigationFailure, NavigationFailureType, useRouter } from 'vue-router';
 import ConsentBanner from '@/components/ConsentBanner.vue';
 import SiteFooter from '@/components/SiteFooter.vue';
 import SiteHeader from '@/components/SiteHeader.vue';
 import { initConsent, pageView } from '@/composables/useConsent';
 import { initPreferences } from '@/composables/usePreferences';
 import { markHydrated } from '@/lib/hydration';
-import { focusMainHeading } from '@/lib/focus';
+import { focusHashTarget, focusMainHeading } from '@/lib/focus';
 
 const router = useRouter();
 // unhead would otherwise render lang="en" over index.html.
@@ -18,13 +18,17 @@ onMounted(() => {
   markHydrated();
   initPreferences();
   initConsent();
-  // Client-side navigation: move focus to the new page heading (RGAA 12.x).
+  // Client-side navigation: focus follows the new page heading, or the anchor target (RGAA 12.8).
   router.afterEach((to, from, failure) => {
-    if (failure || to.path === from.path) return;
+    // Re-activating the current anchor is a "duplicated" navigation: focus the target again.
+    const duplicated = isNavigationFailure(failure, NavigationFailureType.duplicated);
+    if (failure && !duplicated) return;
+    if (!duplicated && to.path === from.path && to.hash === from.hash) return;
     void nextTick(() => {
-      if (!to.hash) focusMainHeading();
+      if (to.hash) focusHashTarget(to.hash);
+      else focusMainHeading();
       // unhead updates document.title asynchronously.
-      window.setTimeout(() => pageView(to.path), 100);
+      if (to.path !== from.path) window.setTimeout(() => pageView(to.path), 100);
     });
   });
 });

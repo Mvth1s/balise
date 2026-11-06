@@ -14,13 +14,17 @@ function onThemeChange(event: Event) {
 <template>
   <header class="site-header">
     <div class="container site-header__inner">
-      <RouterLink to="/" class="site-header__home">
+      <RouterLink to="/" class="site-header__home" aria-label="Balise, accueil">
         <BaliseLogo :size="40" />
-        <span class="visually-hidden">, accueil</span>
       </RouterLink>
       <nav aria-label="Navigation principale" class="site-header__nav">
         <ul>
-          <li><RouterLink to="/#methode">Comment ça marche</RouterLink></li>
+          <li>
+            <!-- An anchor link is never the "current page": no aria-current. -->
+            <RouterLink v-slot="{ href, navigate }" to="/#methode" custom>
+              <a :href="href" @click="navigate">Comment ça marche</a>
+            </RouterLink>
+          </li>
           <li><RouterLink to="/exemple">Exemple de rapport</RouterLink></li>
         </ul>
       </nav>
