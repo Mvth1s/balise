@@ -33,3 +33,9 @@
 - Projet Vercel `balise` relié au dépôt ; Upstash Redis `balise-redis` (plan Free) via la marketplace ; `RATE_LIMIT_SALT` défini en production et preview.
 - Analyses réelles vérifiées sur la préversion (service-public.fr, wikipedia.org, gov.uk). La couverture automatique est faible (3 à 5 critères sur 106) : le mapping ne déclare un critère conforme que si les tests le couvrent entièrement.
 - Releases : le journal des versions est porté par les releases GitHub (pas de commit sur `main`, protégée).
+
+## Étapes 8 et 9 — Production et première release (2026-11-07)
+
+- Production : https://balise-tau.vercel.app (le domaine `balise.vercel.app` appartient à un autre projet Vercel). `VITE_SITE_URL` défini, `sitemap.xml` généré.
+- Test de fumée en production : 15 routes (dont 404), en-têtes de sécurité présents, analyse réelle de https://www.numerique.gouv.fr/ terminée avec capture, adresse de métadonnées refusée (422), corps non JSON refusé (415). Suites e2e axe, pages légales et affichage contre la production : 56 tests réussis (les deux tests qui supposent le faux moteur rapide sont propres à l'environnement local).
+- Release v1.0.0 publiée par semantic-release (preset `conventionalcommits` 9.3.1, compatible avec le générateur de notes embarqué).
