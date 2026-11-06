@@ -1,5 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { clientIp, createMemoryRateLimiter, hashClientKey, RATE_LIMIT_MAX } from './rate-limit.ts';
+import {
+  clientIp,
+  createMemoryRateLimiter,
+  hashClientKey,
+  RATE_LIMIT_MAX,
+  rateLimitSubject,
+} from './rate-limit.ts';
+
+describe('rateLimitSubject', () => {
+  it('keeps IPv4, unwraps mapped IPv4 and reduces IPv6 to its /64', () => {
+    expect(rateLimitSubject('203.0.113.7')).toBe('203.0.113.7');
+    expect(rateLimitSubject('::ffff:203.0.113.7')).toBe('203.0.113.7');
+    expect(rateLimitSubject('2001:DB8:0001:0002:aaaa:bbbb:cccc:dddd')).toBe('2001:db8:1:2::/64');
+    expect(rateLimitSubject('2001:db8:1:2::1')).toBe('2001:db8:1:2::/64');
+    expect(rateLimitSubject('2001:db8::1')).toBe('2001:db8:0:0::/64');
+    expect(rateLimitSubject('2001:db8:1:2:3:4::')).toBe('2001:db8:1:2::/64');
+    expect(rateLimitSubject('::1')).toBe('0:0:0:0::/64');
+    expect(rateLimitSubject('fe80::1%eth0')).toBe('fe80:0:0:0::/64');
+    expect(rateLimitSubject('unknown')).toBe('unknown');
+  });
+});
 
 describe('hashClientKey', () => {
   it('is a salted HMAC that never contains the IP', () => {

@@ -188,6 +188,26 @@ describe('safeFetch', () => {
     ).toBe('too_large');
   });
 
+  it('reserves a shared byte budget chunk by chunk', async () => {
+    // 1.2 MB each: one fits in 1.5 MB, two do not.
+    const budget = { remaining: 1500 * 1024 };
+    const url = `http://127.0.0.1:${port}/chunked-big`;
+    // Two parallel requests share one budget: the sum is capped, not each one.
+    const codes = await Promise.all([
+      codeOf(safeFetch({ url }, { ...local, budget })),
+      codeOf(safeFetch({ url }, { ...local, budget })),
+    ]);
+    expect(codes).toContain('too_large');
+    const alone = { remaining: 1500 * 1024 };
+    expect(await codeOf(safeFetch({ url }, { ...local, budget: alone }))).toBeUndefined();
+    const small = { remaining: 100 };
+    const res = await safeFetch(
+      { url: `http://127.0.0.1:${port}/html` },
+      { ...local, budget: small },
+    );
+    expect(small.remaining).toBe(100 - res.body.length);
+  });
+
   it('times out and honours abort signals', async () => {
     expect(
       await codeOf(

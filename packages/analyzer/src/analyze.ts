@@ -62,7 +62,12 @@ export async function analyzePage(
     throwIfAborted(signal);
 
     const browser = await (options.launch ?? (() => launchBrowser()))();
+    // Closing the browser interrupts any phase, including a page script stuck
+    // in an infinite loop during axe or the custom checks.
+    const onAbort = (): void => void browser.close().catch(() => undefined);
+    signal?.addEventListener('abort', onAbort, { once: true });
     try {
+      throwIfAborted(signal);
       const context = await createHardenedContext(browser);
       const page = await context.newPage();
       const nav = await navigate(page, url.href, {
@@ -111,6 +116,7 @@ export async function analyzePage(
       await options.onStep?.('scoring');
       return { report, screenshot: nav.screenshot };
     } finally {
+      signal?.removeEventListener('abort', onAbort);
       await browser.close().catch(() => undefined);
     }
   } catch (error) {

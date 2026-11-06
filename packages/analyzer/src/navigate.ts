@@ -12,8 +12,9 @@
  *   issues a new `page.goto` for it (intercepted and re-validated in turn), so
  *   that `page.url()` and the base URL of the page stay correct;
  * - other requests: redirects are followed in Node, each hop going through
- *   `safeFetch` (scheme, port, DNS and address checks).
- * WebSockets are refused.
+ *   `safeFetch` (scheme, port, DNS and address checks), same origin only.
+ * Only GET and HEAD without body are executed: a page under analysis has no
+ * reason to submit data. WebSockets are refused.
  */
 import type { BrowserContext, Page, Route } from 'playwright-core';
 import { AnalysisAbortedError, AnalysisError } from './errors.js';
@@ -82,6 +83,7 @@ export interface NavigationResult {
 export const MAX_REDIRECTS = 10;
 
 const HTML_TYPES = ['text/html', 'application/xhtml+xml'];
+const ALLOWED_METHODS = new Set(['GET', 'HEAD']);
 
 export function isHtmlContentType(value: string | undefined): boolean {
   if (!value) return false;
@@ -157,6 +159,8 @@ export async function installInterception(
 }> {
   const fetchFn: FetchFn = options.fetch ?? safeFetch;
   const agents = createAgents();
+  /** Cumulative byte budget, reserved chunk by chunk by `safeFetch` (shared by parallel requests). */
+  const budget = { remaining: limits.maxTotalBytes };
   const state = {
     requests: 0,
     bytes: 0,
@@ -202,31 +206,38 @@ export async function installInterception(
     if (target.protocol !== 'http:' && target.protocol !== 'https:') {
       return block(new AnalysisError('forbidden_target'));
     }
+    const method = request.method().toUpperCase();
+    const body = request.postDataBuffer();
+    if (!ALLOWED_METHODS.has(method) || (body && body.length > 0)) return block();
     let current: SafeFetchRequest = {
       url: target.href,
-      method: request.method(),
+      method,
       headers: await request.allHeaders(),
-      body: request.postDataBuffer(),
+      body: null,
     };
     state.inflight += 1;
     state.lastActivity = Date.now();
     try {
       for (let hop = 0; ; hop += 1) {
+        let response: SafeFetchResponse;
         if (state.stopped) return await block();
         if (state.requests >= limits.maxRequests)
           return await block(new AnalysisError('too_large'));
-        const remaining = limits.maxTotalBytes - state.bytes;
-        if (remaining <= 0) return await block(new AnalysisError('too_large'));
+        if (budget.remaining <= 0) return await block(new AnalysisError('too_large'));
         state.requests += 1;
-        const response = await fetchFn(current, {
-          lookup: options.lookup,
-          allowPrivateHosts: options.allowPrivateHosts,
-          maxBytes: Math.min(limits.maxResourceBytes, remaining),
-          timeoutMs: limits.requestTimeoutMs,
-          signal: options.signal,
-          agents,
-        });
-        state.bytes += response.body.length;
+        try {
+          response = await fetchFn(current, {
+            lookup: options.lookup,
+            allowPrivateHosts: options.allowPrivateHosts,
+            maxBytes: limits.maxResourceBytes,
+            budget,
+            timeoutMs: limits.requestTimeoutMs,
+            signal: options.signal,
+            agents,
+          });
+        } finally {
+          state.bytes = limits.maxTotalBytes - budget.remaining;
+        }
         state.lastActivity = Date.now();
         const next = redirectTarget(response.status, response.headers, current.url);
         if (next) {
@@ -237,16 +248,10 @@ export async function installInterception(
             // an error page that would race with the next `goto`.
             return await route.fulfill({ status: 200, contentType: 'text/html', body: '' });
           }
-          // 303, and 301/302 on POST, become GET without body (fetch semantics).
-          const toGet =
-            response.status === 303 ||
-            ((response.status === 301 || response.status === 302) && current.method === 'POST');
-          current = {
-            url: next.href,
-            method: toGet ? 'GET' : current.method,
-            headers: current.headers,
-            body: toGet ? null : current.body,
-          };
+          // Cross-origin sub-resource redirects are refused: the browser's
+          // headers (cookie, authorization...) belong to the first origin.
+          if (next.origin !== new URL(current.url).origin) return await block();
+          current = { ...current, url: next.href };
           continue;
         }
         if (main) {

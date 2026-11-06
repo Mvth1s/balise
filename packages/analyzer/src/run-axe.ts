@@ -9,6 +9,17 @@ export const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 export const AXE_VERSION: string = axe.version;
 
 const KNOWN_AXE_RULES = new Set(axe.getRules().map((r) => r.ruleId));
+const AXE_DOC_VERSION = AXE_VERSION.split('.').slice(0, 2).join('.');
+
+/**
+ * Documentation link rebuilt in Node from the rule id: axe results come back
+ * from the analysed page, whose scripts could tamper with them.
+ */
+export function axeHelpUrl(rule: string): string | undefined {
+  return KNOWN_AXE_RULES.has(rule)
+    ? `https://dequeuniversity.com/rules/axe/${AXE_DOC_VERSION}/${rule}?application=playwright`
+    : undefined;
+}
 
 /** Builds axe run options: WCAG tags + every mapped axe rule (even outside those tags). */
 export function buildAxeOptions(mappedAxeRules: readonly string[]): axe.RunOptions {
@@ -19,16 +30,22 @@ export function buildAxeOptions(mappedAxeRules: readonly string[]): axe.RunOptio
   return { runOnly: { type: 'tag', values: [...AXE_TAGS] }, rules };
 }
 
-function targetToSelector(target: NodeResult['target']): string {
-  return target.map((t) => (Array.isArray(t) ? t.join(' ') : String(t))).join(' >>> ');
+const str = (v: unknown): string => (typeof v === 'string' ? v : '');
+
+/** Untrusted input (see axeHelpUrl): every type is checked. */
+function targetToSelector(target: unknown): string {
+  if (!Array.isArray(target)) return '';
+  return target
+    .map((t: unknown) => (Array.isArray(t) ? t.map(str).join(' ') : str(t)))
+    .join(' >>> ');
 }
 
 function toNode(node: NodeResult): FindingNode {
-  return {
-    selector: targetToSelector(node.target),
-    html: typeof node.html === 'string' ? node.html : '',
-  };
+  return { selector: targetToSelector(node?.target), html: str(node?.html) };
 }
+
+const nodesOf = (r: Result | undefined): NodeResult[] =>
+  Array.isArray(r?.nodes) ? (r.nodes as NodeResult[]) : [];
 
 /** Converts axe results into one normalized result per rule. */
 export function normalizeAxeResults(
@@ -42,7 +59,8 @@ export function normalizeAxeResults(
     kind: 'violations' | 'passes' | 'incomplete' | 'inapplicable',
     list: Result[],
   ): void => {
-    for (const r of list) {
+    for (const r of Array.isArray(list) ? list : []) {
+      if (typeof r?.id !== 'string') continue;
       const entry = byRule.get(r.id) ?? {};
       entry[kind] = r;
       byRule.set(r.id, entry);
@@ -55,9 +73,9 @@ export function normalizeAxeResults(
 
   const out: NormalizedRuleResult[] = [];
   for (const [rule, e] of byRule) {
-    const failures = (e.violations?.nodes ?? []).map(toNode);
-    const passedCount = e.passes?.nodes.length ?? 0;
-    const incompleteCount = e.incomplete?.nodes.length ?? 0;
+    const failures = nodesOf(e.violations).map(toNode);
+    const passedCount = nodesOf(e.passes).length;
+    const incompleteCount = nodesOf(e.incomplete).length;
     const outcome =
       failures.length > 0
         ? 'fail'
@@ -66,7 +84,7 @@ export function normalizeAxeResults(
           : passedCount > 0
             ? 'pass'
             : 'inapplicable';
-    const helpUrl = (e.violations ?? e.passes ?? e.incomplete ?? e.inapplicable)?.helpUrl;
+    const helpUrl = axeHelpUrl(rule);
     out.push({
       rule,
       engine: 'axe',

@@ -1,13 +1,18 @@
 /**
- * Rate limiting: 10 analyses per hour per client. The client IP is never
- * stored: the key is HMAC-SHA-256(RATE_LIMIT_SALT, ip). Keys expire with the
- * sliding window (well under 24 h).
+ * Rate limiting: 10 analyses per hour per client (IPv4 address or IPv6 /64)
+ * plus a global ceiling of 100 analyses per hour. The client IP is never
+ * stored: the key is HMAC-SHA-256(RATE_LIMIT_SALT, subject). Keys expire with
+ * the sliding window (well under 24 h).
  */
 import { createHmac } from 'node:crypto';
+import { isIP } from 'node:net';
 import { Ratelimit } from '@upstash/ratelimit';
 import type { Redis } from '@upstash/redis';
+import { ipAddress } from '@vercel/functions';
 
 export const RATE_LIMIT_MAX = 10;
+export const GLOBAL_RATE_LIMIT_MAX = 100;
+export const GLOBAL_RATE_LIMIT_KEY = 'global';
 export const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 export interface RateLimitResult {
@@ -26,17 +31,42 @@ export function hashClientKey(ip: string, salt: string): string {
 
 /** Client IP as set by Vercel (or the local servers): x-real-ip, then x-forwarded-for. */
 export function clientIp(headers: Headers): string {
-  const real = headers.get('x-real-ip')?.trim();
+  const real = ipAddress(headers)?.trim();
   if (real) return real;
   const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
   return forwarded || 'unknown';
 }
 
-export function createUpstashRateLimiter(redis: Redis): RateLimiter {
+/**
+ * Rate-limit subject of an IP: the IPv4 address itself (IPv4-mapped IPv6
+ * included), or the /64 prefix of an IPv6 address, since one client usually
+ * owns a whole /64. Anything else is returned unchanged.
+ */
+export function rateLimitSubject(ip: string): string {
+  const addr = ip.trim().toLowerCase().replace(/%.*$/, '');
+  if (isIP(addr) === 4) return addr;
+  if (isIP(addr) !== 6) return ip;
+  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(addr);
+  if (mapped) return mapped[1]!;
+  // Hextets before the first "::" (zeros fill the gap) are enough for a /64.
+  const [head = '', tail] = addr.split('::');
+  const parts = head === '' ? [] : head.split(':');
+  if (tail !== undefined) while (parts.length < 4) parts.push('0');
+  return `${parts
+    .slice(0, 4)
+    .map((h) => parseInt(h, 16).toString(16))
+    .join(':')}::/64`;
+}
+
+export function createUpstashRateLimiter(
+  redis: Redis,
+  max = RATE_LIMIT_MAX,
+  prefix = 'balise:ratelimit',
+): RateLimiter {
   const ratelimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(RATE_LIMIT_MAX, '1 h'),
-    prefix: 'balise:ratelimit',
+    limiter: Ratelimit.slidingWindow(max, '1 h'),
+    prefix,
     analytics: false,
   });
   return {

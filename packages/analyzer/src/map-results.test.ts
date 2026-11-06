@@ -90,7 +90,7 @@ describe('mapResults', () => {
 
   it('returns every criterion with findings for failures only', () => {
     const many = Array.from({ length: 30 }, (_, i) => ({
-      selector: `#i${i}`,
+      selector: `#i${i}${' p'.repeat(i === 0 ? 600 : 0)}`,
       html: 'x'.repeat(600),
     }));
     const out = mapResults(ref, [
@@ -112,6 +112,7 @@ describe('mapResults', () => {
     });
     expect(finding!.nodes).toHaveLength(MAX_NODES_PER_FINDING);
     expect(finding!.nodes[0]!.html).toHaveLength(501);
+    expect(finding!.nodes[0]!.selector).toHaveLength(1001);
     expect(out[0]!.rules).toEqual(['image-alt', 'balise-x']);
     expect(out[1]!.findings).toEqual([]);
     expect(out[1]!.rules).toEqual([]);
@@ -156,21 +157,44 @@ describe('result normalisation', () => {
   });
 
   it('normalises axe results with priority fail > incomplete > pass > inapplicable', () => {
-    const res = (id: string, nodes: unknown[] = [], helpUrl = `https://h/${id}`) =>
+    // The page may tamper with axe results: helpUrl is ignored, types are checked.
+    const res = (id: unknown, nodes: unknown = [], helpUrl = 'javascript:alert(1)') =>
       ({ id, helpUrl, nodes }) as never;
     const node = (target: unknown[], html: unknown = '<x>') => ({ target, html });
     const out = normalizeAxeResults({
-      violations: [res('a', [node(['#a', ['iframe', '#b']]), node(['img'], null)])],
-      passes: [res('a', [node(['p'])]), res('b', [node(['p'])]), res('c', [node(['p'])])],
+      violations: [
+        res('image-alt', [
+          node(['#a', ['iframe', '#b']]),
+          node(['img'], null),
+          { target: 'x', html: 3 },
+          null,
+        ]),
+        res(42),
+      ],
+      passes: [
+        res('image-alt', [node(['p'])]),
+        res('b', [node(['p'])]),
+        res('c', [node(['p'])]),
+        res('e', 'not an array'),
+      ],
       incomplete: [res('c', [node(['p'])])],
       inapplicable: [res('d', [], '')],
     });
     const byRule = Object.fromEntries(out.map((x) => [x.rule, x]));
-    expect(byRule.a).toMatchObject({ outcome: 'fail', passedCount: 1, helpUrl: 'https://h/a' });
-    expect(byRule.a!.failures).toEqual([
+    expect(byRule['image-alt']).toMatchObject({
+      outcome: 'fail',
+      passedCount: 1,
+      helpUrl: 'https://dequeuniversity.com/rules/axe/4.14/image-alt?application=playwright',
+    });
+    expect(byRule['image-alt']!.failures).toEqual([
       { selector: '#a >>> iframe #b', html: '<x>' },
       { selector: 'img', html: '' },
+      { selector: '', html: '' },
+      { selector: '', html: '' },
     ]);
+    expect(out.map((x) => x.rule)).not.toContain(42);
+    expect(byRule.e!.outcome).toBe('inapplicable');
+    expect(byRule.b).not.toHaveProperty('helpUrl');
     expect(byRule.b!.outcome).toBe('pass');
     expect(byRule.c!.outcome).toBe('incomplete');
     expect(byRule.d!.outcome).toBe('inapplicable');

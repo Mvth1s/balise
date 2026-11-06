@@ -4,15 +4,17 @@ import type { CriterionResult, CriterionStatus, Finding, FindingNode } from './t
 
 export const MAX_NODES_PER_FINDING = 20;
 export const MAX_HTML_LENGTH = 500;
+export const MAX_SELECTOR_LENGTH = 1000;
 
 export function truncateHtml(html: string, max: number = MAX_HTML_LENGTH): string {
   return html.length > max ? `${html.slice(0, max)}…` : html;
 }
 
 function toFinding(mapping: RuleMapping, result: NormalizedRuleResult): Finding {
-  const nodes: FindingNode[] = result.failures
-    .slice(0, MAX_NODES_PER_FINDING)
-    .map((n) => ({ selector: n.selector, html: truncateHtml(n.html) }));
+  const nodes: FindingNode[] = result.failures.slice(0, MAX_NODES_PER_FINDING).map((n) => ({
+    selector: truncateHtml(n.selector, MAX_SELECTOR_LENGTH),
+    html: truncateHtml(n.html),
+  }));
   return {
     rule: mapping.rule,
     engine: mapping.engine,
