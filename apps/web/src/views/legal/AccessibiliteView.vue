@@ -3,7 +3,7 @@
     - https://accessibilite.numerique.gouv.fr/obligations/declaration-accessibilite/ (consulté le 2026-11-05 : structure du modèle de déclaration)
     - https://www.defenseurdesdroits.fr/nous-contacter-355 (consulté le 2026-11-05 : formulaire, Acceo, délégués, téléphone, adresse Libre réponse)
   -->
-  <LegalPage title="Déclaration d'accessibilité" updated="2026-11-06">
+  <LegalPage title="Déclaration d’accessibilité" updated="2026-11-06">
     <p>
       Mvth1s s'engage à rendre son service Balise accessible, conformément à l'esprit de l'article
       47 de la loi n° 2005-102 du 11 février 2005.

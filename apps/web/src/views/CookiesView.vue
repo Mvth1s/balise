@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import LegalPage from '@/components/LegalPage.vue';
 import { useConsent } from '@/composables/useConsent';
 import CookiesContentView from './legal/CookiesContentView.vue';
@@ -9,7 +9,12 @@ const { state, analyticsConfigured, setConsent } = useConsent();
 const accepted = ref(false);
 const saved = ref('');
 
-onMounted(() => (accepted.value = state.consent === 'granted'));
+// App.vue loads the stored consent after child components mount: follow it.
+watch(
+  () => state.consent,
+  (value) => (accepted.value = value === 'granted'),
+  { immediate: true },
+);
 
 function save() {
   setConsent(accepted.value ? 'granted' : 'denied');

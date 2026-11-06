@@ -62,7 +62,7 @@ export function countUp(
   let frame = 0;
   const start = performance.now();
   const step = (now: number) => {
-    const t = Math.min(1, (now - start) / duration);
+    const t = Math.min(1, Math.max(0, (now - start) / duration));
     const eased = 1 - (1 - t) ** 3;
     update(Math.round(from + (to - from) * eased));
     if (t < 1) frame = requestAnimationFrame(step);
