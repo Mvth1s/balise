@@ -55,40 +55,52 @@ Chromium ne se connecte jamais lui-même au réseau :
 1. **Interception Playwright** (`context.route('**/*')`) : chaque requête du contexte (document principal, sous-ressources, cadres, fenêtres surgissantes, `fetch`/XHR) est interceptée, revalidée (schéma, plafonds) puis exécutée par `safeFetch` côté Node, avec la résolution DNS vérifiée décrite ci-dessus. La réponse est rendue au navigateur avec `route.fulfill`.
 2. **Redirections** : une réponse 3xx n'est **jamais** rendue au navigateur, car Chromium suit une redirection fournie par `route.fulfill` sans réintercepter le saut suivant. À la place :
    - document principal : Balise sert une page vide, mémorise la cible et lance une nouvelle navigation vers elle, à son tour interceptée et revalidée (la page garde ainsi sa véritable URL et ses URL relatives restent correctes) ;
-   - autres requêtes : la redirection est suivie dans Node, chaque saut repassant par `safeFetch` (schéma, port, DNS, adresse) ;
+   - autres requêtes : la redirection est suivie dans Node, chaque saut repassant par `safeFetch` (schéma, port, DNS, adresse), **dans la même origine seulement** : une redirection de sous-ressource vers une autre origine est bloquée. Les en-têtes fournis par le navigateur (`Cookie`, `Authorization`…) ne partent donc jamais vers une origine différente de celle pour laquelle il les a calculés ;
    - cible non http(s) (`file:`, `data:`, `javascript:`…) : refus `forbidden_target`, car ces schémas ne seraient pas interceptés ;
    - au plus 10 redirections, sinon erreur `unreachable`.
      Les tests d'intégration vérifient qu'une redirection vers `127.0.0.1` est refusée **sans que le serveur visé ne reçoive la requête**.
 3. **Proxy mort, filet de sécurité** : Chromium est lancé avec `--proxy-server=http://127.0.0.1:9` et `--proxy-bypass-list=<-loopback>`. Une requête qui échapperait malgré tout à l'interception part vers ce proxy inexistant et échoue (`ERR_PROXY_CONNECTION_FAILED`). Ce filet n'est jamais affaibli : un échec de ce type signale un défaut d'interception à corriger, pas une configuration à assouplir.
-4. **Autres canaux bloqués** : WebSockets fermés (`routeWebSocket`), service workers bloqués, téléchargements refusés (`acceptDownloads: false`), WebRTC limité au proxy (pas d'UDP direct), préchargement DNS, DNS sur HTTPS et services d'arrière-plan de Chromium désactivés.
-5. Une fois le chargement terminé, l'interception reste installée et **refuse toute nouvelle requête** : la page est figée pendant les tests axe-core et les contrôles maison.
+4. **Méthodes** : seules les requêtes `GET` et `HEAD` sans corps sont exécutées ; toute autre requête de la page (`POST` de formulaire, `fetch` en `PUT`…) est abandonnée. Une page analysée n'a aucune raison d'envoyer des données, et Balise ne doit pas servir de relais pour en envoyer.
+5. **Autres canaux bloqués** : WebSockets fermés (`routeWebSocket`), service workers bloqués, téléchargements refusés (`acceptDownloads: false`), WebRTC limité au proxy (pas d'UDP direct), QUIC désactivé (`--disable-quic`), préchargement DNS, DNS sur HTTPS et services d'arrière-plan de Chromium désactivés.
+6. Une fois le chargement terminé, l'interception reste installée et **refuse toute nouvelle requête** : la page est figée pendant les tests axe-core et les contrôles maison.
 
-### 2.5 Paramètre de test `allowPrivateHosts`
+### 2.5 Arguments de Chromium (`buildLaunchArgs`, `browser.ts`)
+
+- Sur Vercel, les arguments fournis par `@sparticuz/chromium` sont filtrés : `--disable-web-security` (politique de même origine), `--allow-running-insecure-content`, `--disable-site-isolation-trials` et `--enable-features=SharedArrayBuffer` sont retirés. Le mode graphique est désactivé (`setGraphicsMode = false` : ni WebGL ni SwiftShader).
+- `--js-flags=--jitless` désactive les compilateurs JIT de V8, principale source d'exploits du moteur JavaScript (WebAssembly est alors indisponible : les pages qui en dépendent sont analysées sans).
+- Chromium ne retient que la **dernière** occurrence d'un argument : les listes `--disable-features` de Playwright (copie épinglée pour 1.63.0, à revérifier à chaque mise à jour), de Sparticuz et de Balise sont fusionnées en un seul argument, et l'argument par défaut de Playwright est retiré (`ignoreDefaultArgs`). Un test unitaire vérifie la construction.
+- Ces choix sont testés en local avec le Chromium de Playwright ; le binaire Sparticuz n'est vérifié qu'en préversion Vercel.
+
+### 2.6 Paramètre de test `allowPrivateHosts`
 
 Les tests et la génération des rapports de démonstration (`pnpm demo:build`) doivent charger des pages servies en local. Ils utilisent le paramètre de code `allowPrivateHosts`, qui n'est **jamais lu depuis l'environnement ni exposé par l'API**.
 
 ## 3. Limites d'exécution
 
-| Limite                                                          | Valeur                                 | Effet                                                          |
-| --------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------- |
-| Chargement (navigation + stabilisation, redirections comprises) | 60 s                                   | `unreachable`                                                  |
-| Attente de stabilisation réseau                                 | 500 ms de calme, 10 s au plus          | —                                                              |
-| Délai par requête                                               | 20 s                                   | ressource abandonnée                                           |
-| Taille d'une ressource (après décompression)                    | 5 Mo                                   | `too_large` sur le document principal, ressource bloquée sinon |
-| Taille cumulée de la page                                       | 15 Mo                                  | `too_large`                                                    |
-| Nombre de requêtes                                              | 300                                    | requêtes suivantes bloquées                                    |
-| Redirections par requête                                        | 10                                     | `unreachable`                                                  |
-| Durée totale d'une analyse                                      | 240 s (fonction : `maxDuration` 300 s) | `unreachable`                                                  |
-| Corps de `POST /api/analyses`                                   | 8 Kio                                  | `invalid_url`                                                  |
-| Document principal non HTML                                     | —                                      | `not_html`                                                     |
-| Document principal HTTP ≥ 400                                   | —                                      | `unreachable`                                                  |
+| Limite                                                                             | Valeur                                 | Effet                                                          |
+| ---------------------------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------- |
+| Chargement (navigation + stabilisation, redirections comprises)                    | 60 s                                   | `unreachable`                                                  |
+| Attente de stabilisation réseau                                                    | 500 ms de calme, 10 s au plus          | —                                                              |
+| Délai par requête                                                                  | 20 s                                   | ressource abandonnée                                           |
+| Taille d'une ressource (après décompression)                                       | 5 Mo                                   | `too_large` sur le document principal, ressource bloquée sinon |
+| Taille cumulée de la page (réservée au fil du flux, requêtes parallèles comprises) | 15 Mo                                  | `too_large`                                                    |
+| Nombre de requêtes                                                                 | 300                                    | requêtes suivantes bloquées                                    |
+| Redirections par requête                                                           | 10                                     | `unreachable`                                                  |
+| Durée totale d'une analyse                                                         | 240 s (fonction : `maxDuration` 300 s) | `unreachable`                                                  |
+| Analyse en cours sans mise à jour (traitement perdu)                               | 300 s                                  | `internal`, écrit à la lecture suivante                        |
+| Corps de `POST /api/analyses` (taille déclarée ou lue)                             | 8 Kio                                  | `invalid_url`                                                  |
+| Document principal non HTML                                                        | —                                      | `not_html`                                                     |
+| Document principal HTTP ≥ 400                                                      | —                                      | `unreachable`                                                  |
+
+L'analyse est interruptible pendant **toute** sa durée : l'annulation ou le plafond de 240 s ferment le navigateur, ce qui interrompt aussi axe-core et les contrôles maison (un script de la page bloqué dans une boucle infinie ne retient pas l'analyse ; test d'intégration dédié). Côté serveur, le plafond est appliqué par `Promise.race` même si le moteur ne réagissait pas au signal, puis l'erreur `unreachable` est enregistrée. Si la fonction elle-même est arrêtée par Vercel (`maxDuration`), l'analyse restée « en cours » plus de 300 s est déclarée en erreur `internal` à la lecture suivante.
 
 Les flux compressés (gzip, deflate, brotli, zstd) sont décompressés en flux et la limite s'applique à la taille décompressée (protection contre les bombes de décompression).
 
 ## 4. Limitation de débit et données personnelles
 
-- 10 analyses par heure et par client, fenêtre glissante (`@upstash/ratelimit` en production, implémentation mémoire équivalente en local). Au-delà : `429 rate_limited` avec l'en-tête `Retry-After`.
-- L'adresse IP (en-tête `x-real-ip` posé par Vercel, sinon le premier élément de `x-forwarded-for`) n'est **jamais stockée en clair** : la clé est `HMAC-SHA-256(RATE_LIMIT_SALT, ip)`. Les clés expirent avec la fenêtre glissante, bien avant 24 h.
+- 10 analyses par heure et par client, fenêtre glissante (`@upstash/ratelimit` en production, implémentation mémoire équivalente en local). Un client est une adresse IPv4 (IPv4 mappée comprise) ou un **préfixe IPv6 /64**, qu'un même abonné possède en entier. Au-delà : `429 rate_limited` avec l'en-tête `Retry-After`.
+- Plafond global de 100 analyses par heure pour tout le service (clé `global`), vérifié après la limite par client pour qu'un client bloqué ne consomme pas le budget commun. Il borne le coût en cas d'attaque distribuée. Il n'est pas appliqué en mode de test de bout en bout.
+- L'adresse IP (`ipAddress()` de `@vercel/functions`, c'est-à-dire l'en-tête `x-real-ip` que Vercel réécrit, sinon le premier élément de `x-forwarded-for` en local) n'est **jamais stockée en clair** : la clé est `HMAC-SHA-256(RATE_LIMIT_SALT, client)`. Les clés expirent avec la fenêtre glissante, bien avant 24 h.
 - `RATE_LIMIT_SALT` est un secret obligatoire sur Vercel (au moins 32 octets aléatoires, par exemple `openssl rand -hex 32`). Sans lui, ou sans identifiants Upstash, l'API répond `500 internal` plutôt que de fonctionner en mode dégradé. En local, un sel aléatoire est tiré à chaque démarrage.
 - Rapports et captures stockés 30 jours (TTL Redis), puis purgés automatiquement. Les identifiants d'analyse sont aléatoires (21 caractères, `nanoid`), non devinables.
 
@@ -97,6 +109,8 @@ Les flux compressés (gzip, deflate, brotli, zstd) sont décompressés en flux e
 - Erreurs au format `{ "error": { "code", "message" } }`, messages en français, sans détail interne (les causes techniques ne sont que journalisées).
 - Réponses JSON avec `Cache-Control: no-store` et `X-Content-Type-Options: nosniff`.
 - Identifiants validés (`[A-Za-z0-9_-]{8,64}`) avant tout accès au stockage.
+- `POST /api/analyses` exige `Content-Type: application/json` (`415 unsupported_media_type` sinon) : un formulaire HTML d'un autre site ne peut pas envoyer ce type sans requête de prévalidation CORS, que Balise n'accepte pas. Les requêtes `Sec-Fetch-Site: cross-site` sont refusées (`403 forbidden_origin`). Ensemble, ces contrôles empêchent un site tiers de consommer le quota de ses visiteurs.
+- Le corps est lu en flux et abandonné au-delà de 8 Kio ; un `Content-Length` supérieur est refusé avant toute lecture.
 - Annulation (`DELETE`) : l'état « annulé » est stocké ; le traitement le vérifie entre chaque étape et par interrogation périodique, puis interrompt le navigateur.
 
 ### Mode de test de bout en bout
@@ -105,12 +119,13 @@ Les flux compressés (gzip, deflate, brotli, zstd) sont décompressés en flux e
 
 ## 6. En-têtes et échappement
 
-- En-têtes posés par `vercel.json` sur toutes les réponses : `Content-Security-Policy` stricte (`default-src 'self'`, pas de script ni de style en ligne, `object-src 'none'`, `frame-ancestors 'none'`, domaines Google Analytics seulement, chargés uniquement après consentement), `Strict-Transport-Security` (2 ans, `preload`), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (caméra, micro, géolocalisation désactivés), `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`.
-- Tout contenu issu de la page analysée (titre, sélecteurs, extraits HTML) est stocké **brut** et affiché **échappé** par l'interface : `v-html` est interdit par la règle ESLint `vue/no-v-html`. Les extraits sont tronqués (500 caractères) et les résultats des contrôles maison, calculés dans la page (donc manipulables par ses scripts), sont revalidés côté Node.
+- En-têtes posés par `vercel.json` sur toutes les réponses : `Content-Security-Policy` stricte (`default-src 'self'`, pas de script ni de style en ligne, `object-src 'none'`, `frame-ancestors 'none'`, scripts externes limités au chemin `https://www.googletagmanager.com/gtag/` et chargés uniquement après consentement), `Strict-Transport-Security` (2 ans, `preload`), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (caméra, micro, géolocalisation, paiement, USB et Topics désactivés ; `interest-cohort` est omis car Chromium ne le reconnaît plus et l'afficherait en avertissement dans la console), `X-Frame-Options: DENY`, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Resource-Policy: same-origin`.
+- Tout contenu issu de la page analysée (titre, sélecteurs, extraits HTML) est stocké **brut** et affiché **échappé** par l'interface : `v-html` est interdit par la règle ESLint `vue/no-v-html`. Les extraits sont tronqués (500 caractères) et les résultats d'axe-core et des contrôles maison, calculés dans la page (donc manipulables par ses scripts), sont revalidés côté Node : types vérifiés, sélecteurs tronqués à 1 000 caractères, lien de documentation axe reconstruit côté serveur à partir de l'identifiant de règle (jamais repris de la page).
 
 ## 7. Secrets et dépendances
 
 - Aucun secret dans le dépôt : `KV_REST_API_URL`, `KV_REST_API_TOKEN` et `RATE_LIMIT_SALT` sont des variables d'environnement Vercel (voir `docs/exploitation.md`).
+- Audit hebdomadaire `pnpm audit --prod --audit-level high` (`.github/workflows/audit.yml`). Les correctifs de dépendances transitives passent par `overrides` dans `pnpm-workspace.yaml` (par exemple `zod` sous `@vercel/cli-config`).
 - Dépendances épinglées en version exacte, jamais installées moins de 14 jours après leur publication (`minimumReleaseAge`), surveillées par Dependabot, CodeQL et la revue de dépendances en CI.
 
 ## 8. Limites connues
@@ -118,3 +133,6 @@ Les flux compressés (gzip, deflate, brotli, zstd) sont décompressés en flux e
 - La lecture puis l'écriture de l'état d'une analyse ne sont pas atomiques : une annulation qui arrive exactement entre les deux peut être écrasée par l'étape suivante ; l'interrogation périodique la rattrape à l'écriture suivante sauf en toute fin d'analyse.
 - La page analysée peut détecter Balise (signature `BaliseBot` dans l'agent utilisateur, volontaire) et servir un contenu différent.
 - Le délai de 60 s porte sur le chargement ; axe-core sur une page très lourde peut allonger l'analyse, bornée à 240 s au total.
+- **Chromium sans bac à sable sur Vercel** : l'environnement Lambda n'offre pas les espaces de noms nécessaires, `@sparticuz/chromium` impose `--no-sandbox` et `--single-process`, et l'isolation des sites (`IsolateOrigins`, `site-per-process`) reste désactivée, sans objet en processus unique. Une faille du moteur de rendu exploitée par une page donne donc l'exécution de code dans la fonction. Atténuations : JIT désactivé, Chromium à jour (même majeure que `playwright-core`), aucune requête réseau directe possible (proxy mort, interception), fonction éphémère.
+- **Secrets dans la même fonction que Chromium** : la fonction d'analyse détient les identifiants Upstash et `RATE_LIMIT_SALT`. Une exécution de code obtenue via Chromium pourrait les lire, puis écrire ou effacer des rapports et contourner la limitation de débit. Piste : exécuter le navigateur dans une fonction distincte sans secret, qui ne renvoie que le rapport à une fonction appelante (ou un jeton Upstash limité à certaines commandes et à un préfixe de clés). Non réalisé à ce stade ; risque accepté.
+- **Distinction `dns_failure`** : un nom inexistant répond `dns_failure` et non `forbidden_target`. Un attaquant peut ainsi savoir si un nom se résout depuis l'infrastructure, information déjà publique pour les noms publics ; les noms internes (`.internal`, `.local`…) sont refusés avant toute résolution. Le code est conservé car il aide l'utilisateur à corriger une faute de frappe.

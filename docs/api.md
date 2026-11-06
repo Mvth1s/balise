@@ -32,10 +32,12 @@ Corps :
 
 Contrôles effectués avant la réponse, dans cet ordre (`server/handlers.ts`) :
 
-1. corps : objet JSON de 8 Kio au plus, avec un champ `url` de type chaîne ;
-2. syntaxe de l'URL : chaîne non vide, 2 048 caractères au plus, URL absolue, schéma `http` ou `https`, port 80 ou 443, sans identifiant ni mot de passe. Une requête refusée à cette étape ne compte pas dans la limite ;
-3. limitation de débit : 10 analyses par heure et par client, en fenêtre glissante ;
-4. cible : nom d'hôte non interdit et toutes les adresses DNS publiques. Le fragment (`#…`) est retiré.
+1. origine : une requête portant `Sec-Fetch-Site: cross-site` (envoyée depuis un autre site par un navigateur) est refusée ;
+2. type : l'en-tête `Content-Type` doit valoir `application/json` (paramètres comme `charset` acceptés) ;
+3. corps : objet JSON de 8 Kio au plus (taille déclarée ou lue), avec un champ `url` de type chaîne ;
+4. syntaxe de l'URL : chaîne non vide, 2 048 caractères au plus, URL absolue, schéma `http` ou `https`, port 80 ou 443, sans identifiant ni mot de passe. Une requête refusée à cette étape ne compte pas dans la limite ;
+5. limitation de débit : 10 analyses par heure et par client (adresse IPv4, ou préfixe /64 en IPv6), puis 100 analyses par heure pour l'ensemble du service, en fenêtres glissantes ;
+6. cible : nom d'hôte non interdit et toutes les adresses DNS publiques. Le fragment (`#…`) est retiré.
 
 Réponse `202 Accepted`, avec l'en-tête `Location: /api/analyses/<id>` :
 
@@ -134,15 +136,17 @@ Toute erreur a la même forme, avec un message en français destiné à l'utilis
 
 ### Erreurs renvoyées directement par l'API
 
-| Statut HTTP | Code                 | Quand                                                                                                       |
-| ----------- | -------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `400`       | `invalid_url`        | Corps absent, non JSON, de plus de 8 Kio ou sans champ `url` ; URL vide, trop longue ou non analysable      |
-| `422`       | `forbidden_target`   | Schéma autre que `http`/`https`, port autre que 80/443, identifiants dans l'URL, nom ou adresse non publics |
-| `422`       | `dns_failure`        | Le nom de domaine ne se résout pas                                                                          |
-| `429`       | `rate_limited`       | Plus de 10 analyses dans l'heure glissante pour ce client ; en-tête `Retry-After` en secondes               |
-| `404`       | `not_found`          | Analyse ou capture inconnue, expirée (30 jours), identifiant mal formé, ou chemin d'API inexistant          |
-| `405`       | `method_not_allowed` | Méthode non prévue ; l'en-tête `Allow` liste les méthodes acceptées (`POST`, `GET, DELETE` ou `GET`)        |
-| `500`       | `internal`           | Erreur inattendue, ou configuration incomplète sur Vercel (variables Upstash ou `RATE_LIMIT_SALT` absentes) |
+| Statut HTTP | Code                     | Quand                                                                                                                              |
+| ----------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `400`       | `invalid_url`            | Corps absent, non JSON, de plus de 8 Kio ou sans champ `url` ; URL vide, trop longue ou non analysable                             |
+| `403`       | `forbidden_origin`       | Requête envoyée depuis un autre site (`Sec-Fetch-Site: cross-site`)                                                                |
+| `415`       | `unsupported_media_type` | `Content-Type` absent ou différent de `application/json`                                                                           |
+| `422`       | `forbidden_target`       | Schéma autre que `http`/`https`, port autre que 80/443, identifiants dans l'URL, nom ou adresse non publics                        |
+| `422`       | `dns_failure`            | Le nom de domaine ne se résout pas                                                                                                 |
+| `429`       | `rate_limited`           | Plus de 10 analyses dans l'heure glissante pour ce client, ou plus de 100 pour tout le service ; en-tête `Retry-After` en secondes |
+| `404`       | `not_found`              | Analyse ou capture inconnue, expirée (30 jours), identifiant mal formé, ou chemin d'API inexistant                                 |
+| `405`       | `method_not_allowed`     | Méthode non prévue ; l'en-tête `Allow` liste les méthodes acceptées (`POST`, `GET, DELETE` ou `GET`)                               |
+| `500`       | `internal`               | Erreur inattendue, ou configuration incomplète sur Vercel (variables Upstash ou `RATE_LIMIT_SALT` absentes)                        |
 
 `Retry-After` indique le nombre de secondes (au moins 1) avant qu'une nouvelle analyse soit acceptée ; le front l'utilise pour afficher le délai d'attente.
 
@@ -152,16 +156,16 @@ Les réponses JSON portent `Cache-Control: no-store` et `X-Content-Type-Options:
 
 Une fois la réponse `202` envoyée, une erreur ne peut plus changer le statut HTTP. Elle est enregistrée dans l'analyse : `GET /api/analyses/:id` répond `200` avec `state: "error"` et le champ `error`.
 
-| Code               | Signification                                                                                                                                    |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `forbidden_target` | Une requête de navigation visait une adresse non publique (par exemple une redirection vers un réseau privé)                                     |
-| `dns_failure`      | Le nom de domaine n'a pas pu être résolu                                                                                                         |
-| `unreachable`      | Erreur réseau, délai dépassé (60 s de chargement, 20 s par requête, 240 s pour l'analyse entière) ou statut HTTP ≥ 400 sur le document principal |
-| `too_large`        | Plus de 300 requêtes, plus de 15 Mo au total ou une ressource de plus de 5 Mo                                                                    |
-| `not_html`         | Le document principal n'est pas `text/html` ni `application/xhtml+xml`                                                                           |
-| `internal`         | Erreur inattendue (lancement de Chromium, exécution d'axe-core…)                                                                                 |
+| Code               | Signification                                                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `forbidden_target` | Une requête de navigation visait une adresse non publique (par exemple une redirection vers un réseau privé)                                        |
+| `dns_failure`      | Le nom de domaine n'a pas pu être résolu                                                                                                            |
+| `unreachable`      | Erreur réseau, délai dépassé (60 s de chargement, 20 s par requête, 240 s pour l'analyse entière) ou statut HTTP ≥ 400 sur le document principal    |
+| `too_large`        | Plus de 300 requêtes, plus de 15 Mo au total ou une ressource de plus de 5 Mo                                                                       |
+| `not_html`         | Le document principal n'est pas `text/html` ni `application/xhtml+xml`                                                                              |
+| `internal`         | Erreur inattendue (lancement de Chromium, exécution d'axe-core…), ou analyse restée en cours plus de 300 s sans mise à jour (traitement interrompu) |
 
-Liste complète des codes (`AnalysisErrorCode`) : `invalid_url`, `forbidden_target`, `dns_failure`, `rate_limited`, `unreachable`, `too_large`, `not_html`, `not_found`, `internal`. Les messages par défaut sont dans `packages/analyzer/src/errors.ts`. S'y ajoute `method_not_allowed`, propre au routage HTTP (`server/handlers.ts`) et jamais stocké dans une analyse.
+Liste complète des codes (`AnalysisErrorCode`) : `invalid_url`, `forbidden_target`, `dns_failure`, `rate_limited`, `unreachable`, `too_large`, `not_html`, `not_found`, `internal`. Les messages par défaut sont dans `packages/analyzer/src/errors.ts`. S'y ajoutent `method_not_allowed`, `unsupported_media_type` et `forbidden_origin`, propres à la couche HTTP (`server/handlers.ts`) et jamais stockés dans une analyse.
 
 ## Schémas
 
