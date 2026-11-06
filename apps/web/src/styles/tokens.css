@@ -1,0 +1,164 @@
+/*
+ * GENERATED FILE, DO NOT EDIT.
+ * Source: docs/charte/tokens.json. Regenerate with:
+ *   node --experimental-strip-types apps/web/scripts/build-tokens.ts
+ */
+
+:root {
+  color-scheme: light;
+  --color-surface: #faf8f4;
+  --color-surface-raised: #ffffff;
+  --color-ink: #1b1f1d;
+  --color-ink-muted: #5a635f;
+  --color-border: #d9d4ca;
+  --color-border-strong: #8a918d;
+  --color-brand: #0e5c4a;
+  --color-brand-soft: #e1efea;
+  --color-on-brand: #ffffff;
+  --color-accent: #e8a33d;
+  --color-score-good: #1f7a3a;
+  --color-score-warn: #b4570a;
+  --color-score-bad: #b3261e;
+  --color-score-manual: #5a635f;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-12: 48px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --font-sans:
+    'Atkinson Hyperlegible Next Variable', 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+
+  --text-display-family: var(--font-sans);
+  --text-display-size: 3rem;
+  --text-display-line: 3.25rem;
+  --text-display-weight: 800;
+  --text-h1-family: var(--font-sans);
+  --text-h1-size: 2rem;
+  --text-h1-line: 2.5rem;
+  --text-h1-weight: 700;
+  --text-h2-family: var(--font-sans);
+  --text-h2-size: 1.5rem;
+  --text-h2-line: 2rem;
+  --text-h2-weight: 700;
+  --text-h3-family: var(--font-sans);
+  --text-h3-size: 1.1875rem;
+  --text-h3-line: 1.625rem;
+  --text-h3-weight: 700;
+  --text-body-family: var(--font-sans);
+  --text-body-size: 1.0625rem;
+  --text-body-line: 1.625rem;
+  --text-body-weight: 400;
+  --text-small-family: var(--font-sans);
+  --text-small-size: 0.9375rem;
+  --text-small-line: 1.375rem;
+  --text-small-weight: 400;
+  --text-score-family: var(--font-sans);
+  --text-score-size: 2.5rem;
+  --text-score-line: 2.75rem;
+  --text-score-weight: 800;
+  --text-code-family: var(--font-mono);
+  --text-code-size: 0.875rem;
+  --text-code-line: 1.25rem;
+  --text-code-weight: 400;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --color-surface: #121614;
+    --color-surface-raised: #1b211e;
+    --color-ink: #eef1ef;
+    --color-ink-muted: #a6b0ab;
+    --color-border: #2e3632;
+    --color-border-strong: #6b7570;
+    --color-brand: #4fc3a1;
+    --color-brand-soft: #17332b;
+    --color-on-brand: #0b1f19;
+    --color-accent: #e8a33d;
+    --color-score-good: #5cc97a;
+    --color-score-warn: #f0a34a;
+    --color-score-bad: #f2837a;
+    --color-score-manual: #a6b0ab;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-surface: #121614;
+  --color-surface-raised: #1b211e;
+  --color-ink: #eef1ef;
+  --color-ink-muted: #a6b0ab;
+  --color-border: #2e3632;
+  --color-border-strong: #6b7570;
+  --color-brand: #4fc3a1;
+  --color-brand-soft: #17332b;
+  --color-on-brand: #0b1f19;
+  --color-accent: #e8a33d;
+  --color-score-good: #5cc97a;
+  --color-score-warn: #f0a34a;
+  --color-score-bad: #f2837a;
+  --color-score-manual: #a6b0ab;
+}
+
+.text-display {
+  font-family: var(--text-display-family);
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-line);
+  font-weight: var(--text-display-weight);
+}
+
+.text-h1 {
+  font-family: var(--text-h1-family);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-line);
+  font-weight: var(--text-h1-weight);
+}
+
+.text-h2 {
+  font-family: var(--text-h2-family);
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-line);
+  font-weight: var(--text-h2-weight);
+}
+
+.text-h3 {
+  font-family: var(--text-h3-family);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-line);
+  font-weight: var(--text-h3-weight);
+}
+
+.text-body {
+  font-family: var(--text-body-family);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--text-body-weight);
+}
+
+.text-small {
+  font-family: var(--text-small-family);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line);
+  font-weight: var(--text-small-weight);
+}
+
+.text-score {
+  font-family: var(--text-score-family);
+  font-size: var(--text-score-size);
+  line-height: var(--text-score-line);
+  font-weight: var(--text-score-weight);
+}
+
+.text-code {
+  font-family: var(--text-code-family);
+  font-size: var(--text-code-size);
+  line-height: var(--text-code-line);
+  font-weight: var(--text-code-weight);
+}

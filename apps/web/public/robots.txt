@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /demo/avant
+Disallow: /analyses/
+Disallow: /analyses
+Disallow: /api/
