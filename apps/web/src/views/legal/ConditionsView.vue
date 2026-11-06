@@ -3,7 +3,7 @@
     - docs/specs/kickoff.md (spécification de Balise : limitation à 10 analyses par heure, conservation 30 jours, scores indicatifs) (consulté le 2026-11-05)
     - https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000801164 (LCEN) (consulté le 2026-11-05)
   -->
-  <LegalPage title="Conditions d'utilisation" updated="2026-11-06">
+  <LegalPage title="Conditions d’utilisation" updated="2026-11-06">
     <h2>Objet</h2>
     <p>
       Ces conditions encadrent l'utilisation de Balise, un outil de pré-diagnostic d'accessibilité.
