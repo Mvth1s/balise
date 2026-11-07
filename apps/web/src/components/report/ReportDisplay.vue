@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import type { AnalysisReport, CriterionStatus } from '@balise/analyzer/types';
-import { Info } from '@lucide/vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import ScoreGauge from '@/components/ScoreGauge.vue';
 import StatusIcon from '@/components/StatusIcon.vue';
 import TierLabel from '@/components/TierLabel.vue';
-import { enter } from '@/lib/animate';
 import { screenshotUrl } from '@/lib/api';
 import { formatDateTime, formatExpiry, pluralize } from '@/lib/format';
 import {
   countByStatus,
   exportFileName,
   filterCriteria,
+  priorityFixes,
   sortedThemes,
   themeTitle,
 } from '@/lib/report';
@@ -39,6 +38,7 @@ const props = withDefaults(
 const counts = computed(() => countByStatus(props.report.criteria));
 const themes = computed(() => sortedThemes(props.report));
 const themeName = (theme: number) => themeTitle(props.report, theme);
+const fixes = computed(() => priorityFixes(props.report));
 
 // Filters
 const statuses = ref<Set<CriterionStatus>>(new Set(['non-conforme']));
@@ -79,60 +79,70 @@ function exportJson() {
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(href), 1000);
 }
-
-// Theme cards appear in cascade (40 ms) when the report is rendered client-side.
-const cards = ref<HTMLElement[]>([]);
-onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
 </script>
 
 <template>
   <div class="container report">
-    <div class="note report__notice" role="note">
-      <Info :size="24" aria-hidden="true" />
-      <p>
-        <strong>Scores indicatifs.</strong> Ils ne constituent pas un taux de conformité RGAA et ne
-        doivent pas être repris dans une déclaration d’accessibilité.
-      </p>
-    </div>
-
-    <section class="panel report__summary" aria-labelledby="synthese">
-      <ScoreGauge
-        :score="report.scores.global.score"
-        :size="168"
-        suffix
-        :label="gaugeAccessibleName('Score global indicatif', report.scores.global)"
-      />
-      <div class="report__intro">
+    <!-- Level 1: global score, coverage and the three fixes to make first. -->
+    <section class="report__summary" aria-labelledby="synthese">
+      <header class="report__head">
         <h1 id="synthese">{{ heading }}</h1>
-        <p class="mono muted">{{ report.url }}</p>
+        <p class="mono report__url">{{ report.url }}</p>
         <p v-if="report.finalUrl !== report.url" class="small muted">
           Page finale après redirection : <span class="mono">{{ report.finalUrl }}</span>
         </p>
-        <p v-if="report.page.title" class="small">Titre de la page : {{ report.page.title }}</p>
         <p class="small muted">
+          <template v-if="report.page.title">Titre de la page : {{ report.page.title }}. </template>
           Analysée le {{ formatDateTime(report.analyzedAt) }}, référentiel
-          {{ report.reference.name }}
+          {{ report.reference.name }}.
+          <template v-if="live">
+            Rapport conservé jusqu’au {{ formatExpiry(report.analyzedAt, 30) }}.
+          </template>
         </p>
-        <p class="report__global">
-          <span class="text-h3">Score global indicatif</span>
-          <TierLabel :score="report.scores.global.score" />
-        </p>
-        <ul class="plain-list report__counts small">
-          <li>{{ globalCoverageLabel(report.scores.global) }}</li>
-          <li class="tone-bad">
-            <StatusIcon icon="cross" />
+      </header>
+
+      <div class="report__score">
+        <ScoreGauge
+          :score="report.scores.global.score"
+          :size="136"
+          suffix
+          :label="gaugeAccessibleName('Score global indicatif', report.scores.global)"
+        />
+        <div class="report__score-text">
+          <p class="report__global">
+            <span class="text-h3">Score global indicatif</span>
+            <TierLabel :score="report.scores.global.score" />
+          </p>
+          <p>{{ globalCoverageLabel(report.scores.global) }}</p>
+          <p class="small">
             <strong>{{ counts['non-conforme'] }}</strong>
-            {{ counts['non-conforme'] > 1 ? 'non conformes' : 'non conforme' }}
+            {{ counts['non-conforme'] > 1 ? 'critères non conformes' : 'critère non conforme' }}
+            (test automatique), <strong>{{ counts['a-verifier'] }}</strong> à vérifier manuellement.
+          </p>
+          <p class="small muted">
+            Scores indicatifs. Ils ne constituent pas un taux de conformité RGAA et ne doivent pas
+            être repris dans une déclaration d’accessibilité.
+          </p>
+        </div>
+      </div>
+
+      <div class="report__fixes">
+        <h2 id="priorites">Corrections prioritaires</h2>
+        <ol v-if="fixes.length" class="report__fix-list" aria-labelledby="priorites">
+          <li v-for="f in fixes" :key="f.criterion.id">
+            <p class="report__fix">{{ f.fix }}</p>
+            <p class="small muted">
+              Critère {{ f.criterion.id }} ({{ themeName(f.criterion.theme) }}),
+              {{ pluralize(f.count, 'élément concerné', 'éléments concernés') }}.
+            </p>
           </li>
-          <li class="tone-manual">
-            <StatusIcon icon="eye" />
-            <strong>{{ counts['a-verifier'] }}</strong> à vérifier manuellement
-          </li>
-        </ul>
-        <p v-if="live" class="small muted">
-          Rapport conservé jusqu’au {{ formatExpiry(report.analyzedAt, 30) }}.
+        </ol>
+        <p v-else>
+          Aucune erreur détectée automatiquement. Les critères à vérifier manuellement restent à
+          contrôler.
         </p>
       </div>
+
       <div class="report__actions">
         <CopyLinkButton />
         <button type="button" class="btn btn-secondary btn-small" @click="exportJson">
@@ -141,7 +151,83 @@ onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
       </div>
     </section>
 
-    <details v-if="live && report.hasScreenshot" class="card report__shot">
+    <!-- Level 2: the 13 themes, one line each. -->
+    <section aria-labelledby="themes" class="report__section">
+      <h2 id="themes">Scores par thématique</h2>
+      <p class="small muted">
+        Part des critères testés automatiquement sans erreur détectée, sur 100.
+      </p>
+      <ul class="plain-list theme-list">
+        <li v-for="t in themes" :key="t.theme" class="theme-row">
+          <span class="theme-row__name">{{ t.theme }}. {{ t.title }}</span>
+          <span class="theme-row__score" role="img" :aria-label="gaugeAccessibleName(t.title, t)">
+            <span aria-hidden="true">{{ t.score ?? '–' }}</span>
+          </span>
+          <TierLabel :score="t.score" class="theme-row__tier" />
+          <span class="small muted theme-row__coverage">{{ coverageLabel(t) }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Level 3: criterion details, only when opened. -->
+    <section id="details" aria-labelledby="details-titre" class="report__section">
+      <h2 id="details-titre">Détail des critères</h2>
+      <details class="disclosure">
+        <summary>Afficher le détail des {{ report.criteria.length }} critères</summary>
+        <div class="disclosure__body">
+          <div class="filters">
+            <div role="group" aria-labelledby="filtre-statut" class="filters__group">
+              <span id="filtre-statut" class="filters__label">Statut</span>
+              <button
+                v-for="s in STATUS_ORDER"
+                :key="s"
+                type="button"
+                class="filter"
+                :aria-pressed="statuses.has(s) ? 'true' : 'false'"
+                @click="toggleStatus(s)"
+              >
+                <StatusIcon :icon="STATUS_INFO[s].icon" />
+                {{ STATUS_INFO[s].plural }} ({{ counts[s] }})
+              </button>
+            </div>
+            <div class="filters__group">
+              <label for="filtre-theme" class="filters__label">Thématique</label>
+              <select id="filtre-theme" class="field-input filters__select" @change="onThemeChange">
+                <option value="">Toutes les thématiques</option>
+                <option v-for="t in themes" :key="t.theme" :value="t.theme">
+                  {{ t.theme }}. {{ t.title }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <p class="small" role="status">
+            {{ pluralize(shown.length, 'critère affiché', 'critères affichés') }}
+          </p>
+          <TransitionGroup tag="ul" name="list" class="plain-list criteria-list">
+            <li v-for="c in shown" :key="c.id">
+              <CriterionItem :criterion="c" :theme-name="`${c.theme}. ${themeName(c.theme)}`" />
+            </li>
+          </TransitionGroup>
+          <p v-if="shown.length === 0">{{ emptyMessage }}</p>
+        </div>
+      </details>
+    </section>
+
+    <section aria-labelledby="manuel" class="report__section">
+      <h2 id="manuel">À vérifier manuellement</h2>
+      <details class="disclosure">
+        <summary>Afficher la liste des {{ manual.length }} critères à vérifier</summary>
+        <div class="disclosure__body">
+          <p class="muted">
+            Ces critères demandent un jugement humain. Cochez-les au fur et à mesure de vos
+            vérifications.
+          </p>
+          <ManualChecklist :report-id="report.id" :criteria="manual" :theme-name="themeName" />
+        </div>
+      </details>
+    </section>
+
+    <details v-if="live && report.hasScreenshot" class="disclosure report__shot">
       <summary>Voir la capture d’écran de la page analysée</summary>
       <img
         :src="screenshotUrl(report.id)"
@@ -149,72 +235,6 @@ onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
         loading="lazy"
       />
     </details>
-
-    <section aria-labelledby="themes" class="stack">
-      <div>
-        <h2 id="themes">Scores par thématique</h2>
-        <p class="small muted">
-          Part des critères testés automatiquement sans erreur détectée, sur 100.
-        </p>
-      </div>
-      <ul class="plain-list theme-grid">
-        <li v-for="t in themes" :key="t.theme" ref="cards" class="card theme-card">
-          <ScoreGauge :score="t.score" :size="64" :label="gaugeAccessibleName(t.title, t)" />
-          <div class="theme-card__text">
-            <h3 class="theme-card__name">{{ t.title }}</h3>
-            <TierLabel :score="t.score" />
-            <span class="small muted">{{ coverageLabel(t) }}</span>
-          </div>
-        </li>
-      </ul>
-    </section>
-
-    <section id="details" aria-labelledby="details-titre" class="stack">
-      <h2 id="details-titre">Détail des critères</h2>
-      <div class="filters">
-        <div role="group" aria-labelledby="filtre-statut" class="filters__group">
-          <span id="filtre-statut" class="filters__label">Statut</span>
-          <button
-            v-for="s in STATUS_ORDER"
-            :key="s"
-            type="button"
-            class="filter"
-            :aria-pressed="statuses.has(s) ? 'true' : 'false'"
-            @click="toggleStatus(s)"
-          >
-            <StatusIcon :icon="STATUS_INFO[s].icon" />
-            {{ STATUS_INFO[s].plural }} ({{ counts[s] }})
-          </button>
-        </div>
-        <div class="filters__group">
-          <label for="filtre-theme" class="filters__label">Thématique</label>
-          <select id="filtre-theme" class="field-input filters__select" @change="onThemeChange">
-            <option value="">Toutes les thématiques</option>
-            <option v-for="t in themes" :key="t.theme" :value="t.theme">
-              {{ t.theme }}. {{ t.title }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <p class="small" role="status">
-        {{ pluralize(shown.length, 'critère affiché', 'critères affichés') }}
-      </p>
-      <TransitionGroup tag="ul" name="list" class="plain-list stack">
-        <li v-for="c in shown" :key="c.id">
-          <CriterionItem :criterion="c" :theme-name="`${c.theme}. ${themeName(c.theme)}`" />
-        </li>
-      </TransitionGroup>
-      <p v-if="shown.length === 0" class="note">{{ emptyMessage }}</p>
-    </section>
-
-    <section aria-labelledby="manuel" class="stack">
-      <h2 id="manuel">À vérifier manuellement</h2>
-      <p class="muted">
-        Ces critères demandent un jugement humain. Cochez-les au fur et à mesure de vos
-        vérifications.
-      </p>
-      <ManualChecklist :report-id="report.id" :criteria="manual" :theme-name="themeName" />
-    </section>
   </div>
 </template>
 
@@ -223,17 +243,38 @@ onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
-  padding-block: var(--space-6) var(--space-12);
+  padding-block: var(--space-12);
+}
+
+.report > * {
+  max-width: 60rem;
 }
 
 .report__summary {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.report__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.report__url {
+  font-size: var(--text-small-size);
+}
+
+.report__score {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-6);
+  padding-block: var(--space-6);
+  border-block: 1px solid var(--color-border);
 }
 
-.report__intro {
+.report__score-text {
   flex: 1 1 20rem;
   min-width: 0;
   display: flex;
@@ -248,65 +289,105 @@ onMounted(() => cards.value.forEach((el, i) => enter(el, i * 40)));
   gap: var(--space-2) var(--space-4);
 }
 
-.report__counts {
+.report__fixes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.report__fix-list {
+  margin: 0;
+  padding-inline-start: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.report__fix-list li::marker {
+  font-weight: 700;
+  color: var(--color-brand);
+}
+
+.report__fix {
+  font-weight: 700;
+}
+
+.report__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2) var(--space-4);
 }
 
-.report__counts li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-}
-
-.report__actions {
+.report__section {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
-.report__shot summary {
+.theme-list {
+  border-top: 1px solid var(--color-border);
+}
+
+.theme-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 11rem) minmax(0, 13rem);
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  padding-block: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.theme-row__name {
+  font-weight: 700;
+}
+
+.theme-row__score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-align: end;
+}
+
+@media (max-width: 45em) {
+  .theme-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .theme-row__tier,
+  .theme-row__coverage {
+    grid-column: 1 / -1;
+  }
+
+  .theme-row__score {
+    grid-row: 1;
+    grid-column: 2;
+  }
+}
+
+.disclosure > summary {
   cursor: pointer;
   font-weight: 700;
   color: var(--color-brand);
+  padding-block: var(--space-2);
+}
+
+.disclosure__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+}
+
+.criteria-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-border);
 }
 
 .report__shot img {
   display: block;
   margin-top: var(--space-4);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
-  gap: var(--space-4);
-}
-
-.theme-card {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4);
-}
-
-.theme-card__text {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.theme-card__name {
-  font-size: var(--text-body-size);
-  line-height: var(--text-body-line);
 }
 
 .filters {

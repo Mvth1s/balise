@@ -6,6 +6,7 @@ import {
   countByStatus,
   exportFileName,
   filterCriteria,
+  priorityFixes,
   safeHref,
 } from './report';
 
@@ -63,5 +64,28 @@ describe('report helpers', () => {
     }
     expect(DEMO_REPORTS.apres.scores.global.nonConformes).toBe(0);
     expect(DEMO_REPORTS.avant.scores.global.nonConformes).toBeGreaterThan(0);
+  });
+});
+
+describe('priorityFixes', () => {
+  const finding = (fix: string, count: number) =>
+    ({ rule: fix, engine: 'axe', explanation: '', fix, count, nodes: [] }) as const;
+  const crit = (id: string, status: string, findings: ReturnType<typeof finding>[]) =>
+    ({ id, theme: 1, title: id, url: '', status, rules: [], findings }) as never;
+  it('keeps the 3 non-compliant criteria with the most elements, one fix each', () => {
+    const report = {
+      criteria: [
+        crit('1.1', 'non-conforme', [finding('a', 1), finding('b', 4)]),
+        crit('1.2', 'conforme', []),
+        crit('3.2', 'non-conforme', [finding('c', 2)]),
+        crit('6.2', 'non-conforme', [finding('d', 9)]),
+        crit('8.5', 'non-conforme', [finding('e', 2)]),
+      ],
+    } as never;
+    expect(priorityFixes(report).map((p) => [p.criterion.id, p.fix, p.count])).toEqual([
+      ['6.2', 'd', 9],
+      ['1.1', 'b', 5],
+      ['3.2', 'c', 2],
+    ]);
   });
 });
