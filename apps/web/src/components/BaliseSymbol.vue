@@ -5,12 +5,16 @@
  * check would not be readable on the light green of the dark theme.
  * Decorative by default; pass `label` when the symbol is alone.
  */
-withDefaults(defineProps<{ size?: number; label?: string }>(), { size: 40, label: '' });
+withDefaults(
+  defineProps<{ size?: number; label?: string; animated?: boolean; paused?: boolean }>(),
+  { size: 40, label: '', animated: false, paused: false },
+);
 </script>
 
 <template>
   <svg
     class="balise-symbol"
+    :class="{ 'balise-symbol--animated': animated, 'balise-symbol--paused': paused }"
     :width="size"
     :height="size"
     viewBox="0 0 64 64"
@@ -22,7 +26,9 @@ withDefaults(defineProps<{ size?: number; label?: string }>(), { size: 40, label
   >
     <rect width="64" height="64" rx="16" fill="#0E5C4A" />
     <path
+      class="balise-symbol__arc"
       d="M19.3 44.7A18 18 0 1 1 44.7 44.7"
+      pathLength="100"
       fill="none"
       stroke="#FAF8F4"
       stroke-width="5.5"
@@ -43,6 +49,28 @@ withDefaults(defineProps<{ size?: number; label?: string }>(), { size: 40, label
 .balise-symbol {
   flex: none;
   display: block;
+}
+
+/* Looping gauge (analysis screen); paused by its button, off when motion is reduced. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-motion='on'] .balise-symbol--animated .balise-symbol__arc {
+    stroke-dasharray: 100;
+    animation: balise-gauge 1600ms ease-in-out infinite alternate;
+  }
+
+  html[data-motion='on'] .balise-symbol--paused .balise-symbol__arc {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes balise-gauge {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 @media (forced-colors: active) {
