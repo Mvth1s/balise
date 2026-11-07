@@ -328,6 +328,15 @@ importers:
         specifier: 4.14.0
         version: 4.14.0
 
+  worker:
+    dependencies:
+      '@balise/analyzer':
+        specifier: workspace:*
+        version: link:../packages/analyzer
+      '@vercel/functions':
+        specifier: 3.10.3
+        version: 3.10.3(ws@8.22.0)
+
 packages:
 
   '@acemir/cssom@0.9.32':

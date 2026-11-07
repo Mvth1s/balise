@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "cd .. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd .. && pnpm build:packages && rm -rf worker/chromium && cp -rL node_modules/.pnpm/@sparticuz+chromium@*/node_modules/@sparticuz/chromium/bin worker/chromium && mkdir -p worker/public && echo ok > worker/public/index.txt",
+  "outputDirectory": "public",
+  "regions": ["cdg1"],
+  "functions": {
+    "api/run.ts": {
+      "maxDuration": 300,
+      "memory": 2048,
+      "includeFiles": "chromium/**"
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}
