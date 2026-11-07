@@ -20,11 +20,11 @@
   },
   "scores": {
     "global": {
-      "conformes": 3,
+      "conformes": 5,
       "nonConformes": 27,
-      "tested": 30,
+      "tested": 32,
       "total": 106,
-      "score": 10,
+      "score": 16,
       "tier": "bad"
     },
     "themes": [
@@ -141,22 +141,22 @@
       {
         "theme": 12,
         "title": "Navigation",
-        "conformes": 0,
+        "conformes": 1,
         "nonConformes": 2,
-        "tested": 2,
+        "tested": 3,
         "total": 11,
-        "score": 0,
+        "score": 33,
         "tier": "bad"
       },
       {
         "theme": 13,
         "title": "Consultation",
-        "conformes": 0,
+        "conformes": 1,
         "nonConformes": 1,
-        "tested": 1,
+        "tested": 2,
         "total": 12,
-        "score": 0,
-        "tier": "bad"
+        "score": 50,
+        "tier": "warn"
       }
     ]
   },
@@ -1088,7 +1088,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.4",
       "status": "a-verifier",
       "rules": [
-        "meta-viewport"
+        "meta-viewport",
+        "balise-text-zoom"
       ],
       "findings": []
     },
@@ -1125,13 +1126,13 @@
         {
           "rule": "balise-focus-visible",
           "engine": "balise",
-          "explanation": "Cet élément ne change pas d’apparence quand il reçoit le focus : au clavier, on ne sait pas où l’on se trouve.",
+          "explanation": "Cet élément ne change pas d’apparence quand il reçoit le focus au clavier : on ne sait pas où l’on se trouve.",
           "fix": "N’utilisez pas outline: none sans alternative ; ajoutez un style :focus-visible bien visible.",
           "count": 1,
           "nodes": [
             {
               "selector": "#contenu > div > div:nth-of-type(2) > section:nth-of-type(6) > div:nth-of-type(2) > a",
-              "html": "<a href=\"#horaires\" class=\"demo-nofocus\">Horaires détaillés</a>"
+              "html": "<a href=\"#horaires\" class=\"demo-nofocus\" data-balise-f=\"16\" data-balise-fs=\"none|3px|rgb(14, 92, 74)|none|rgb(14, 92, 74)|rgb(14, 92, 74)|0px|rgba(0, 0, 0, 0)|rgb(14, 92, 74)|underline|1px|none#none|3px|rgb(14, 92, 74)|none|rgb(14, 92, 74)|rgb(14, 92, 74)|0px|rgba(0, 0, 0, 0)|rgb(14, 92, 74)|none|auto|none#none|3px|rgb(14, 92, 74)|none|rgb(14, 92, 74)|rgb(14, 92, 74)|0px|rgba(0, 0, 0, 0)|rgb(14, 92, 74)|none|auto|none#none|3px|rgb(27, 31, 29)|none|rgb(27, 31, 29)|rgb(27, 31, 2…"
             }
           ]
         }
@@ -1188,7 +1189,9 @@
       "title": "Pour chaque page web, les contenus peuvent-ils être présentés sans perte d’information ou de fonctionnalité et sans avoir recours soit à un défilement vertical pour une fenêtre ayant une hauteur de 256 px, soit à un défilement horizontal pour une fenêtre ayant une largeur de 320 px (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.11",
       "status": "a-verifier",
-      "rules": [],
+      "rules": [
+        "balise-reflow"
+      ],
       "findings": []
     },
     {
@@ -1198,7 +1201,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.12",
       "status": "a-verifier",
       "rules": [
-        "avoid-inline-spacing"
+        "avoid-inline-spacing",
+        "balise-text-spacing"
       ],
       "findings": []
     },
@@ -1208,7 +1212,9 @@
       "title": "Dans chaque page web, les contenus additionnels apparaissant à la prise de focus ou au survol d’un composant d’interface sont-ils contrôlables par l’utilisateur (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.13",
       "status": "a-verifier",
-      "rules": [],
+      "rules": [
+        "balise-hover-content"
+      ],
       "findings": []
     },
     {
@@ -1518,7 +1524,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.8",
       "status": "non-conforme",
       "rules": [
-        "tabindex"
+        "tabindex",
+        "balise-tab-order"
       ],
       "findings": [
         {
@@ -1542,8 +1549,10 @@
       "theme": 12,
       "title": "Dans chaque page web, la navigation ne doit pas contenir de piège au clavier. Cette règle est-elle respectée ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.9",
-      "status": "a-verifier",
-      "rules": [],
+      "status": "conforme",
+      "rules": [
+        "balise-keyboard-trap"
+      ],
       "findings": []
     },
     {
@@ -1571,7 +1580,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.1",
       "status": "a-verifier",
       "rules": [
-        "meta-refresh"
+        "meta-refresh",
+        "balise-auto-refresh"
       ],
       "findings": []
     },
@@ -1580,8 +1590,10 @@
       "theme": 13,
       "title": "Dans chaque page web, l’ouverture d’une nouvelle fenêtre ne doit pas être déclenchée sans action de l’utilisateur. Cette règle est-elle respectée ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.2",
-      "status": "a-verifier",
-      "rules": [],
+      "status": "conforme",
+      "rules": [
+        "balise-new-window"
+      ],
       "findings": []
     },
     {
@@ -1649,7 +1661,8 @@
       "status": "non-conforme",
       "rules": [
         "blink",
-        "marquee"
+        "marquee",
+        "balise-moving-content"
       ],
       "findings": [
         {
@@ -1675,7 +1688,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.9",
       "status": "a-verifier",
       "rules": [
-        "css-orientation-lock"
+        "css-orientation-lock",
+        "balise-orientation"
       ],
       "findings": []
     },

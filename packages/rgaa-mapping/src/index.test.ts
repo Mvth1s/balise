@@ -37,6 +37,16 @@ const BALISE_RULES = [
   'balise-group-legend',
   'balise-empty-paragraph',
   'balise-focus-visible',
+  'balise-keyboard-trap',
+  'balise-tab-order',
+  'balise-hover-content',
+  'balise-text-spacing',
+  'balise-text-zoom',
+  'balise-reflow',
+  'balise-new-window',
+  'balise-auto-refresh',
+  'balise-moving-content',
+  'balise-orientation',
 ];
 
 describe('loader API', () => {

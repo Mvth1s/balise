@@ -20,9 +20,9 @@
   },
   "scores": {
     "global": {
-      "conformes": 4,
+      "conformes": 6,
       "nonConformes": 0,
-      "tested": 4,
+      "tested": 6,
       "total": 106,
       "score": 100,
       "tier": "good"
@@ -141,22 +141,22 @@
       {
         "theme": 12,
         "title": "Navigation",
-        "conformes": 0,
+        "conformes": 1,
         "nonConformes": 0,
-        "tested": 0,
+        "tested": 1,
         "total": 11,
-        "score": null,
-        "tier": null
+        "score": 100,
+        "tier": "good"
       },
       {
         "theme": 13,
         "title": "Consultation",
-        "conformes": 0,
+        "conformes": 1,
         "nonConformes": 0,
-        "tested": 0,
+        "tested": 1,
         "total": 12,
-        "score": null,
-        "tier": null
+        "score": 100,
+        "tier": "good"
       }
     ]
   },
@@ -813,7 +813,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.4",
       "status": "a-verifier",
       "rules": [
-        "meta-viewport"
+        "meta-viewport",
+        "balise-text-zoom"
       ],
       "findings": []
     },
@@ -884,7 +885,9 @@
       "title": "Pour chaque page web, les contenus peuvent-ils être présentés sans perte d’information ou de fonctionnalité et sans avoir recours soit à un défilement vertical pour une fenêtre ayant une hauteur de 256 px, soit à un défilement horizontal pour une fenêtre ayant une largeur de 320 px (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.11",
       "status": "a-verifier",
-      "rules": [],
+      "rules": [
+        "balise-reflow"
+      ],
       "findings": []
     },
     {
@@ -894,7 +897,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.12",
       "status": "a-verifier",
       "rules": [
-        "avoid-inline-spacing"
+        "avoid-inline-spacing",
+        "balise-text-spacing"
       ],
       "findings": []
     },
@@ -904,7 +908,9 @@
       "title": "Dans chaque page web, les contenus additionnels apparaissant à la prise de focus ou au survol d’un composant d’interface sont-ils contrôlables par l’utilisateur (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.13",
       "status": "a-verifier",
-      "rules": [],
+      "rules": [
+        "balise-hover-content"
+      ],
       "findings": []
     },
     {
@@ -1129,7 +1135,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.8",
       "status": "a-verifier",
       "rules": [
-        "tabindex"
+        "tabindex",
+        "balise-tab-order"
       ],
       "findings": []
     },
@@ -1138,8 +1145,10 @@
       "theme": 12,
       "title": "Dans chaque page web, la navigation ne doit pas contenir de piège au clavier. Cette règle est-elle respectée ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.9",
-      "status": "a-verifier",
-      "rules": [],
+      "status": "conforme",
+      "rules": [
+        "balise-keyboard-trap"
+      ],
       "findings": []
     },
     {
@@ -1167,7 +1176,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.1",
       "status": "a-verifier",
       "rules": [
-        "meta-refresh"
+        "meta-refresh",
+        "balise-auto-refresh"
       ],
       "findings": []
     },
@@ -1176,8 +1186,10 @@
       "theme": 13,
       "title": "Dans chaque page web, l’ouverture d’une nouvelle fenêtre ne doit pas être déclenchée sans action de l’utilisateur. Cette règle est-elle respectée ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.2",
-      "status": "a-verifier",
-      "rules": [],
+      "status": "conforme",
+      "rules": [
+        "balise-new-window"
+      ],
       "findings": []
     },
     {
@@ -1245,7 +1257,8 @@
       "status": "a-verifier",
       "rules": [
         "blink",
-        "marquee"
+        "marquee",
+        "balise-moving-content"
       ],
       "findings": []
     },
@@ -1256,7 +1269,8 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.9",
       "status": "a-verifier",
       "rules": [
-        "css-orientation-lock"
+        "css-orientation-lock",
+        "balise-orientation"
       ],
       "findings": []
     },

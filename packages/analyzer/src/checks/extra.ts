@@ -335,65 +335,6 @@ export function checkEmptyParagraphs(doc: Document, describe: DescribeFn): Check
     : { rule, outcome: 'pass', nodes: [] };
 }
 
-/**
- * RGAA 10.7: focusing an element changes its rendering. Compares the computed
- * style before and after focus(); elements with transitions are skipped (their
- * computed style lags). Restores the previous focus.
- */
-export function checkFocusVisible(doc: Document, describe: DescribeFn): CheckResult {
-  const rule = 'balise-focus-visible';
-  const view = doc.defaultView;
-  if (!view) return { rule, outcome: 'incomplete', nodes: [] };
-  const candidates = Array.from(
-    doc.querySelectorAll(
-      'a[href], button, input:not([type="hidden"]), select, textarea, [tabindex="0"]',
-    ),
-  )
-    .filter((el) => {
-      const h = el as HTMLElement;
-      if (h.hasAttribute('disabled') || h.closest('[inert], [aria-hidden="true"]')) return false;
-      const s = view.getComputedStyle(h);
-      return s.visibility !== 'hidden' && s.display !== 'none' && h.getClientRects().length > 0;
-    })
-    .slice(0, 40);
-  if (candidates.length === 0) return { rule, outcome: 'inapplicable', nodes: [] };
-  const PROPS = [
-    'outline-style',
-    'outline-width',
-    'outline-color',
-    'box-shadow',
-    'border-top-color',
-    'border-bottom-color',
-    'border-bottom-width',
-    'background-color',
-    'color',
-    'text-decoration-line',
-    'text-decoration-thickness',
-  ];
-  const snap = (el: Element): string => {
-    const s = view.getComputedStyle(el);
-    return PROPS.map((p) => s.getPropertyValue(p)).join('|');
-  };
-  const previous = doc.activeElement as HTMLElement | null;
-  const bad: Element[] = [];
-  let tested = 0;
-  for (const el of candidates) {
-    const s = view.getComputedStyle(el);
-    if (s.transitionDuration.split(',').some((d) => parseFloat(d) > 0)) continue;
-    const before = snap(el);
-    (el as HTMLElement).focus({ preventScroll: true });
-    if (doc.activeElement !== el) continue;
-    tested += 1;
-    if (snap(el) === before) bad.push(el);
-    (el as HTMLElement).blur();
-  }
-  previous?.focus?.({ preventScroll: true });
-  if (tested === 0) return { rule, outcome: 'incomplete', nodes: [] };
-  return bad.length
-    ? { rule, outcome: 'fail', nodes: bad.slice(0, 20).map(describe) }
-    : { rule, outcome: 'pass', nodes: [] };
-}
-
 export const EXTRA_CHECKS: ReadonlyArray<{ rule: string; fn: CheckFn }> = [
   { rule: 'balise-doctype', fn: checkDoctype },
   { rule: 'balise-duplicate-id', fn: checkDuplicateId },
@@ -409,6 +350,5 @@ export const EXTRA_CHECKS: ReadonlyArray<{ rule: string; fn: CheckFn }> = [
   { rule: 'balise-radio-group', fn: checkRadioGroups },
   { rule: 'balise-group-legend', fn: checkGroupLegends },
   { rule: 'balise-empty-paragraph', fn: checkEmptyParagraphs },
-  // Last: moves the focus around.
-  { rule: 'balise-focus-visible', fn: checkFocusVisible },
+  // balise-focus-visible (10.7) is a keyboard interaction test: see interactions.ts.
 ];
