@@ -43,6 +43,11 @@ describe('redis store', () => {
         data.set(key, value);
         return 'OK';
       }),
+      getdel: async <T>(key: string) => {
+        const value = (data.get(key) as T) ?? null;
+        data.delete(key);
+        return value;
+      },
     };
     const store = createRedisStore(redis);
     await store.put(status);
@@ -57,6 +62,12 @@ describe('redis store', () => {
     });
     expect(await store.getScreenshot('abcdefgh')).toEqual(Buffer.from('jpeg'));
     expect(await store.getScreenshot('other')).toBeNull();
+    // Report tokens: single use.
+    await store.putToken('abcdefgh', 'n1', 60);
+    expect(await store.consumeToken('abcdefgh', 'bad')).toBe(false);
+    await store.putToken('abcdefgh', 'n1', 60);
+    expect(await store.consumeToken('abcdefgh', 'n1')).toBe(true);
+    expect(await store.consumeToken('abcdefgh', 'n1')).toBe(false);
   });
 });
 

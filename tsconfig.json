@@ -4,5 +4,12 @@
     "noEmit": true,
     "rewriteRelativeImportExtensions": true
   },
-  "include": ["api/**/*.ts", "server/**/*.ts", "scripts/**/*.ts", "e2e/**/*.ts", "*.config.ts"]
+  "include": [
+    "api/**/*.ts",
+    "worker/api/**/*.ts",
+    "server/**/*.ts",
+    "scripts/**/*.ts",
+    "e2e/**/*.ts",
+    "*.config.ts"
+  ]
 }

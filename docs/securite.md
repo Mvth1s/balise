@@ -16,6 +16,7 @@ Balise charge, à la demande de n'importe quel visiteur anonyme, une page web ar
 | Visiteurs de Balise                          | Injection de contenu issu de la page analysée (XSS) dans le rapport            | Échappement systématique, CSP stricte (§ 6)                                 |
 | Vie privée des visiteurs                     | Conservation d'adresses IP                                                     | IP jamais stockée en clair : HMAC salé (§ 4)                                |
 | Secrets (Upstash, sel)                       | Fuite via le dépôt                                                             | Variables d'environnement Vercel uniquement, aucun secret versionné         |
+| Secrets (Upstash, sel, clé de signature)     | Lecture par du code exécuté via une faille de Chromium                         | Chromium dans un projet Vercel séparé, sans aucun secret (§ 9)              |
 
 Hors périmètre : la page analysée elle-même (Balise n'agit pas en son nom), les attaques contre le poste de l'utilisateur hors de l'interface de Balise.
 
@@ -124,7 +125,7 @@ Les flux compressés (gzip, deflate, brotli, zstd) sont décompressés en flux e
 
 ## 7. Secrets et dépendances
 
-- Aucun secret dans le dépôt : `KV_REST_API_URL`, `KV_REST_API_TOKEN` et `RATE_LIMIT_SALT` sont des variables d'environnement Vercel (voir `docs/exploitation.md`).
+- Aucun secret dans le dépôt : `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `RATE_LIMIT_SALT` et `BALISE_TOKEN_PRIVATE_KEY` sont des variables d'environnement Vercel du projet `balise` (voir `docs/exploitation.md`). Le projet `balise-worker` n'en reçoit aucune.
 - Audit hebdomadaire `pnpm audit --prod --audit-level high` (`.github/workflows/audit.yml`). Les correctifs de dépendances transitives passent par `overrides` dans `pnpm-workspace.yaml` (par exemple `zod` sous `@vercel/cli-config`).
 - Dépendances épinglées en version exacte, jamais installées moins de 14 jours après leur publication (`minimumReleaseAge`), surveillées par Dependabot, CodeQL et la revue de dépendances en CI.
 
@@ -134,5 +135,35 @@ Les flux compressés (gzip, deflate, brotli, zstd) sont décompressés en flux e
 - La page analysée peut détecter Balise (signature `BaliseBot` dans l'agent utilisateur, volontaire) et servir un contenu différent.
 - Le délai de 60 s porte sur le chargement ; axe-core sur une page très lourde peut allonger l'analyse, bornée à 240 s au total.
 - **Chromium sans bac à sable sur Vercel** : l'environnement Lambda n'offre pas les espaces de noms nécessaires, `@sparticuz/chromium` impose `--no-sandbox` et `--single-process`, et l'isolation des sites (`IsolateOrigins`, `site-per-process`) reste désactivée, sans objet en processus unique. Une faille du moteur de rendu exploitée par une page donne donc l'exécution de code dans la fonction. Atténuations : JIT désactivé, Chromium à jour (même majeure que `playwright-core`), aucune requête réseau directe possible (proxy mort, interception), fonction éphémère.
-- **Secrets dans la même fonction que Chromium** : la fonction d'analyse détient les identifiants Upstash et `RATE_LIMIT_SALT`. Une exécution de code obtenue via Chromium pourrait les lire, puis écrire ou effacer des rapports et contourner la limitation de débit. Piste : exécuter le navigateur dans une fonction distincte sans secret, qui ne renvoie que le rapport à une fonction appelante (ou un jeton Upstash limité à certaines commandes et à un préfixe de clés). Non réalisé à ce stade ; risque accepté.
+- **Worker compromis** : du code exécuté via Chromium peut envoyer un faux rapport **pour l'analyse en cours uniquement** (il détient son jeton), ou rejouer pendant 280 s l'appel de déclenchement reçu. Il ne peut ni lire ni écrire d'autres analyses, ni contourner la limitation de débit, ni fabriquer de jeton (§ 9).
+- **Progression** : le worker ne pouvant pas écrire, l'état passe de « Prise en charge » à « Terminé » sans étapes intermédiaires côté serveur ; l'interface affiche les étapes au rythme minimal de 600 ms.
 - **Distinction `dns_failure`** : un nom inexistant répond `dns_failure` et non `forbidden_target`. Un attaquant peut ainsi savoir si un nom se résout depuis l'infrastructure, information déjà publique pour les noms publics ; les noms internes (`.internal`, `.local`…) sont refusés avant toute résolution. Le code est conservé car il aide l'utilisateur à corriger une faute de frappe.
+
+## 9. Isolation de Chromium
+
+Sur Vercel, les variables d'environnement sont communes à toutes les fonctions d'un projet. Chromium tourne donc dans un **projet Vercel distinct**, `balise-worker` (dossier `worker/`, racine du projet = `worker`), qui ne reçoit que deux variables non secrètes : `BALISE_TOKEN_PUBLIC_KEY` et `BALISE_API_ORIGIN`.
+
+```
+navigateur ──POST /api/analyses──▶ balise (Redis, sel, clé privée)
+                                     │ 1. valide l'URL, limite le débit, enregistre « pending »
+                                     │ 2. stocke un nonce, signe un jeton Ed25519 {id, url, exp, nonce}
+                                     ▼
+                         balise-worker POST /api/run {id, url, token}
+                                     │ 3. vérifie la signature (clé publique), l'id et l'URL
+                                     │ 4. revalide la cible (filtre SSRF), lance Chromium
+                                     │    (annulation lue sur GET /api/analyses/:id, public)
+                                     ▼
+              balise POST /api/analyses/:id/report  (Authorization: Bearer <jeton>)
+                                       5. vérifie signature, expiration, id ; consomme le nonce
+                                          (GETDEL atomique : usage unique) ; valide le rapport ; écrit
+```
+
+- **Seule la fonction `balise` écrit dans Redis.** Le worker refuse de démarrer (`500`, journal « configuration refusée ») si une variable `KV_*`, `UPSTASH_*`, `REDIS_*`, `RATE_LIMIT_SALT` ou `BALISE_TOKEN_PRIVATE_KEY` est présente (`server/worker.ts`, `FORBIDDEN_WORKER_ENV`).
+- **Jeton** (`server/report-token.ts`) : signature Ed25519, clé privée détenue par `balise` seulement ; durée de vie 280 s (au-dessus de la limite d'analyse de 240 s, sous la durée maximale de 300 s) ; lié à l'id et à l'URL ; à usage unique grâce au nonce stocké dans Redis et supprimé atomiquement par l'écrivain avant toute lecture du corps.
+- **Rapport reçu** (`server/worker-result.ts`) : corps limité à 4 Mo, forme vérifiée (version, id identique, critères bornés), capture acceptée seulement si elle commence par la signature JPEG, codes d'erreur restreints à la liste connue. L'interface échappe toujours le contenu (§ 6).
+- **Sur Vercel, le mode isolé est obligatoire** : sans `BALISE_WORKER_URL` (https) et `BALISE_TOKEN_PRIVATE_KEY`, l'API répond `500 internal`. En local et en test, l'analyse tourne dans le processus (pas de secret réel).
+- Génération des clés (à faire hors du dépôt) :
+
+  ```sh
+  node -e "const {generateKeyPairSync:g}=require('node:crypto');const k=g('ed25519');console.log('PRIVATE',k.privateKey.export({format:'der',type:'pkcs8'}).toString('base64'));console.log('PUBLIC',k.publicKey.export({format:'der',type:'spki'}).toString('base64'))"
+  ```
