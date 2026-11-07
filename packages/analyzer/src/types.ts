@@ -11,6 +11,8 @@ export type CriterionStatus =
   | 'conforme' // Conforme (auto)
   | 'non-conforme' // Non conforme (auto)
   | 'a-verifier' // À vérifier manuellement
+  | 'conforme-ia' // Conforme (IA)
+  | 'non-conforme-ia' // Non conforme (IA)
   | 'non-applicable'; // Non applicable
 
 export type ScoreTier = 'good' | 'warn' | 'bad';
@@ -68,6 +70,19 @@ export interface CriterionResult {
    * found (French labels, e.g. ["tableau"]).
    */
   absent?: string[];
+  /** AI judgement (statuses conforme-ia / non-conforme-ia only). */
+  ai?: AiJudgement;
+}
+
+export interface AiJudgement {
+  /** Short French justification. */
+  justification: string;
+  /** 0 to 1, as reported by the model. */
+  confidence: number;
+  /** Model identifier, e.g. "mistral-small-2603". */
+  model: string;
+  /** Elements concerned (selectors from the analysed page, raw). */
+  selectors: string[];
 }
 
 export interface AnalysisReport {

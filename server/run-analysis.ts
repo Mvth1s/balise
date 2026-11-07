@@ -9,6 +9,7 @@ import {
   toAnalysisError,
   type AnalysisReport,
   type AnalysisStep,
+  type JudgePack,
 } from '@balise/analyzer';
 import type { AnalyzeFn } from './handlers.ts';
 
@@ -17,7 +18,8 @@ export interface AnalysisSink {
   cancelled(): Promise<boolean>;
   /** Progress; may throw AnalysisAbortedError when cancelled meanwhile. */
   step(step: AnalysisStep): Promise<void>;
-  done(report: AnalysisReport, screenshot: Buffer): Promise<void>;
+  /** `pack`: elements for the AI judgement, judged by the API only. */
+  done(report: AnalysisReport, screenshot: Buffer, pack: JudgePack | null): Promise<void>;
   failed(error: { code: string; message: string }): Promise<void>;
 }
 
@@ -66,8 +68,8 @@ export async function runAnalysis(
     await step('queued');
     const running = analyze(url, { id, signal: controller.signal, onStep: step });
     running.catch(() => undefined); // may settle after the deadline
-    const { report, screenshot } = await Promise.race([running, deadline]);
-    await sink.done({ ...report, hasScreenshot: screenshot.length > 0 }, screenshot);
+    const { report, screenshot, pack } = await Promise.race([running, deadline]);
+    await sink.done({ ...report, hasScreenshot: screenshot.length > 0 }, screenshot, pack ?? null);
   } catch (error) {
     if (error instanceof AnalysisAbortedError && !timedOut) return; // cancelled by the user
     const err = timedOut

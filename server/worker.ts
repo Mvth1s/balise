@@ -19,7 +19,7 @@ import { runAnalysis, type AnalysisSink } from './run-analysis.ts';
 
 /** Variables that must never reach the function running Chromium. */
 export const FORBIDDEN_WORKER_ENV =
-  /^(KV_|UPSTASH_|REDIS_)|^(RATE_LIMIT_SALT|BALISE_TOKEN_PRIVATE_KEY)$/;
+  /^(KV_|UPSTASH_|REDIS_|MISTRAL_)|^(RATE_LIMIT_SALT|BALISE_TOKEN_PRIVATE_KEY)$/;
 
 export interface WorkerDeps {
   env: NodeJS.ProcessEnv;
@@ -91,8 +91,8 @@ export function createWorkerHandler(deps: WorkerDeps): ApiHandler {
       },
       // Progress is not reported: the worker cannot write, and the token is single-use.
       step: async () => undefined,
-      done: (report: AnalysisReport, screenshot: Buffer) =>
-        send({ report, screenshot: screenshot.toString('base64') }),
+      done: (report: AnalysisReport, screenshot: Buffer, pack) =>
+        send({ report, screenshot: screenshot.toString('base64'), pack }),
       failed: (error) => send({ error }),
     };
   };

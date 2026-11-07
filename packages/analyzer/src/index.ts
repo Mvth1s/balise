@@ -11,3 +11,4 @@ export * from './scoring.js';
 export * from './analyze.js';
 export * from './checks/index.js';
 export { BALISE_ENGINE_VERSION } from './version.js';
+export * from './judge-pack.js';
