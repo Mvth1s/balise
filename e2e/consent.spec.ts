@@ -12,6 +12,18 @@ function recordGoogleRequests(page: Page): string[] {
   return urls;
 }
 
+test('balise de validation Search Console dans le <head> des pages pré-rendues', async ({
+  request,
+}) => {
+  // Must never be removed (Google Search Console ownership).
+  for (const path of ['/', '/exemple', '/accessibilite', '/plan-du-site']) {
+    const html = await (await request.get(path)).text();
+    expect(html, path).toMatch(
+      /<head>[\s\S]*<meta name="google-site-verification" content="5zhJNn15A8d8qpvTlUSImbWVRzqMpYwF38jF4oJMpL0"[\s\S]*<\/head>/,
+    );
+  }
+});
+
 test.describe('Mesure d’audience', () => {
   test.skip(({ isMobile }) => isMobile, 'consent logic: desktop project is enough');
 
