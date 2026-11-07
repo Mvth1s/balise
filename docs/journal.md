@@ -39,3 +39,20 @@
 - Production : https://balise-tau.vercel.app (le domaine `balise.vercel.app` appartient à un autre projet Vercel). `VITE_SITE_URL` défini, `sitemap.xml` généré.
 - Test de fumée en production : 15 routes (dont 404), en-têtes de sécurité présents, analyse réelle de https://www.numerique.gouv.fr/ terminée avec capture, adresse de métadonnées refusée (422), corps non JSON refusé (415). Suites e2e axe, pages légales et affichage contre la production : 56 tests réussis (les deux tests qui supposent le faux moteur rapide sont propres à l'environnement local).
 - Release v1.0.0 publiée par semantic-release (preset `conventionalcommits` 9.3.1, compatible avec le générateur de notes embarqué).
+
+## Étape 8 — Couverture, animations, UX, isolation (2026-11-07)
+
+- Statut d'accessibilité : « non conforme », avec la mention qu'aucun audit n'a encore été réalisé (#8).
+- Écran d'analyse : 600 ms minimum par étape, jauge du logo en boucle avec bouton pause (#9).
+- Couverture automatique en trois temps, critères évalués (conforme, non conforme, non applicable) sur `/demo/avant` et quatre sites publics :
+
+  | Page               | Départ | Détection d'erreurs (#10) | Non applicable auto (#15) | Interactions (#17) |
+  | ------------------ | ------ | ------------------------- | ------------------------- | ------------------ |
+  | /demo/avant        | 16     | 30                        | 40                        | 42                 |
+  | service-public.fr  | 3      | 6                         | 34                        | 36                 |
+  | fr.wikipedia.org   | 6      | 11                        | 29                        | 30                 |
+  | legifrance.gouv.fr | 5      | 6                         | 26                        | 28                 |
+  | lemonde.fr         | 10     | 15                        | 44                        | 45                 |
+
+- Refonte UX : accueil épuré, rapport en trois niveaux (#13). Balise de validation Search Console (#14) ; consentement GA4 vérifié en production (aucune requête Google avant acceptation).
+- En attente : worker Chromium isolé (#18, projet Vercel `balise-worker` à créer) et jugement par IA Mistral (#19, empilée sur #18, clé à fournir). L'objectif de 86 critères évalués sur 106 n'est pas atteint par les seuls tests automatiques ; l'IA ajoute au plus 11 critères.
