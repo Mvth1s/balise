@@ -8,6 +8,7 @@ import type { Browser } from 'playwright-core';
 import { createHardenedContext, launchBrowser } from './browser.js';
 import { detectPagePresence, runChecks } from './checks/index.js';
 import { AnalysisAbortedError, throwIfAborted, toAnalysisError } from './errors.js';
+import { observePage, runInteractions, type InteractionOptions } from './interactions.js';
 import { mappedRules, mapResults } from './map-results.js';
 import { navigate, type FetchFn, type NavigationLimits } from './navigate.js';
 import { normalizeCheckResult, type NormalizedRuleResult } from './results.js';
@@ -29,6 +30,8 @@ export interface AnalyzeOptions {
   allowPrivateHosts?: boolean;
   limits?: Partial<NavigationLimits>;
   scoring?: ScoringConfig;
+  /** Interaction tests budget and idle time (tests use short values). */
+  interactions?: InteractionOptions;
   /** Injected browser launcher (tests). */
   launch?: () => Promise<Browser>;
   /** Injected fetch (tests). */
@@ -70,6 +73,7 @@ export async function analyzePage(
       throwIfAborted(signal);
       const context = await createHardenedContext(browser);
       const page = await context.newPage();
+      const observation = observePage(page);
       const nav = await navigate(page, url.href, {
         lookup,
         allowPrivateHosts: guard.allowPrivateHosts,
@@ -90,7 +94,14 @@ export async function analyzePage(
       throwIfAborted(signal);
 
       const presence = await detectPagePresence(page);
-      const results: NormalizedRuleResult[] = [...axeResults, ...checkResults];
+      // Last: changes the viewport, the focus and the pointer.
+      const interactionResults = await runInteractions(page, observation, options.interactions);
+      throwIfAborted(signal);
+      const results: NormalizedRuleResult[] = [
+        ...axeResults,
+        ...checkResults,
+        ...interactionResults,
+      ];
       const criteria = mapResults(ref, results, presence);
       const scores = computeScores(ref.themes, criteria, options.scoring ?? DEFAULT_SCORING_CONFIG);
       const finished = now();
