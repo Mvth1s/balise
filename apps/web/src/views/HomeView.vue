@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ArrowRight } from '@lucide/vue';
+import { ArrowRight, Check, Eye, Lock } from '@lucide/vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import ScoreGauge from '@/components/ScoreGauge.vue';
+import TierLabel from '@/components/TierLabel.vue';
 import { usePageMeta } from '@/composables/usePageMeta';
 import { drawStroke } from '@/lib/animate';
 import { ApiError, createAnalysis, describeError, type ErrorDescription } from '@/lib/api';
@@ -81,11 +83,13 @@ const describedBy = computed(() =>
   <div class="home">
     <section class="container hero" aria-labelledby="titre">
       <div class="hero__main">
-        <h1 id="titre" class="text-display">Repérez les erreurs d’accessibilité de votre page.</h1>
-        <p class="hero__lead">
-          Balise teste les critères RGAA 4.1.2 vérifiables automatiquement et vous donne un score
-          indicatif, les corrections prioritaires et la liste de ce qu’il reste à vérifier à la
-          main.
+        <p class="hero__kicker">Pré-diagnostic d’accessibilité RGAA 4.1.2</p>
+        <h1 id="titre" class="text-display">
+          Repérez en une minute les erreurs d’accessibilité de votre page.
+        </h1>
+        <p class="muted hero__lead">
+          Balise teste les critères RGAA vérifiables par une machine, les range par thématique et
+          liste ce qu’il vous reste à contrôler à la main.
         </p>
 
         <form class="url-form" novalidate @submit.prevent="submit">
@@ -139,28 +143,58 @@ const describedBy = computed(() =>
           </p>
         </form>
       </div>
+
+      <figure class="panel sample">
+        <figcaption class="small muted">Exemple de rapport, données fictives</figcaption>
+        <div class="sample__head">
+          <ScoreGauge
+            :score="69"
+            :size="120"
+            label="Score global indicatif : 69 sur 100, palier À corriger, 32 critères testés automatiquement sur 106"
+          />
+          <div class="sample__text">
+            <span class="text-h3">Score global indicatif</span>
+            <TierLabel :score="69" />
+            <span class="small muted">32 critères testés sur 106</span>
+          </div>
+        </div>
+        <ul class="plain-list sample__list small">
+          <li><span>Images</span><strong>67</strong></li>
+          <li><span>Couleurs</span><strong>0</strong></li>
+          <li><span>Formulaires</span><strong>75</strong></li>
+        </ul>
+      </figure>
     </section>
 
     <section id="methode" class="container method" aria-labelledby="methode-titre">
-      <h2 id="methode-titre">Comment ça marche</h2>
-      <dl class="method__list">
-        <dt>Ce que Balise teste</dt>
-        <dd>
-          Les critères vérifiables automatiquement sur la page rendue : alternatives d’images,
-          contrastes, étiquettes de champs, structure des titres, liens, tableaux.
-        </dd>
-        <dt id="limites">Ce qu’il vous reste à vérifier</dt>
-        <dd>
-          La majorité des critères demande un regard humain. Le rapport les liste avec ce qu’il faut
-          contrôler.
-        </dd>
-        <dt>Vos données</dt>
-        <dd>
-          Sans compte. Analyses exécutées à Paris, rapports supprimés après 30 jours. Mesure
-          d’audience uniquement si vous l’acceptez.
-        </dd>
-      </dl>
-      <p class="small muted">
+      <h2 id="methode-titre" class="visually-hidden">Comment ça marche</h2>
+      <ul class="plain-list method__grid">
+        <li class="card method__card">
+          <Check :size="24" aria-hidden="true" />
+          <h3>Ce que Balise teste</h3>
+          <p class="small muted">
+            Les critères RGAA vérifiables automatiquement sur la page rendue : alternatives
+            d’images, contrastes, étiquettes de champs, structure des titres.
+          </p>
+        </li>
+        <li id="limites" class="card method__card">
+          <Eye :size="24" aria-hidden="true" />
+          <h3>Ce qu’il vous reste à vérifier</h3>
+          <p class="small muted">
+            La majorité des critères demande un regard humain. Le rapport les liste avec ce qu’il
+            faut contrôler.
+          </p>
+        </li>
+        <li class="card method__card">
+          <Lock :size="24" aria-hidden="true" />
+          <h3>Vos données</h3>
+          <p class="small muted">
+            Sans compte. Analyses exécutées à Paris, rapports supprimés après 30 jours. Mesure
+            d’audience uniquement si vous l’acceptez.
+          </p>
+        </li>
+      </ul>
+      <p class="note">
         Les scores de Balise sont indicatifs. Ils ne constituent pas un taux de conformité RGAA et
         ne remplacent pas un audit réalisé selon la méthode officielle.
       </p>
@@ -174,16 +208,21 @@ const describedBy = computed(() =>
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-12);
-  padding-block: var(--space-12) 0;
+  padding-block: var(--space-12);
 }
 
 .hero__main {
-  flex: 1 1 30rem;
-  max-width: 44rem;
+  flex: 999 1 30rem;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+}
+
+.hero__kicker {
+  font-size: var(--text-small-size);
+  font-weight: 700;
+  color: var(--color-brand);
 }
 
 .hero h1 {
@@ -198,8 +237,7 @@ const describedBy = computed(() =>
 }
 
 .hero__lead {
-  max-width: 38rem;
-  font-size: 1.125rem;
+  max-width: 35rem;
 }
 
 .url-form {
@@ -261,45 +299,54 @@ const describedBy = computed(() =>
   font-weight: 700;
 }
 
-.method {
+.sample {
+  flex: 1 1 20rem;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding-block: var(--space-12);
 }
 
-.method > * {
-  max-width: 44rem;
+.sample__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6);
 }
 
-.method > h2 {
-  padding-top: var(--space-12);
+.sample__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sample__list li {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--space-2);
+  margin-top: var(--space-2);
   border-top: 1px solid var(--color-border);
 }
 
-.method__list {
+.method {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.method__grid {
   display: grid;
-  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
-  gap: var(--space-4) var(--space-6);
-  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-6);
 }
 
-.method__list dt {
-  font-weight: 700;
+.method__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
-.method__list dd {
-  margin: 0;
-}
-
-@media (max-width: 37.5em) {
-  .method__list {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-1);
-  }
-
-  .method__list dd + dt {
-    margin-top: var(--space-4);
-  }
+.method__card svg {
+  color: var(--color-brand);
 }
 </style>

@@ -3,7 +3,6 @@ import {
   expect,
   expectNoHorizontalScroll,
   gotoReady,
-  openDisclosure,
   LEGAL_PAGES,
   test,
   waitHydrated,
@@ -74,10 +73,7 @@ test.describe('Clavier seul', () => {
     await expect(heading).toBeVisible();
     await expect(page).toHaveURL(/\/analyses\//);
 
-    // Criterion details open with Enter, then status filter with Space.
-    const more = page.locator('summary').filter({ hasText: /^Afficher le détail des/ });
-    await tabTo(page, more, 40);
-    await page.keyboard.press('Enter');
+    // Status filter with Space, theme filter with the keyboard.
     const conformes = page.getByRole('button', { name: /^Conformes, test automatique/ });
     await tabTo(page, conformes, 80);
     await page.keyboard.press('Space');
@@ -89,15 +85,12 @@ test.describe('Clavier seul', () => {
 
     // Accordion with Enter, checklist with Space.
     await select.selectOption('');
-    const summary = page.locator('#details article summary').first();
+    const summary = page.locator('#details summary').first();
     await tabTo(page, summary, 20);
     await page.keyboard.press('Enter');
-    await expect(page.locator('#details article details').first()).toHaveAttribute('open', '');
-    const manual = page.locator('summary').filter({ hasText: /^Afficher la liste des/ });
-    await tabTo(page, manual, 300);
-    await page.keyboard.press('Enter');
+    await expect(page.locator('#details details').first()).toHaveAttribute('open', '');
     const box = page.locator('.checklist input[type="checkbox"]').first();
-    await tabTo(page, box, 20);
+    await tabTo(page, box, 200);
     await page.keyboard.press('Space');
     await expect(box).toBeChecked();
   });
@@ -125,8 +118,7 @@ test.describe('Affichage', () => {
     }
     // Report with details opened (long selectors and HTML snippets).
     await gotoReady(page, '/exemple/avant');
-    await openDisclosure(page, /^Afficher le détail des/);
-    await page.locator('#details article summary').first().click();
+    await page.locator('#details summary').first().click();
     await expectNoHorizontalScroll(page);
   });
 
