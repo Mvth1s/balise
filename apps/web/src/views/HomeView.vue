@@ -56,7 +56,13 @@ async function submit() {
   submitting.value = true;
   try {
     const created = await createAnalysis(result.url);
-    await withViewTransition(() => router.push(`/analyses/${encodeURIComponent(created.id)}`));
+    await withViewTransition(() =>
+      router.push({
+        path: `/analyses/${encodeURIComponent(created.id)}`,
+        // Tells the analysis view to play the steps even if the report is already done.
+        state: { fresh: true },
+      }),
+    );
   } catch (err) {
     const code = err instanceof ApiError ? err.code : 'internal';
     apiError.value = describeError(code, err instanceof ApiError ? err.retryAfter : null);

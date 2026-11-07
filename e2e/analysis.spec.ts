@@ -265,3 +265,90 @@ test.describe('Erreurs', () => {
     await expectNoAxeViolations(page);
   });
 });
+
+test.describe('Animations de l’écran d’analyse', () => {
+  test.use({ reducedMotion: 'no-preference' });
+  test.skip(({ isMobile }) => isMobile, 'desktop project');
+
+  test('étapes cochées une à une (≥ 600 ms), barre animée, logo en boucle avec pause', async ({
+    page,
+  }) => {
+    // Records when each step gets checked, from the very first render.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __steps: { count: number; at: number }[] };
+      w.__steps = [];
+      new MutationObserver(() => {
+        const count = document.querySelectorAll('.step--done').length;
+        if (count && w.__steps.at(-1)?.count !== count) {
+          w.__steps.push({ count, at: performance.now() });
+        }
+      }).observe(document, { subtree: true, attributes: true, childList: true });
+    });
+    await scriptProgress(page);
+    await gotoReady(page, '/');
+    await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
+    await submitUrl(page, 'https://www.exemple.fr/');
+    await expect(page.getByRole('heading', { level: 1, name: 'Analyse en cours' })).toBeVisible();
+
+    // Progress bar: animated transition on the fill.
+    const fill = page.locator('.progress__fill');
+    await expect
+      .poll(() => fill.evaluate((el) => getComputedStyle(el).transitionDuration))
+      .toBe('0.4s');
+
+    // Logo gauge loops, and the pause button stops it.
+    const arc = page.locator('.balise-symbol--animated .balise-symbol__arc');
+    const playState = () => arc.evaluate((el) => getComputedStyle(el).animationPlayState);
+    expect(await arc.evaluate((el) => getComputedStyle(el).animationIterationCount)).toBe(
+      'infinite',
+    );
+    expect(await playState()).toBe('running');
+    await page.getByRole('button', { name: 'Mettre en pause l’animation du logo' }).click();
+    expect(await playState()).toBe('paused');
+    await page.getByRole('button', { name: 'Reprendre l’animation du logo' }).click();
+    expect(await playState()).toBe('running');
+
+    // Check marks are drawn with an animation.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            document
+              .getAnimations()
+              .filter((a) => (a.effect as KeyframeEffect | null)?.target?.closest?.('.step'))
+              .length,
+        ),
+      )
+      .toBeGreaterThan(0);
+    await expectNoAxeViolations(page);
+
+    // Five scripted polls (1.5 s each) plus the pacing.
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Rapport de pré-diagnostic' }),
+    ).toBeVisible({ timeout: 20_000 });
+    const steps = await page.evaluate(
+      () => (window as unknown as { __steps: { count: number; at: number }[] }).__steps,
+    );
+    expect(steps.map((s) => s.count)).toEqual([1, 2, 3, 4, 5]);
+    for (let i = 1; i < steps.length; i += 1) {
+      expect(steps[i]!.at - steps[i - 1]!.at).toBeGreaterThanOrEqual(550);
+    }
+  });
+
+  test('analyse rapide : les 5 étapes restent visibles avant le rapport', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __max: number };
+      w.__max = 0;
+      new MutationObserver(() => {
+        w.__max = Math.max(w.__max, document.querySelectorAll('.step--done').length);
+      }).observe(document, { subtree: true, attributes: true, childList: true });
+    });
+    // No scripted progress: the fake engine is done before the first poll.
+    await gotoReady(page, '/');
+    await submitUrl(page, 'https://www.exemple.fr/');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Rapport de pré-diagnostic' }),
+    ).toBeFocused();
+    expect(await page.evaluate(() => (window as unknown as { __max: number }).__max)).toBe(5);
+  });
+});

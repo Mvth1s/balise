@@ -2,8 +2,10 @@
 import type { AnalysisStatus, AnalysisStep } from '@balise/analyzer/types';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import BaliseSymbol from '@/components/BaliseSymbol.vue';
 import ReportDisplay from '@/components/report/ReportDisplay.vue';
 import { usePageMeta } from '@/composables/usePageMeta';
+import { usePreferences } from '@/composables/usePreferences';
 import { drawStroke } from '@/lib/animate';
 import {
   ApiError,
@@ -15,6 +17,7 @@ import {
 } from '@/lib/api';
 import { focusMainHeading } from '@/lib/focus';
 import { shortUrl } from '@/lib/format';
+import { motionAllowed } from '@/lib/motion';
 import { withViewTransition } from '@/lib/view-transition';
 
 /** Same order as ANALYSIS_STEPS in @balise/analyzer/types (type-only import). */
@@ -27,6 +30,8 @@ const STEPS: readonly { id: AnalysisStep; label: string; detail?: string }[] = [
 ];
 const POLL_MS = 1500;
 const MAX_NETWORK_RETRIES = 5;
+/** Minimum display time of each step when animations are on (fast analyses stay visible). */
+const STEP_MIN_MS = 600;
 
 const route = useRoute();
 const id = computed(() => (typeof route.params.id === 'string' ? route.params.id : ''));
@@ -36,7 +41,16 @@ const errorCode = ref<ClientErrorCode | null>(null);
 const cancelling = ref(false);
 const announcement = ref('');
 const checks = ref<SVGPathElement[]>([]);
+/** Final status held back until every step has been shown. */
+const pendingFinal = ref<AnalysisStatus | null>(null);
+/** Number of steps currently displayed as done (lags behind the server when paced). */
+const doneCount = ref(0);
+const logoPaused = ref(false);
+const { state: prefs } = usePreferences();
+const logoAnimated = computed(() => prefs.motion && !prefs.systemReduce);
 let timer = 0;
+let paceTimer = 0;
+let lastAdvance = 0;
 let controller: AbortController | null = null;
 let networkFailures = 0;
 
@@ -45,8 +59,9 @@ const report = computed(() =>
 );
 const error = computed(() => (errorCode.value ? describeError(errorCode.value) : null));
 
-/** Number of completed steps (the address is validated as soon as the analysis exists). */
-const doneCount = computed(() => {
+/** Number of completed steps on the server (the address is validated as soon as the analysis exists). */
+const targetCount = computed(() => {
+  if (pendingFinal.value) return STEPS.length;
   const s = status.value;
   if (!s) return 0;
   if (s.state === 'done') return STEPS.length;
@@ -73,6 +88,7 @@ usePageMeta({
 
 function stop() {
   window.clearTimeout(timer);
+  window.clearTimeout(paceTimer);
   controller?.abort();
   controller = null;
 }
@@ -84,12 +100,11 @@ async function poll() {
     const next = await getAnalysis(current, controller.signal);
     if (current !== id.value) return;
     networkFailures = 0;
-    const wasRunning = status.value !== null && !isFinalState(status.value.state);
-    if (next.state === 'done' && wasRunning) {
-      announcement.value = 'Analyse terminée. Le rapport est affiché.';
-      await withViewTransition(() => (status.value = next));
-      await nextTick();
-      focusMainHeading();
+    const wasRunning =
+      (status.value !== null && !isFinalState(status.value.state)) || consumeFreshFlag();
+    if (next.state === 'done' && next.report && wasRunning) {
+      pendingFinal.value = next;
+      pace();
       return;
     }
     status.value = next;
@@ -109,9 +124,51 @@ async function poll() {
   }
 }
 
+/** True once, right after the home page started this analysis. */
+function consumeFreshFlag(): boolean {
+  const state = window.history.state as Record<string, unknown> | null;
+  if (state?.fresh !== true) return false;
+  window.history.replaceState({ ...state, fresh: false }, '');
+  return true;
+}
+
+/** Advances the displayed steps one at a time, at most one every STEP_MIN_MS. */
+function pace() {
+  window.clearTimeout(paceTimer);
+  const paced = motionAllowed();
+  if (doneCount.value < targetCount.value) {
+    const wait = paced ? Math.max(0, lastAdvance + STEP_MIN_MS - Date.now()) : 0;
+    const advance = () => {
+      doneCount.value = paced ? doneCount.value + 1 : targetCount.value;
+      lastAdvance = Date.now();
+      pace();
+    };
+    if (wait) paceTimer = window.setTimeout(advance, wait);
+    else advance();
+    return;
+  }
+  if (pendingFinal.value) {
+    const wait = paced ? Math.max(0, lastAdvance + STEP_MIN_MS - Date.now()) : 0;
+    paceTimer = window.setTimeout(() => void finish(), wait);
+  }
+}
+
+async function finish() {
+  const next = pendingFinal.value;
+  if (!next) return;
+  pendingFinal.value = null;
+  announcement.value = 'Analyse terminée. Le rapport est affiché.';
+  await withViewTransition(() => (status.value = next));
+  await nextTick();
+  focusMainHeading();
+}
+
 function start() {
   stop();
   status.value = null;
+  pendingFinal.value = null;
+  doneCount.value = 0;
+  lastAdvance = 0;
   errorCode.value = null;
   cancelling.value = false;
   networkFailures = 0;
@@ -134,9 +191,11 @@ async function cancel() {
   }
 }
 
+watch(targetCount, pace);
+
 // Steps get checked one by one; announce each new step.
 watch(doneCount, async (count, previous) => {
-  if (!status.value || isFinalState(status.value.state)) return;
+  if (!pendingFinal.value && (!status.value || isFinalState(status.value.state))) return;
   const step = STEPS[currentStep.value - 1];
   if (step) announcement.value = `Étape ${currentStep.value} sur ${STEPS.length} : ${step.label}.`;
   await nextTick();
@@ -177,9 +236,17 @@ onBeforeUnmount(stop);
   <ReportDisplay v-else-if="report" :report="report" live />
 
   <div v-else class="container narrow">
-    <div class="stack">
-      <h1>Analyse en cours</h1>
-      <p v-if="status" class="mono muted">{{ status.url }}</p>
+    <div class="analysis-head">
+      <BaliseSymbol :size="56" animated :paused="logoPaused" />
+      <div class="stack">
+        <h1>Analyse en cours</h1>
+        <p v-if="status ?? pendingFinal" class="mono muted">{{ (status ?? pendingFinal)?.url }}</p>
+      </div>
+    </div>
+    <div v-if="logoAnimated">
+      <button type="button" class="btn btn-secondary" @click="logoPaused = !logoPaused">
+        {{ logoPaused ? 'Reprendre l’animation du logo' : 'Mettre en pause l’animation du logo' }}
+      </button>
     </div>
 
     <div class="panel progress">
@@ -244,6 +311,12 @@ onBeforeUnmount(stop);
 </template>
 
 <style scoped>
+.analysis-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
 .narrow {
   max-width: 44rem;
   padding-block: var(--space-12);
