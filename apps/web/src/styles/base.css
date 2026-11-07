@@ -170,21 +170,27 @@ textarea {
   overflow-wrap: anywhere;
 }
 
-.card,
-.panel {
+.card {
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   padding: var(--space-6);
 }
 
-/* Quiet side rule rather than a tinted band. */
+.panel {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
 .note {
   display: flex;
   gap: var(--space-2);
   align-items: flex-start;
-  padding: var(--space-1) 0 var(--space-1) var(--space-4);
-  border-inline-start: 3px solid var(--color-brand);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-soft);
   color: var(--color-ink);
   font-size: var(--text-small-size);
   line-height: var(--text-small-line);
