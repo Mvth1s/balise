@@ -36,8 +36,10 @@ export type StatusCounts = Record<CriterionStatus, number>;
 export function countByStatus(criteria: readonly CriterionResult[]): StatusCounts {
   const counts: StatusCounts = {
     'non-conforme': 0,
+    'non-conforme-ia': 0,
     'a-verifier': 0,
     conforme: 0,
+    'conforme-ia': 0,
     'non-applicable': 0,
   };
   for (const c of criteria) counts[c.status] += 1;

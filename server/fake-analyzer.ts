@@ -90,7 +90,21 @@ export async function fakeAnalyzePage(
   await step('loading');
   await step('testing');
   const ref = getReference();
-  const criteria = mapResults(ref, FAKE_RESULTS);
+  // One simulated AI verdict, so that the end-to-end tests cover the "(IA)" badge.
+  const criteria = mapResults(ref, FAKE_RESULTS).map((c) =>
+    c.id === '8.6' && c.status === 'a-verifier'
+      ? {
+          ...c,
+          status: 'non-conforme-ia' as const,
+          ai: {
+            justification: 'Le titre « Page de test » ne décrit pas le contenu (moteur simulé).',
+            confidence: 0.8,
+            model: 'simulé',
+            selectors: [],
+          },
+        }
+      : c,
+  );
   const report = {
     schemaVersion: 1 as const,
     id: options.id ?? 'fake',
