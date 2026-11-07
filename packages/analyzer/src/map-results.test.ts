@@ -1,6 +1,7 @@
 import { getReference, type RgaaReference, type RuleMapping } from '@balise/rgaa-mapping';
 import { describe, expect, it } from 'vitest';
 import { BALISE_RULES } from './checks/index.js';
+import { INTERACTION_RULES } from './interactions.js';
 import {
   criterionStatus,
   mappedRules,
@@ -135,7 +136,9 @@ describe('RGAA 4.1.2 reference wiring', () => {
     const ids = new Set(ref.criteria.map((c) => c.id));
     for (const rule of ref.rules)
       for (const id of rule.criteria) expect(ids.has(id), `${rule.rule} → ${id}`).toBe(true);
-    expect(mappedRules(ref, 'balise').sort()).toEqual([...BALISE_RULES].sort());
+    expect(mappedRules(ref, 'balise').sort()).toEqual(
+      [...new Set([...BALISE_RULES, ...INTERACTION_RULES])].sort(),
+    );
   });
   it('produces one result per criterion (106)', () => {
     expect(mapResults(ref, [])).toHaveLength(106);

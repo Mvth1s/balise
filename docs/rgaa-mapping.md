@@ -92,6 +92,26 @@ Leurs identifiants sont figés, le moteur (`packages/analyzer`) les implémente 
 | `balise-radio-group`         | 11.5     | `partial`  | Boutons radio de même nom hors `fieldset` / `role="group"`                                        |
 | `balise-group-legend`        | 11.6     | `partial`  | `fieldset` ou `role="group"` sans légende                                                         |
 
+### Tests d’interaction
+
+`packages/analyzer/src/interactions.ts`, exécutés par Playwright après les autres contrôles (dans le worker isolé en production), avec un budget de 45 s :
+
+| Identifiant             | Critère | Couverture | Méthode                                                                                             |
+| ----------------------- | ------- | ---------- | --------------------------------------------------------------------------------------------------- |
+| `balise-new-window`     | 13.2    | `full`     | Fenêtres ouvertes pendant le chargement et 3 s d’inactivité                                         |
+| `balise-auto-refresh`   | 13.1    | `partial`  | Rechargement ou redirection pendant ces 3 s                                                         |
+| `balise-moving-content` | 13.8    | `partial`  | Animation > 5 s ou en boucle, vidéo automatique, sans aucun bouton pause/arrêt dans la page         |
+| `balise-keyboard-trap`  | 12.9    | `full`     | Parcours complet à la touche Tab ; cycle confiné hors boîte de dialogue = piège                     |
+| `balise-tab-order`      | 12.8    | `partial`  | Arrêt de tabulation sur un élément invisible (taille nulle, `visibility`, `clip`, hors document)    |
+| `balise-focus-visible`  | 10.7    | `partial`  | Styles calculés (élément, pseudo-éléments, 2 ancêtres) puis confirmation par comparaison de pixels  |
+| `balise-hover-content`  | 10.13   | `partial`  | Contenu apparu au survol : fermeture par Échap et survol du contenu (navigation, infobulles, menus) |
+| `balise-text-spacing`   | 10.12   | `partial`  | Espacements WCAG 1.4.12 par feuille de style construite (compatible CSP) ; texte coupé              |
+| `balise-text-zoom`      | 10.4    | `partial`  | Texte à 200 % (taille racine, puis fenêtre de 640 px) ; texte coupé                                 |
+| `balise-reflow`         | 10.11   | `partial`  | Fenêtre de 320 px ; texte sorti de l’écran hors zone défilante ou composant qui rogne son contenu   |
+| `balise-orientation`    | 13.9    | `partial`  | Portrait et paysage ; message « tournez votre appareil » ou page retournée                          |
+
+Sont ignorés pour limiter les faux positifs : contrôles de taille d’icône (texte masqué volontairement), troncatures voulues (`text-overflow: ellipsis`, `line-clamp`), contenu rogné par un composant (carrousel).
+
 ### Applicabilité (`applicableWhen`)
 
 `APPLICABILITY` (`scripts/rules-4.1.2.ts`) associe 59 critères aux types d'éléments qu'ils visent, d'après leur intitulé officiel : images (1.1 à 1.3, 1.6 à 1.9), CAPTCHA (1.4, 1.5), cadres (2.x), médias temporels (4.1 à 4.7, 4.10, 4.11) et non temporels (4.8, 4.9, 4.12 ; 4.13 les deux), tableaux (5.x), liens (6.x, 10.6), scripts (7.x), texte de droite à gauche (8.10), champs (11.1 à 11.7, 11.10 à 11.13), listes de choix (11.8), boutons (11.9), moteur de recherche (12.5), documents bureautiques (13.3, 13.4), contenus cryptiques (13.5, 13.6). Le moteur (`checks/presence.ts`) détecte leur présence dans la page, ses shadow DOM ouverts et chacun de ses cadres. Les autres critères portent sur toute la page et s'appliquent toujours. Limites : contenu chargé après l'analyse (défilement infini, vidéos différées) et shadow DOM fermés ne sont pas vus.

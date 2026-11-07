@@ -395,8 +395,6 @@ describe('axe and custom checks in the page', () => {
         'balise-doctype': 'pass',
         'balise-duplicate-id': 'pass',
         'balise-img-alt-relevant': 'pass',
-        // Default focus ring of the browser.
-        'balise-focus-visible': 'pass',
       });
     });
   });
@@ -411,7 +409,6 @@ describe('axe and custom checks in the page', () => {
         'balise-heading-hierarchy': 'fail',
         'balise-page-lang': 'fail',
         'balise-page-title': 'fail',
-        'balise-focus-visible': 'inapplicable',
       });
       const headings = results.find((r) => r.rule === 'balise-heading-hierarchy')!;
       expect(headings.nodes[0]!.html).toBe('<h3>Saut</h3>');
