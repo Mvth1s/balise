@@ -1,0 +1,13 @@
+{
+  "name": "@balise/worker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Fonction isolée qui exécute Chromium, sans accès au stockage (projet Vercel séparé).",
+  "author": "Mvth1s",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@balise/analyzer": "workspace:*",
+    "@vercel/functions": "3.10.3"
+  }
+}

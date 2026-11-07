@@ -12,6 +12,7 @@
  * (Vercel) or as a floating promise (local servers). Cancellation is stored
  * (state "cancelled") and observed by the worker between steps and by polling.
  */
+import { createPublicKey, type KeyObject } from 'node:crypto';
 import {
   AnalysisAbortedError,
   AnalysisError,
@@ -28,6 +29,14 @@ import {
 } from '@balise/analyzer';
 import { nanoid } from 'nanoid';
 import { fakeAnalyzePage, isFakeAnalyzerEnabled } from './fake-analyzer.ts';
+import {
+  privateKeyFrom,
+  REPORT_TOKEN_TTL_MS,
+  signReportToken,
+  verifyReportToken,
+} from './report-token.ts';
+import { runAnalysis, type AnalysisSink } from './run-analysis.ts';
+import { parseWorkerResult } from './worker-result.ts';
 import {
   clientIp,
   createMemoryRateLimiter,
@@ -67,9 +76,15 @@ export interface HandlerDeps {
   /** Hard limit of one analysis (must stay below the function maxDuration), ms. */
   maxAnalysisMs?: number;
   log?: (message: string, error?: unknown) => void;
+  /** Overrides the isolated-worker configuration read from the environment (tests). */
+  worker?: { url: string; privateKey: KeyObject; publicKey: KeyObject } | null;
+  /** HTTP client used to reach the worker (tests). */
+  fetch?: typeof fetch;
 }
 
 const MAX_BODY_LENGTH = 8 * 1024;
+/** Report + base64 screenshot, below the 4.5 MB request limit of Vercel Functions. */
+const MAX_REPORT_BODY_LENGTH = 4 * 1024 * 1024;
 /**
  * A pending/running analysis not updated for this long has lost its worker
  * (function killed at maxDuration 300 s): it is reported as failed.
@@ -129,11 +144,40 @@ const internalError = (): Response =>
     'Une erreur interne est survenue. Réessayez dans quelques instants.',
   );
 
+interface WorkerConfig {
+  url: string;
+  privateKey: KeyObject;
+  publicKey: KeyObject;
+}
+
 interface Infrastructure {
   store: AnalysisStore;
   rateLimiter: RateLimiter;
   globalRateLimiter: RateLimiter;
   salt: string;
+  /** Isolated Chromium worker; null = in-process analysis (local and tests only). */
+  worker: WorkerConfig | null;
+}
+
+/**
+ * BALISE_WORKER_URL + BALISE_TOKEN_PRIVATE_KEY select the isolated mode. It is
+ * mandatory on Vercel: Chromium must never run next to the Redis credentials.
+ */
+function workerConfig(env: NodeJS.ProcessEnv): WorkerConfig | null | string {
+  const url = env.BALISE_WORKER_URL;
+  const key = env.BALISE_TOKEN_PRIVATE_KEY;
+  if (!url || !key) {
+    return env.VERCEL ? 'BALISE_WORKER_URL / BALISE_TOKEN_PRIVATE_KEY manquants.' : null;
+  }
+  if (!url.startsWith('https://') && !/^http:\/\/(127\.0\.0\.1|localhost)[:/]/.test(url)) {
+    return 'BALISE_WORKER_URL doit être en https.';
+  }
+  try {
+    const privateKey = privateKeyFrom(key);
+    return { url, privateKey, publicKey: createPublicKey(privateKey) };
+  } catch {
+    return 'BALISE_TOKEN_PRIVATE_KEY invalide (DER PKCS#8 Ed25519 en base64 attendu).';
+  }
 }
 
 /**
@@ -148,8 +192,11 @@ function defaultInfrastructure(deps: HandlerDeps): Infrastructure | string {
   }
   const salt = env.RATE_LIMIT_SALT;
   if (!salt && env.VERCEL) return 'RATE_LIMIT_SALT manquant.';
+  const worker = deps.worker !== undefined ? deps.worker : workerConfig(env);
+  if (typeof worker === 'string') return worker;
   const redis = credentials ? createRedisClient(credentials) : null;
   return {
+    worker,
     store: deps.store ?? (redis ? createRedisStore(redis) : createMemoryStore()),
     rateLimiter:
       deps.rateLimiter ?? (redis ? createUpstashRateLimiter(redis) : createMemoryRateLimiter()),
@@ -207,69 +254,102 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
     log(`configuration incomplète : ${infra}`);
     return async () => internalError();
   }
-  const { store, rateLimiter, globalRateLimiter, salt } = infra;
+  const { store, rateLimiter, globalRateLimiter, salt, worker } = infra;
+  const fetchImpl = deps.fetch ?? fetch;
 
-  async function runAnalysis(id: string, url: string): Promise<void> {
-    const controller = new AbortController();
-    let timedOut = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    // Hard ceiling even if the engine ignores the abort signal.
-    const deadline = new Promise<never>((_resolve, reject) => {
-      timer = setTimeout(() => {
-        timedOut = true;
-        controller.abort();
-        reject(new AnalysisAbortedError());
-      }, maxAnalysisMs);
-    });
-    const poll = setInterval(() => {
-      store
-        .get(id)
-        .then((s) => {
-          if (!s || s.state === 'cancelled') controller.abort();
-        })
-        .catch(() => undefined);
-    }, cancelPollMs);
+  /** Writes a patch unless the analysis was cancelled or is gone. */
+  async function patchActive(id: string, patch: Partial<AnalysisStatus>): Promise<boolean> {
+    const latest = await store.get(id);
+    if (!latest || latest.state === 'cancelled') return false;
+    // shortcut: read-then-write is not atomic; a DELETE landing between both
+    // calls is overwritten. Upgrade to a Lua script / WATCH if it matters.
+    await store.put({ ...latest, ...patch, updatedAt: now().toISOString() });
+    return true;
+  }
 
-    /** Writes a patch unless the analysis was cancelled meanwhile. */
-    const save = async (patch: Partial<AnalysisStatus>): Promise<void> => {
-      const latest = await store.get(id);
-      if (!latest || latest.state === 'cancelled') {
-        controller.abort();
+  /** Local / test mode: Chromium runs in this process and writes to the store directly. */
+  const storeSink = (id: string): AnalysisSink => ({
+    cancelled: async () => {
+      const s = await store.get(id);
+      return !s || s.state === 'cancelled';
+    },
+    step: async (step) => {
+      if (!(await patchActive(id, { state: 'running', step }))) throw new AnalysisAbortedError();
+    },
+    done: async (report, screenshot) => {
+      if (screenshot.length > 0) await store.putScreenshot(id, screenshot);
+      if (!(await patchActive(id, { state: 'done', step: 'scoring', report }))) {
         throw new AnalysisAbortedError();
       }
-      // shortcut: read-then-write is not atomic; a DELETE landing between both
-      // calls is overwritten. Upgrade to a Lua script / WATCH if it matters.
-      await store.put({ ...latest, ...patch, updatedAt: now().toISOString() });
-    };
+    },
+    failed: async (error) => {
+      await patchActive(id, {
+        state: 'error',
+        error: { code: error.code as AnalysisErrorCode, message: error.message },
+      });
+    },
+  });
 
+  /**
+   * Isolated mode (production): hands the analysis to the Chromium worker,
+   * which has no Redis access, with a single-use token for the report.
+   */
+  async function dispatch(id: string, url: string, worker: WorkerConfig): Promise<void> {
+    const nonce = crypto.randomUUID();
+    await store.putToken(id, nonce, Math.ceil(REPORT_TOKEN_TTL_MS / 1000));
+    const token = signReportToken(worker.privateKey, {
+      id,
+      url,
+      nonce,
+      exp: now().getTime() + REPORT_TOKEN_TTL_MS,
+    });
     try {
-      await save({ state: 'running', step: 'queued' });
-      const running = analyze(url, {
-        id,
-        signal: controller.signal,
-        onStep: (step) => save({ step }),
+      const res = await fetchImpl(worker.url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id, url, token }),
+        redirect: 'error',
+        signal: AbortSignal.timeout(30_000),
       });
-      running.catch(() => undefined); // may settle after the deadline
-      const { report, screenshot } = await Promise.race([running, deadline]);
-      if (screenshot.length > 0) await store.putScreenshot(id, screenshot);
-      await save({
-        state: 'done',
-        step: 'scoring',
-        report: { ...report, hasScreenshot: screenshot.length > 0 },
-      });
+      if (res.status !== 202) throw new Error(`worker answered ${res.status}`);
+      await patchActive(id, { state: 'running', step: 'queued' });
     } catch (error) {
-      if (error instanceof AnalysisAbortedError && !timedOut) return; // cancelled by the user
-      const err = timedOut
-        ? new AnalysisError('unreachable', "L'analyse a dépassé la durée maximale autorisée.")
-        : toAnalysisError(error);
-      if (err.code === 'internal') log(`analysis ${id} failed`, error);
-      await save({ state: 'error', error: { code: err.code, message: err.message } }).catch(
-        () => undefined,
-      );
-    } finally {
-      clearTimeout(timer);
-      clearInterval(poll);
+      log(`analysis ${id}: worker dispatch failed`, error);
+      await patchActive(id, {
+        state: 'error',
+        error: {
+          code: 'internal',
+          message: "L'analyseur n'a pas pu démarrer. Réessayez dans quelques instants.",
+        },
+      });
     }
+  }
+
+  /** POST /api/analyses/:id/report — the only write path of the isolated worker. */
+  async function receiveReport(request: Request, id: string, worker: WorkerConfig) {
+    const auth = request.headers.get('authorization') ?? '';
+    const payload = auth.startsWith('Bearer ')
+      ? verifyReportToken(worker.publicKey, auth.slice(7), now().getTime())
+      : null;
+    const unauthorized = () =>
+      errorResponse(401, 'unauthorized', 'Jeton de rapport invalide, expiré ou déjà utilisé.');
+    if (!payload || payload.id !== id) return unauthorized();
+    // Single use, consumed before anything else is read.
+    if (!(await store.consumeToken(id, payload.nonce))) return unauthorized();
+    const text = await readBodyCapped(request, MAX_REPORT_BODY_LENGTH);
+    const parsed = text === null ? null : parseWorkerResult(text, id);
+    if (!parsed) return errorResponse(400, 'invalid_report', 'Rapport mal formé.');
+    const sink = storeSink(id);
+    try {
+      if ('report' in parsed) await sink.done(parsed.report, parsed.screenshot);
+      else await sink.failed(parsed.error);
+    } catch (error) {
+      if (error instanceof AnalysisAbortedError) {
+        return errorResponse(409, 'cancelled', 'Cette analyse a été annulée.');
+      }
+      throw error;
+    }
+    return new Response(null, { status: 204, headers: { 'cache-control': 'no-store' } });
   }
 
   async function create(request: Request): Promise<Response> {
@@ -355,7 +435,11 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
       updatedAt: at,
     };
     await store.put(status);
-    waitUntil(runAnalysis(id, url.href));
+    waitUntil(
+      worker
+        ? dispatch(id, url.href, worker)
+        : runAnalysis(id, url.href, storeSink(id), { analyze, cancelPollMs, maxAnalysisMs, log }),
+    );
     return json(
       202,
       { id, url: status.url, state: status.state },
@@ -415,9 +499,14 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
     if (path === '/api/analyses') {
       return method === 'POST' ? create(request) : methodNotAllowed('POST');
     }
-    const match = /^\/api\/analyses\/([^/]+)(\/screenshot)?$/.exec(path);
+    const match = /^\/api\/analyses\/([^/]+)(\/screenshot|\/report)?$/.exec(path);
     if (!match) return errorResponse(404, 'not_found', "Cette adresse de l'API n'existe pas.");
     const id = match[1]!; // ids are URL-safe: no decoding needed
+    if (match[2] === '/report') {
+      if (!worker) return errorResponse(404, 'not_found', "Cette adresse de l'API n'existe pas.");
+      if (method !== 'POST') return methodNotAllowed('POST');
+      return ID_PATTERN.test(id) ? receiveReport(request, id, worker) : notFound();
+    }
     if (match[2]) {
       if (method !== 'GET') return methodNotAllowed('GET');
       return ID_PATTERN.test(id) ? screenshot(id) : notFound();
