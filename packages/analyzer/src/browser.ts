@@ -121,6 +121,8 @@ export interface LaunchOptions {
   env?: NodeJS.ProcessEnv;
   /** Overrides the executable (tests). */
   executablePath?: string;
+  /** Directory of the @sparticuz/chromium brotli pack (isolated worker copies it). */
+  sparticuzBinDir?: string;
 }
 
 export async function launchBrowser(options: LaunchOptions = {}): Promise<Browser> {
@@ -132,7 +134,7 @@ export async function launchBrowser(options: LaunchOptions = {}): Promise<Browse
     Sparticuz.setGraphicsMode = false;
     return chromium.launch({
       ...common,
-      executablePath: await Sparticuz.executablePath(),
+      executablePath: await Sparticuz.executablePath(options.sparticuzBinDir),
       args: buildLaunchArgs(Sparticuz.args),
     });
   }
