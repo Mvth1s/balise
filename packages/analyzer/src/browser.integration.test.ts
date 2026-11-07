@@ -7,7 +7,7 @@ import type { Browser } from 'playwright-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { analyzePage } from './analyze.js';
 import { createHardenedContext, launchBrowser } from './browser.js';
-import { runChecks } from './checks/index.js';
+import { detectPagePresence, runChecks } from './checks/index.js';
 import { AnalysisAbortedError, AnalysisError } from './errors.js';
 import { navigate, type FetchFn } from './navigate.js';
 import { runAxe } from './run-axe.js';
@@ -100,6 +100,8 @@ const fetchSiteOnly: FetchFn = async (req, options) => {
 beforeAll(async () => {
   server = await startFixtureServer({
     '/good': { body: GOOD },
+    '/framed': { body: html('<h1>Cadre</h1><iframe title="Tarifs" src="/framed-child"></iframe>') },
+    '/framed-child': { body: html('<table><tr><th>Tarif</th></tr></table>') },
     '/bad': { body: BAD },
     '/img.png': { headers: { 'content-type': 'image/png' }, body: PIXEL },
     '/pdf': { headers: { 'content-type': 'application/pdf' }, body: '%PDF-1.4' },
@@ -362,6 +364,24 @@ describe('navigate', () => {
 });
 
 describe('axe and custom checks in the page', () => {
+  it('detects element kinds inside frames too', async () => {
+    await withPage(async (page) => {
+      await navigate(page, siteUrl('/framed'), { fetch: fetchSiteOnly });
+      await page.frameLocator('iframe').locator('table').waitFor();
+      expect(await detectPagePresence(page)).toMatchObject({
+        frames: true,
+        tables: true,
+        fields: false,
+      });
+      await navigate(page, siteUrl('/good'), { fetch: fetchSiteOnly });
+      expect(await detectPagePresence(page)).toMatchObject({
+        tables: false,
+        images: true,
+        links: true,
+      });
+    });
+  });
+
   it('runs custom checks on a good page', async () => {
     await withPage(async (page) => {
       await navigate(page, siteUrl('/good'), { fetch: fetchSiteOnly });

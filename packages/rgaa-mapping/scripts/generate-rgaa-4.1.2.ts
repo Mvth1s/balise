@@ -15,7 +15,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import type { RgaaCriterion, RgaaReference, RgaaTheme } from '../src/types.ts';
-import { AXE_VERSION, REVIEWED_ON, RULES } from './rules-4.1.2.ts';
+import { APPLICABILITY, AXE_VERSION, REVIEWED_ON, RULES } from './rules-4.1.2.ts';
 
 const REPO = 'DISIC/accessibilite.numerique.gouv.fr';
 const CRITERIA_PATH = 'RGAA/criteres.json';
@@ -104,6 +104,14 @@ function main(): void {
     for (const c of rule.criteria) {
       if (!ids.has(c)) fail(`rule ${rule.rule} points to unknown criterion ${c}`);
     }
+  }
+
+  for (const id of Object.keys(APPLICABILITY)) {
+    if (!ids.has(id)) fail(`applicability points to unknown criterion ${id}`);
+  }
+  for (const c of criteria) {
+    const kinds = APPLICABILITY[c.id];
+    if (kinds) c.applicableWhen = [...kinds];
   }
 
   const reference: RgaaReference = {

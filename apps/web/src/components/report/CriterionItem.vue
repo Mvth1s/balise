@@ -29,6 +29,9 @@ function onToggle(event: Event) {
     <h3 :id="headingId" class="criterion__title">
       Critère {{ criterion.id }} : {{ criterion.title }}
     </h3>
+    <p v-if="criterion.absent?.length" class="small muted">
+      Aucun élément concerné dans la page ({{ criterion.absent.join(', ') }}).
+    </p>
     <p v-if="criterion.status === 'non-conforme'" class="small">
       <strong>{{ affectedLabel(criterion) }}</strong>
     </p>

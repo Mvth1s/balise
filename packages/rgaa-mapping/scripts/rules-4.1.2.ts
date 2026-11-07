@@ -10,7 +10,7 @@
  *   judge the whole criterion compliant; otherwise `partial`.
  * - When in doubt, the rule is not mapped at all.
  */
-import type { RuleMapping } from '../src/types.ts';
+import type { ElementKind, RuleMapping } from '../src/types.ts';
 
 /** Date on which the axe-core rule pages and RGAA pages were reviewed. */
 export const REVIEWED_ON = '2026-11-05';
@@ -835,3 +835,76 @@ export const RULES: RuleMapping[] = [
     'N’utilisez pas outline: none sans alternative ; ajoutez un style :focus-visible bien visible.',
   ),
 ];
+
+/**
+ * Element kinds a criterion applies to, from the official titles and tests
+ * (glossary: image, cadre, média temporel / non temporel, tableau, lien,
+ * script, champ de saisie, bouton, document bureautique, contenu cryptique).
+ * Criteria about the whole page (colours, structure, presentation, navigation,
+ * time limits…) are not listed: they always apply.
+ */
+const IMAGES: ElementKind[] = ['images'];
+const TIMED: ElementKind[] = ['timedMedia'];
+const NON_TIMED: ElementKind[] = ['nonTimedMedia'];
+const FIELDS: ElementKind[] = ['fields'];
+export const APPLICABILITY: Readonly<Record<string, ElementKind[]>> = {
+  '1.1': IMAGES,
+  '1.2': IMAGES,
+  '1.3': IMAGES,
+  '1.4': ['captcha'],
+  '1.5': ['captcha'],
+  '1.6': IMAGES,
+  '1.7': IMAGES,
+  '1.8': IMAGES,
+  '1.9': IMAGES,
+  '2.1': ['frames'],
+  '2.2': ['frames'],
+  '4.1': TIMED,
+  '4.2': TIMED,
+  '4.3': TIMED,
+  '4.4': TIMED,
+  '4.5': TIMED,
+  '4.6': TIMED,
+  '4.7': TIMED,
+  '4.8': NON_TIMED,
+  '4.9': NON_TIMED,
+  '4.10': TIMED,
+  '4.11': TIMED,
+  '4.12': NON_TIMED,
+  '4.13': ['timedMedia', 'nonTimedMedia'],
+  '5.1': ['tables'],
+  '5.2': ['tables'],
+  '5.3': ['tables'],
+  '5.4': ['tables'],
+  '5.5': ['tables'],
+  '5.6': ['tables'],
+  '5.7': ['tables'],
+  '5.8': ['tables'],
+  '6.1': ['links'],
+  '6.2': ['links'],
+  '7.1': ['scripts'],
+  '7.2': ['scripts'],
+  '7.3': ['scripts'],
+  '7.4': ['scripts'],
+  '7.5': ['scripts'],
+  '8.10': ['rtlText'],
+  '10.6': ['links'],
+  '11.1': FIELDS,
+  '11.2': FIELDS,
+  '11.3': FIELDS,
+  '11.4': FIELDS,
+  '11.5': FIELDS,
+  '11.6': FIELDS,
+  '11.7': FIELDS,
+  '11.8': ['choiceLists'],
+  '11.9': ['buttons'],
+  '11.10': FIELDS,
+  '11.11': FIELDS,
+  '11.12': FIELDS,
+  '11.13': FIELDS,
+  '12.5': ['search'],
+  '13.3': ['officeDocs'],
+  '13.4': ['officeDocs'],
+  '13.5': ['crypticText'],
+  '13.6': ['crypticText'],
+};

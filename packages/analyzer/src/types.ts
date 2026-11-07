@@ -63,6 +63,11 @@ export interface CriterionResult {
   rules: string[];
   /** Failures (only for status non-conforme). */
   findings: Finding[];
+  /**
+   * Why the criterion is "non-applicable" when no element it applies to was
+   * found (French labels, e.g. ["tableau"]).
+   */
+  absent?: string[];
 }
 
 export interface AnalysisReport {
