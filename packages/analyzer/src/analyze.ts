@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { getReference, type RgaaReference } from '@balise/rgaa-mapping';
 import type { Browser } from 'playwright-core';
 import { createHardenedContext, launchBrowser } from './browser.js';
-import { runChecks } from './checks/index.js';
+import { detectPagePresence, runChecks } from './checks/index.js';
 import { AnalysisAbortedError, throwIfAborted, toAnalysisError } from './errors.js';
 import { mappedRules, mapResults } from './map-results.js';
 import { navigate, type FetchFn, type NavigationLimits } from './navigate.js';
@@ -89,8 +89,9 @@ export async function analyzePage(
       await options.onStep?.('testing');
       throwIfAborted(signal);
 
+      const presence = await detectPagePresence(page);
       const results: NormalizedRuleResult[] = [...axeResults, ...checkResults];
-      const criteria = mapResults(ref, results);
+      const criteria = mapResults(ref, results, presence);
       const scores = computeScores(ref.themes, criteria, options.scoring ?? DEFAULT_SCORING_CONFIG);
       const finished = now();
       const report: AnalysisReport = {

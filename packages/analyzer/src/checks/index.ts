@@ -6,12 +6,14 @@ import { checkPageLang, PAGE_LANG_RULE } from './page-lang.js';
 import { checkPageTitle, PAGE_TITLE_RULE } from './page-title.js';
 import { checkSkipLink, SKIP_LINK_RULE } from './skip-link.js';
 import { EXTRA_CHECKS } from './extra.js';
+import { detectPresence, mergePresence, sanitizePresence, type Presence } from './presence.js';
 import type { CheckFn, CheckResult } from './types.js';
 
 export type { CheckFn, CheckOutcome, CheckResult, DescribeFn } from './types.js';
 export { describeElement } from './describe.js';
 export { checkHeadingHierarchy, checkPageLang, checkPageTitle, checkSkipLink };
 export * from './extra.js';
+export * from './presence.js';
 
 export const BALISE_CHECKS: ReadonlyArray<{ rule: string; fn: CheckFn }> = [
   { rule: SKIP_LINK_RULE, fn: checkSkipLink },
@@ -66,4 +68,24 @@ export async function runChecks(page: Page): Promise<CheckResult[]> {
     }
   }
   return results;
+}
+
+/**
+ * Element kinds present in the page AND every frame (cross-origin frames
+ * included, through Playwright). Null when one frame cannot be inspected:
+ * then no criterion is declared not applicable (conservative).
+ */
+export async function detectPagePresence(page: Page): Promise<Presence | null> {
+  const expression = `(${detectPresence.toString()})(document)`;
+  const list: Presence[] = [];
+  for (const frame of page.frames()) {
+    try {
+      const p = sanitizePresence(await frame.evaluate(expression));
+      if (!p) return null;
+      list.push(p);
+    } catch {
+      return null;
+    }
+  }
+  return mergePresence(list);
 }

@@ -80,6 +80,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.1",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "images"
       ]
     },
     {
@@ -90,6 +93,9 @@
       "wcag": [
         "1.1.1 Non-text Content (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "images"
       ]
     },
     {
@@ -100,6 +106,9 @@
       "wcag": [
         "1.1.1 Non-text Content (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "images"
       ]
     },
     {
@@ -109,6 +118,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.4",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "captcha"
       ]
     },
     {
@@ -118,6 +130,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.5",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "captcha"
       ]
     },
     {
@@ -127,6 +142,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.6",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "images"
       ]
     },
     {
@@ -136,6 +154,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.7",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "images"
       ]
     },
     {
@@ -145,6 +166,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.8",
       "wcag": [
         "1.4.5 Images of Text (AA)"
+      ],
+      "applicableWhen": [
+        "images"
       ]
     },
     {
@@ -155,6 +179,9 @@
       "wcag": [
         "1.1.1 Non-text Content (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "images"
       ]
     },
     {
@@ -164,6 +191,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#2.1",
       "wcag": [
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "frames"
       ]
     },
     {
@@ -173,6 +203,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#2.2",
       "wcag": [
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "frames"
       ]
     },
     {
@@ -211,6 +244,9 @@
       "wcag": [
         "1.2.1 Audio-only and Video-only (Prerecorded) (A)",
         "1.2.3 Audio Description or Media Alternative (Prerecorded) (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -221,6 +257,9 @@
       "wcag": [
         "1.2.1 Audio-only and Video-only (Prerecorded) (A)",
         "1.2.3 Audio Description or Media Alternative (Prerecorded) (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -230,6 +269,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.3",
       "wcag": [
         "1.2.2 Captions (Prerecorded) (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -239,6 +281,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.4",
       "wcag": [
         "1.2.2 Captions (Prerecorded) (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -248,6 +293,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.5",
       "wcag": [
         "1.2.5 Audio Description (Prerecorded) (AA)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -257,6 +305,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.6",
       "wcag": [
         "1.2.5 Audio Description (Prerecorded) (AA)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -266,6 +317,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.7",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -275,6 +329,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.8",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "nonTimedMedia"
       ]
     },
     {
@@ -284,6 +341,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.9",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "nonTimedMedia"
       ]
     },
     {
@@ -293,6 +353,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.10",
       "wcag": [
         "1.4.2 Audio Control (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -303,6 +366,9 @@
       "wcag": [
         "2.1.1 Keyboard (A)",
         "2.1.2 No Keyboard Trap (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia"
       ]
     },
     {
@@ -313,6 +379,9 @@
       "wcag": [
         "2.1.1 Keyboard (A)",
         "2.1.2 No Keyboard Trap (A)"
+      ],
+      "applicableWhen": [
+        "nonTimedMedia"
       ]
     },
     {
@@ -322,6 +391,10 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.13",
       "wcag": [
         "4.1.2 Name, role, Value (A)"
+      ],
+      "applicableWhen": [
+        "timedMedia",
+        "nonTimedMedia"
       ]
     },
     {
@@ -331,6 +404,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.1",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -340,6 +416,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.2",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -350,6 +429,9 @@
       "wcag": [
         "1.3.2 Meaningful Sequence (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -359,6 +441,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.4",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -368,6 +453,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.5",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -377,6 +465,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.6",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -386,6 +477,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.7",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -395,6 +489,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5.8",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "tables"
       ]
     },
     {
@@ -406,6 +503,9 @@
         "1.1.1 Non-text Content (A)",
         "2.4.4 Link Purpose (In Context) (A)",
         "2.5.3 Label in Name (A)"
+      ],
+      "applicableWhen": [
+        "links"
       ]
     },
     {
@@ -416,6 +516,9 @@
       "wcag": [
         "1.1.1 Non-text Content (A)",
         "2.4.4 Link Purpose (In Context) (A)"
+      ],
+      "applicableWhen": [
+        "links"
       ]
     },
     {
@@ -426,6 +529,9 @@
       "wcag": [
         "2.5.3 Label in Name (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "scripts"
       ]
     },
     {
@@ -436,6 +542,9 @@
       "wcag": [
         "1.1.1 Non-text Content (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "scripts"
       ]
     },
     {
@@ -447,6 +556,9 @@
         "1.3.1 Info and Relationships (A)",
         "2.1.1 Keyboard (A)",
         "2.4.7 Focus Visible (AA)"
+      ],
+      "applicableWhen": [
+        "scripts"
       ]
     },
     {
@@ -457,6 +569,9 @@
       "wcag": [
         "3.2.1 On Focus (A)",
         "3.2.2 On Input (A)"
+      ],
+      "applicableWhen": [
+        "scripts"
       ]
     },
     {
@@ -466,6 +581,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#7.5",
       "wcag": [
         "4.1.3 Status Messages (AA)"
+      ],
+      "applicableWhen": [
+        "scripts"
       ]
     },
     {
@@ -557,6 +675,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8.10",
       "wcag": [
         "1.3.2 Meaningful Sequence (A)"
+      ],
+      "applicableWhen": [
+        "rtlText"
       ]
     },
     {
@@ -653,6 +774,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#10.6",
       "wcag": [
         "1.4.1 Use of Color (A)"
+      ],
+      "applicableWhen": [
+        "links"
       ]
     },
     {
@@ -741,6 +865,9 @@
         "2.4.6 Headings and Labels (AA)",
         "3.3.2 Labels or Instructions (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -752,6 +879,9 @@
         "2.4.6 Headings and Labels (AA)",
         "2.5.3 Label in Name (A)",
         "3.3.2 Labels or Instructions (A)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -761,6 +891,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.3",
       "wcag": [
         "3.2.4 Consistent Identification (AA)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -770,6 +903,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.4",
       "wcag": [
         "3.3.2 Labels or Instructions (A)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -780,6 +916,9 @@
       "wcag": [
         "1.3.1 Info and Relationships (A)",
         "3.3.2 Labels or Instructions (A)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -790,6 +929,9 @@
       "wcag": [
         "1.3.1 Info and Relationships (A)",
         "3.3.2 Labels or Instructions (A)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -800,6 +942,9 @@
       "wcag": [
         "1.3.1 Info and Relationships (A)",
         "3.3.2 Labels or Instructions (A)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -809,6 +954,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.8",
       "wcag": [
         "1.3.1 Info and Relationships (A)"
+      ],
+      "applicableWhen": [
+        "choiceLists"
       ]
     },
     {
@@ -819,6 +967,9 @@
       "wcag": [
         "2.5.3 Label in Name (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "buttons"
       ]
     },
     {
@@ -829,6 +980,9 @@
       "wcag": [
         "3.3.1 Error Identification (A)",
         "3.3.2 Labels or Instructions (A)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -838,6 +992,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.11",
       "wcag": [
         "3.3.3 Error Suggestion (AA)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -847,6 +1004,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.12",
       "wcag": [
         "3.3.4 Error Prevention (Legal, Financial, Data) (AA)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -856,6 +1016,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11.13",
       "wcag": [
         "1.3.5 Identify Input Purpose (AA)"
+      ],
+      "applicableWhen": [
+        "fields"
       ]
     },
     {
@@ -902,6 +1065,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.5",
       "wcag": [
         "3.2.3 Consistent Navigation (AA)"
+      ],
+      "applicableWhen": [
+        "search"
       ]
     },
     {
@@ -995,6 +1161,9 @@
         "2.4.3 Focus Order (A)",
         "3.1.1 Language of Page (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "officeDocs"
       ]
     },
     {
@@ -1010,6 +1179,9 @@
         "2.4.3 Focus Order (A)",
         "3.1.1 Language of Page (A)",
         "4.1.2 Name, Role, Value (A)"
+      ],
+      "applicableWhen": [
+        "officeDocs"
       ]
     },
     {
@@ -1019,6 +1191,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.5",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "crypticText"
       ]
     },
     {
@@ -1028,6 +1203,9 @@
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.6",
       "wcag": [
         "1.1.1 Non-text Content (A)"
+      ],
+      "applicableWhen": [
+        "crypticText"
       ]
     },
     {

@@ -18,6 +18,24 @@ export interface RgaaTheme {
   title: string;
 }
 
+/** Kinds of page elements whose absence makes a criterion not applicable. */
+export type ElementKind =
+  | 'images'
+  | 'captcha'
+  | 'frames'
+  | 'timedMedia'
+  | 'nonTimedMedia'
+  | 'tables'
+  | 'links'
+  | 'scripts'
+  | 'fields'
+  | 'choiceLists'
+  | 'buttons'
+  | 'search'
+  | 'officeDocs'
+  | 'rtlText'
+  | 'crypticText';
+
 export interface RgaaCriterion {
   /** Criterion id "theme.number", e.g. "1.1". */
   id: string;
@@ -28,6 +46,11 @@ export interface RgaaCriterion {
   url: string;
   /** WCAG success criteria referenced by the official reference, when provided. */
   wcag?: string[];
+  /**
+   * The criterion applies only if at least one of these kinds of elements is
+   * present in the page; otherwise it is "Non applicable". Absent = always applies.
+   */
+  applicableWhen?: ElementKind[];
 }
 
 /** Origin of a test rule. */

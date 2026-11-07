@@ -1,4 +1,5 @@
 import { rulesForCriterion, type RgaaReference, type RuleMapping } from '@balise/rgaa-mapping';
+import { ELEMENT_KIND_LABELS, type Presence } from './checks/presence.js';
 import type { NormalizedRuleResult } from './results.js';
 import type { CriterionResult, CriterionStatus, Finding, FindingNode } from './types.js';
 
@@ -52,16 +53,27 @@ export function criterionStatus(
   return 'a-verifier';
 }
 
-/** Maps normalized rule results onto EVERY criterion of the reference. */
+/**
+ * Maps normalized rule results onto EVERY criterion of the reference. With
+ * `presence` (element kinds found in the page and its frames), a criterion
+ * whose kinds are all absent is "non-applicable" — unless a rule failed on it.
+ */
 export function mapResults(
   ref: RgaaReference,
   results: readonly NormalizedRuleResult[],
+  presence?: Presence | null,
 ): CriterionResult[] {
   const byRule = new Map<string, NormalizedRuleResult>();
   for (const r of results) byRule.set(r.rule, r);
   return ref.criteria.map((criterion) => {
     const mappings = rulesForCriterion(ref, criterion.id);
-    const status = criterionStatus(mappings, byRule);
+    let status = criterionStatus(mappings, byRule);
+    const kinds = criterion.applicableWhen;
+    const absent =
+      presence && kinds && status !== 'non-conforme' && !kinds.some((k) => presence[k])
+        ? kinds.map((k) => ELEMENT_KIND_LABELS[k])
+        : null;
+    if (absent) status = 'non-applicable';
     const findings: Finding[] =
       status === 'non-conforme'
         ? mappings.flatMap((m) => {
@@ -77,6 +89,7 @@ export function mapResults(
       status,
       rules: mappings.filter((m) => byRule.has(m.rule)).map((m) => m.rule),
       findings,
+      ...(absent ? { absent } : {}),
     };
   });
 }

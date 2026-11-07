@@ -248,18 +248,24 @@
       "theme": 1,
       "title": "Pour chaque image utilisée comme CAPTCHA ou comme image-test, ayant une alternative textuelle, cette alternative permet-elle d’identifier la nature et la fonction de l’image ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.4",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "CAPTCHA"
+      ]
     },
     {
       "id": "1.5",
       "theme": 1,
       "title": "Pour chaque image utilisée comme CAPTCHA, une solution d’accès alternatif au contenu ou à la fonction du CAPTCHA est-elle présente ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1.5",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "CAPTCHA"
+      ]
     },
     {
       "id": "1.6",
@@ -448,18 +454,24 @@
       "theme": 4,
       "title": "Chaque média non temporel a-t-il, si nécessaire, une alternative (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.8",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "média non temporel (object, embed)"
+      ]
     },
     {
       "id": "4.9",
       "theme": 4,
       "title": "Pour chaque média non temporel ayant une alternative, cette alternative est-elle pertinente ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.9",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "média non temporel (object, embed)"
+      ]
     },
     {
       "id": "4.10",
@@ -486,9 +498,12 @@
       "theme": 4,
       "title": "La consultation de chaque média non temporel est-elle contrôlable par le clavier et tout dispositif de pointage ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4.12",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "média non temporel (object, embed)"
+      ]
     },
     {
       "id": "4.13",
@@ -1451,9 +1466,12 @@
       "theme": 12,
       "title": "Dans chaque ensemble de pages, le moteur de recherche est-il atteignable de manière identique ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#12.5",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "moteur de recherche"
+      ]
     },
     {
       "id": "12.6",
@@ -1571,36 +1589,48 @@
       "theme": 13,
       "title": "Dans chaque page web, chaque document bureautique en téléchargement possède-t-il, si nécessaire, une version accessible (hors cas particuliers) ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.3",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "document bureautique en téléchargement"
+      ]
     },
     {
       "id": "13.4",
       "theme": 13,
       "title": "Pour chaque document bureautique ayant une version accessible, cette version offre-t-elle la même information ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.4",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "document bureautique en téléchargement"
+      ]
     },
     {
       "id": "13.5",
       "theme": 13,
       "title": "Dans chaque page web, chaque contenu cryptique (art ASCII, émoticône, syntaxe cryptique) a-t-il une alternative ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.5",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "émoticône ou contenu cryptique"
+      ]
     },
     {
       "id": "13.6",
       "theme": 13,
       "title": "Dans chaque page web, pour chaque contenu cryptique (art ASCII, émoticône, syntaxe cryptique) ayant une alternative, cette alternative est-elle pertinente ?",
       "url": "https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#13.6",
-      "status": "a-verifier",
+      "status": "non-applicable",
       "rules": [],
-      "findings": []
+      "findings": [],
+      "absent": [
+        "émoticône ou contenu cryptique"
+      ]
     },
     {
       "id": "13.7",
