@@ -8,6 +8,7 @@ import type { Browser } from 'playwright-core';
 import { createHardenedContext, launchBrowser } from './browser.js';
 import { detectPagePresence, runChecks } from './checks/index.js';
 import { AnalysisAbortedError, throwIfAborted, toAnalysisError } from './errors.js';
+import { collectJudgePack, type JudgePack } from './judge-pack.js';
 import { mappedRules, mapResults } from './map-results.js';
 import { navigate, type FetchFn, type NavigationLimits } from './navigate.js';
 import { normalizeCheckResult, type NormalizedRuleResult } from './results.js';
@@ -39,6 +40,8 @@ export interface AnalyzeOptions {
 export interface AnalyzeResult {
   report: AnalysisReport;
   screenshot: Buffer;
+  /** Elements for the AI judgement (judged by the API, never by the engine). */
+  pack?: JudgePack | null;
 }
 
 /**
@@ -90,6 +93,7 @@ export async function analyzePage(
       throwIfAborted(signal);
 
       const presence = await detectPagePresence(page);
+      const pack = await collectJudgePack(page);
       const results: NormalizedRuleResult[] = [...axeResults, ...checkResults];
       const criteria = mapResults(ref, results, presence);
       const scores = computeScores(ref.themes, criteria, options.scoring ?? DEFAULT_SCORING_CONFIG);
@@ -115,7 +119,7 @@ export async function analyzePage(
         hasScreenshot: nav.screenshot.length > 0,
       };
       await options.onStep?.('scoring');
-      return { report, screenshot: nav.screenshot };
+      return { report, screenshot: nav.screenshot, pack };
     } finally {
       signal?.removeEventListener('abort', onAbort);
       await browser.close().catch(() => undefined);

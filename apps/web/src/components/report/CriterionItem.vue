@@ -32,6 +32,15 @@ function onToggle(event: Event) {
     <p v-if="criterion.absent?.length" class="small muted">
       Aucun élément concerné dans la page ({{ criterion.absent.join(', ') }}).
     </p>
+    <div v-if="criterion.ai" class="small">
+      <p>
+        <strong>Jugement par IA</strong> ({{ criterion.ai.model }}, confiance
+        {{ Math.round(criterion.ai.confidence * 100) }} %) : {{ criterion.ai.justification }}
+      </p>
+      <p class="muted">
+        Résultat produit par un modèle de langage, à confirmer par une vérification humaine.
+      </p>
+    </div>
     <p v-if="criterion.status === 'non-conforme'" class="small">
       <strong>{{ affectedLabel(criterion) }}</strong>
     </p>

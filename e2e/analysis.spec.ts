@@ -133,6 +133,18 @@ test.describe('Rapport', () => {
     await expectNoAxeViolations(page);
   });
 
+  test('jugement par IA : statut et badge distincts de « (auto) »', async ({ page }) => {
+    await analyse(page);
+    await openDisclosure(page, /^Afficher le détail des/);
+    const ia = page.getByRole('button', { name: /^Non conformes \(IA\) \(1\)$/ });
+    await ia.click();
+    await expect(ia).toHaveAttribute('aria-pressed', 'true');
+    const item = page.locator('#details article').filter({ hasText: 'Critère 8.6' });
+    await expect(item.locator('.badge--ai')).toHaveText(/Non conforme \(IA\)/);
+    await expect(item).toContainText('Jugement par IA (simulé, confiance 80 %)');
+    await expectNoAxeViolations(page);
+  });
+
   test('accordéon des éléments concernés', async ({ page }) => {
     await gotoReady(page, '/exemple/avant');
     await openDisclosure(page, /^Afficher le détail des/);
