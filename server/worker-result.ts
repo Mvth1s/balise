@@ -3,10 +3,16 @@
  * pages: its output is checked for shape and size before being stored (the
  * front end escapes every value anyway).
  */
-import { ERROR_MESSAGES, type AnalysisErrorCode, type AnalysisReport } from '@balise/analyzer';
+import {
+  ERROR_MESSAGES,
+  sanitizeJudgePack,
+  type AnalysisErrorCode,
+  type AnalysisReport,
+  type JudgePack,
+} from '@balise/analyzer';
 
 export type WorkerResult =
-  | { report: AnalysisReport; screenshot: Buffer }
+  | { report: AnalysisReport; screenshot: Buffer; pack: JudgePack | null }
   | { error: { code: AnalysisErrorCode; message: string } };
 
 const JPEG_MAGIC = Buffer.from([0xff, 0xd8, 0xff]);
@@ -19,7 +25,7 @@ export function parseWorkerResult(text: string, id: string): WorkerResult | null
     return null;
   }
   if (!body || typeof body !== 'object') return null;
-  const b = body as { report?: unknown; screenshot?: unknown; error?: unknown };
+  const b = body as { report?: unknown; screenshot?: unknown; error?: unknown; pack?: unknown };
   if (b.error && typeof b.error === 'object') {
     const e = b.error as { code?: unknown; message?: unknown };
     const code = (
@@ -49,5 +55,6 @@ export function parseWorkerResult(text: string, id: string): WorkerResult | null
   return {
     report: { ...(r as AnalysisReport), hasScreenshot: screenshot.length > 0 },
     screenshot,
+    pack: sanitizeJudgePack(b.pack),
   };
 }

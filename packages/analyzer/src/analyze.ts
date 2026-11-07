@@ -9,6 +9,7 @@ import { createHardenedContext, launchBrowser } from './browser.js';
 import { detectPagePresence, runChecks } from './checks/index.js';
 import { AnalysisAbortedError, throwIfAborted, toAnalysisError } from './errors.js';
 import { observePage, runInteractions, type InteractionOptions } from './interactions.js';
+import { collectJudgePack, type JudgePack } from './judge-pack.js';
 import { mappedRules, mapResults } from './map-results.js';
 import { navigate, type FetchFn, type NavigationLimits } from './navigate.js';
 import { normalizeCheckResult, type NormalizedRuleResult } from './results.js';
@@ -42,6 +43,8 @@ export interface AnalyzeOptions {
 export interface AnalyzeResult {
   report: AnalysisReport;
   screenshot: Buffer;
+  /** Elements for the AI judgement (judged by the API, never by the engine). */
+  pack?: JudgePack | null;
 }
 
 /**
@@ -94,6 +97,9 @@ export async function analyzePage(
       throwIfAborted(signal);
 
       const presence = await detectPagePresence(page);
+      // Before the interactions, which change the viewport, the focus and the pointer.
+      const pack = await collectJudgePack(page);
+      throwIfAborted(signal);
       // Last: changes the viewport, the focus and the pointer.
       const interactionResults = await runInteractions(page, observation, options.interactions);
       throwIfAborted(signal);
@@ -126,7 +132,7 @@ export async function analyzePage(
         hasScreenshot: nav.screenshot.length > 0,
       };
       await options.onStep?.('scoring');
-      return { report, screenshot: nav.screenshot };
+      return { report, screenshot: nav.screenshot, pack };
     } finally {
       signal?.removeEventListener('abort', onAbort);
       await browser.close().catch(() => undefined);

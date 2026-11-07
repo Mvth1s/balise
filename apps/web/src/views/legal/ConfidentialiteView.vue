@@ -7,9 +7,11 @@
     - https://support.google.com/analytics/answer/7667196?hl=fr (consulté le 2026-11-06 : conservation des données GA4, 2 ou 14 mois)
     - https://www.cnil.fr/fr/saisir-la-cnil/nous-contacter (consulté le 2026-11-06 : adresse postale de la CNIL)
     - https://www.cnil.fr/fr/plaintes (consulté le 2026-11-06 : plainte en ligne)
+    - https://help.mistral.ai/en/articles/455207-can-i-opt-out-of-my-input-or-output-data-being-used-for-training (consulté le 2026-11-07 : les requêtes API du plan gratuit « Experiment » peuvent servir à entraîner les modèles de Mistral, sauf désactivation dans la console d'administration)
+    - server/ai/judge.ts (éléments transmis à Mistral) (consulté le 2026-11-07)
     - server/rate-limit.ts (fenêtre glissante d'1 heure, clé HMAC-SHA-256 de l'IP avec sel secret) (consulté le 2026-11-06)
   -->
-  <LegalPage title="Politique de confidentialité" updated="2026-11-06">
+  <LegalPage title="Politique de confidentialité" updated="2026-11-07">
     <p>
       Cette page explique quelles données Balise traite, pourquoi, combien de temps, et quels sont
       vos droits. Elle répond à l'article 13 du règlement général sur la protection des données
@@ -44,6 +46,22 @@
       </li>
     </ul>
     <p>Balise ne vous demande ni compte, ni nom, ni adresse électronique pour analyser une page.</p>
+
+    <h3>Jugement par intelligence artificielle</h3>
+    <p>
+      Pour juger certains critères (pertinence des alternatives d'images, des liens, des titres, des
+      étiquettes, changements de langue), Balise transmet à Mistral AI des éléments de la page
+      publique analysée : titre de la page, textes des liens, des titres, des étiquettes et des
+      boutons, courts passages de texte, et des images recadrées avec leur alternative et leur
+      contexte. Ni votre adresse IP ni aucune autre donnée vous concernant n'est transmise.
+    </p>
+    <p>
+      Balise utilise l'offre gratuite de Mistral AI. Sur cette offre, Mistral AI indique que les
+      contenus transmis peuvent servir à entraîner ses modèles. Si la page analysée contient des
+      données personnelles, même publiques, elles peuvent donc être transmises à Mistral AI. Les
+      résultats sont signalés « (IA) » dans le rapport et restent à confirmer par une vérification
+      humaine.
+    </p>
     <p>
       La seule donnée que vous devez fournir est l'adresse de la page à analyser : sans elle,
       l'analyse est impossible. Le refus de la mesure d'audience n'a aucune conséquence sur l'usage
@@ -71,7 +89,8 @@
     <p>
       N'analysez pas de pages qui contiennent des données personnelles non publiques. Balise
       enregistre une capture d'écran et des extraits du code de la page analysée. Ces éléments sont
-      visibles par toute personne qui possède le lien du rapport.
+      visibles par toute personne qui possède le lien du rapport, et une partie du contenu de la
+      page est transmise à Mistral AI (voir ci-dessus).
     </p>
 
     <h2>Finalités et bases légales</h2>
@@ -176,6 +195,11 @@
       <li>
         <strong>Upstash, Inc.</strong> (États-Unis) : stockage des rapports et des compteurs de
         limitation de débit, dans une base de données située en Europe.
+      </li>
+      <li>
+        <strong>Mistral AI</strong> (France) : jugement par intelligence artificielle de certains
+        critères, à partir d'éléments de la page publique analysée. Ces éléments peuvent servir à
+        l'entraînement de ses modèles (offre gratuite).
       </li>
       <li>
         <strong>Google Ireland Limited</strong> et <strong>Google LLC</strong> : mesure d'audience,

@@ -116,6 +116,7 @@ describe('isolated Chromium worker', () => {
     expect(workerEnvProblem({ KV_REST_API_TOKEN: 'x' })).toMatch(/KV_REST_API_TOKEN/);
     expect(workerEnvProblem({ UPSTASH_REDIS_REST_URL: 'x' })).toMatch(/UPSTASH/);
     expect(workerEnvProblem({ BALISE_TOKEN_PRIVATE_KEY: 'x' })).toMatch(/PRIVATE/);
+    expect(workerEnvProblem({ MISTRAL_API_KEY: 'x' })).toMatch(/MISTRAL_API_KEY/);
     const { worker } = wire({ KV_REST_API_URL: 'https://redis' });
     const run = (body: unknown) =>
       worker(new Request(WORKER, { method: 'POST', body: JSON.stringify(body) }));

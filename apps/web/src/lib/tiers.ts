@@ -47,7 +47,7 @@ export interface StatusInfo {
   label: string;
   /** Plural label used by the filters. */
   plural: string;
-  icon: TierIcon | 'dash';
+  icon: TierIcon | 'dash' | 'ai';
   colorVar: string;
 }
 
@@ -73,6 +73,20 @@ export const STATUS_INFO: Record<CriterionStatus, StatusInfo> = {
     icon: 'check',
     colorVar: '--color-score-good',
   },
+  'non-conforme-ia': {
+    status: 'non-conforme-ia',
+    label: 'Non conforme (IA)',
+    plural: 'Non conformes (IA)',
+    icon: 'ai',
+    colorVar: '--color-score-bad',
+  },
+  'conforme-ia': {
+    status: 'conforme-ia',
+    label: 'Conforme (IA)',
+    plural: 'Conformes (IA)',
+    icon: 'ai',
+    colorVar: '--color-score-good',
+  },
   'non-applicable': {
     status: 'non-applicable',
     label: 'Non applicable',
@@ -84,8 +98,10 @@ export const STATUS_INFO: Record<CriterionStatus, StatusInfo> = {
 
 export const STATUS_ORDER: readonly CriterionStatus[] = [
   'non-conforme',
+  'non-conforme-ia',
   'a-verifier',
   'conforme',
+  'conforme-ia',
   'non-applicable',
 ];
 

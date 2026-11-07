@@ -35,6 +35,7 @@ import {
   signReportToken,
   verifyReportToken,
 } from './report-token.ts';
+import { enrichWithAi } from './ai/judge.ts';
 import { runAnalysis, type AnalysisSink } from './run-analysis.ts';
 import { parseWorkerResult } from './worker-result.ts';
 import {
@@ -80,6 +81,8 @@ export interface HandlerDeps {
   worker?: { url: string; privateKey: KeyObject; publicKey: KeyObject } | null;
   /** HTTP client used to reach the worker (tests). */
   fetch?: typeof fetch;
+  /** HTTP client used to reach Mistral (tests). */
+  aiFetch?: typeof fetch;
 }
 
 const MAX_BODY_LENGTH = 8 * 1024;
@@ -276,9 +279,11 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
     step: async (step) => {
       if (!(await patchActive(id, { state: 'running', step }))) throw new AnalysisAbortedError();
     },
-    done: async (report, screenshot) => {
+    done: async (report, screenshot, pack) => {
+      // The only place that holds MISTRAL_API_KEY (never the Chromium worker).
+      const judged = await enrichWithAi(report, pack, deps.env, { fetch: deps.aiFetch, log });
       if (screenshot.length > 0) await store.putScreenshot(id, screenshot);
-      if (!(await patchActive(id, { state: 'done', step: 'scoring', report }))) {
+      if (!(await patchActive(id, { state: 'done', step: 'scoring', report: judged }))) {
         throw new AnalysisAbortedError();
       }
     },
@@ -341,7 +346,7 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
     if (!parsed) return errorResponse(400, 'invalid_report', 'Rapport mal formé.');
     const sink = storeSink(id);
     try {
-      if ('report' in parsed) await sink.done(parsed.report, parsed.screenshot);
+      if ('report' in parsed) await sink.done(parsed.report, parsed.screenshot, parsed.pack);
       else await sink.failed(parsed.error);
     } catch (error) {
       if (error instanceof AnalysisAbortedError) {

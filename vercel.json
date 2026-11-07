@@ -11,6 +11,9 @@
     "api/analyses/index.ts": {
       "maxDuration": 60
     },
+    "api/analyses/[id]/report.ts": {
+      "maxDuration": 120
+    },
     "api/**/*.ts": {
       "maxDuration": 10
     }

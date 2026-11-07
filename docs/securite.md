@@ -167,3 +167,11 @@ navigateur ──POST /api/analyses──▶ balise (Redis, sel, clé privée)
   ```sh
   node -e "const {generateKeyPairSync:g}=require('node:crypto');const k=g('ed25519');console.log('PRIVATE',k.privateKey.export({format:'der',type:'pkcs8'}).toString('base64'));console.log('PUBLIC',k.publicKey.export({format:'der',type:'spki'}).toString('base64'))"
   ```
+
+## 10. Jugement par IA (Mistral)
+
+- `MISTRAL_API_KEY` (et `MISTRAL_MODEL`, facultatif, défaut `mistral-small-2603`) n'existent **que dans le projet `balise`**. Le worker refuse de démarrer si une variable `MISTRAL_*` est présente (`FORBIDDEN_WORKER_ENV`). Sans clé, la couche IA est désactivée et le rapport est identique.
+- Le worker collecte un paquet borné (`packages/analyzer/src/judge-pack.ts` : 8 images recadrées de 120 Ko au plus, 40 liens, 60 titres, 30 champs, 30 boutons, 10 cadres, 5 tableaux, 30 passages, textes tronqués à 200 caractères), revalidé par `sanitizeJudgePack` à la réception. L'API appelle Mistral en deux requêtes groupées au plus (images, texte), 1 requête par seconde au plus, nouvelles tentatives sur 429 et 5xx (`Retry-After` respecté), délai total de 60 s ; la fonction d'écriture a une durée maximale de 120 s.
+- **Injection de consignes** : le contenu de la page est transmis comme données (`<donnees>…</donnees>`) et le modèle doit ignorer toute consigne qu'il contient. Une page peut néanmoins tenter d'influencer le verdict. Garde-fous : sortie imposée par schéma JSON (`strict`) puis revalidée (identifiants de critères attendus seulement, verdict, confiance de 0 à 1, justification ≤ 300 caractères), sélecteurs conservés seulement s'ils figurent dans le paquet, confiance minimale de 0,6, résultat automatique toujours prioritaire, statuts distincts « (IA) », exclus des scores, avec mention « à confirmer par une vérification humaine ». La justification est affichée échappée, comme tout contenu.
+- **Vie privée** : le contenu de pages publiques est envoyé à Mistral AI ; sur l'offre gratuite « Experiment », il peut servir à l'entraînement (désactivable par l'éditeur dans la console Mistral, menu Privacy). Voir la politique de confidentialité.
+- **Fiabilité** : jeu de pages de test avec verdicts attendus (`server/ai/eval/pages.ts`), mesuré par `scripts/ai-eval.ts` avec une vraie clé.
