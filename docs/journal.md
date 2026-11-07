@@ -19,7 +19,7 @@
 
 - Front Vue 3 pré-rendu (15 pages) : accueil, analyse en cours, rapport, exemples avant/après, démo, pages légales, bandeau de consentement maison (affiché seulement si `VITE_GA_MEASUREMENT_ID` est défini).
 - Pages légales relues : adresse de Vercel vérifiée, régime de l'éditeur non professionnel (LCEN art. 1-1 II), RGPD art. 13, durée réelle de conservation de l'empreinte d'IP (2 heures au plus).
-- Libellé « Accessibilité : partiellement conforme » conservé à la demande de l'éditeur, bien que la DINUM réserve ce statut à un site audité ; à revoir après l'audit manuel.
+- Libellé « Accessibilité : non conforme » (statut DINUM en l'absence d'audit) ; la déclaration précise qu'aucun audit n'a encore été réalisé. À revoir après l'audit manuel.
 - `pnpm demo:build` génère les rapports de démo avec le vrai moteur ; ils servent de test de non-régression. `/demo/avant` : 14 critères non conformes sur 12 thématiques ; la thématique 4 ne sort qu'en « à vérifier » (axe classe une vidéo sans sous-titres en « incomplete »). `/demo/apres` : aucun.
 
 ## Étape 6 — Accessibilité de Balise (2026-11-06)

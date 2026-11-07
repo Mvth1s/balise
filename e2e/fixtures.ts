@@ -11,7 +11,7 @@ export const FOOTER_LINKS = [
   'Mentions légales',
   'Politique de confidentialité',
   'Gestion des cookies',
-  'Accessibilité : partiellement conforme',
+  'Accessibilité : non conforme',
   'Conditions d’utilisation',
   'Plan du site',
   'Contact',

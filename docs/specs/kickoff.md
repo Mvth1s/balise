@@ -101,14 +101,14 @@ Règles : 150 à 400 ms, ease-out, uniquement transform et opacity ; `prefers-re
 
 ### Pied de page et pages légales (identique sur toutes les pages)
 
-Navigation nommée « Liens de pied de page » avec : Mentions légales, Politique de confidentialité, Gestion des cookies, Accessibilité : partiellement conforme (lien vers la déclaration), Conditions d'utilisation, Plan du site, Contact, Code source. Ligne : « Balise, par Mvth1s. Scores indicatifs, sans valeur de certification RGAA. »
+Navigation nommée « Liens de pied de page » avec : Mentions légales, Politique de confidentialité, Gestion des cookies, Accessibilité : non conforme (lien vers la déclaration), Conditions d'utilisation, Plan du site, Contact, Code source. Ligne : « Balise, par Mvth1s. Scores indicatifs, sans valeur de certification RGAA. »
 
 Rédige le contenu complet de chaque page en français (agent `docs-writer`) :
 
 - Mentions légales (LCEN) : éditeur Mvth1s, contact, hébergeur Vercel Inc. avec ses coordonnées exactes relevées sur le site officiel de Vercel. Ajoute un commentaire TODO visible dans le code (pas sur la page) rappelant de vérifier les obligations d'identification d'un éditeur non professionnel.
 - Politique de confidentialité (RGPD art. 13) : données traitées (URL analysée, rapport, capture, IP hachée pour la limitation de débit 24 h, données GA4 après consentement), finalités, bases légales, durées, destinataires (Vercel, Upstash, Google), transferts hors UE et leur encadrement, droits, réclamation CNIL.
 - Gestion des cookies : stockage nécessaire (préférences locales), mesure d'audience GA4 avec interrupteur, tableau des cookies, enregistrement du choix.
-- Déclaration d'accessibilité : modèle conforme, état « partiellement conforme » tant que l'audit manuel n'est pas fait, page démo « avant » exclue et justifiée.
+- Déclaration d'accessibilité : modèle conforme, état « non conforme » tant que l'audit manuel n'est pas fait, page démo « avant » exclue et justifiée.
 - Conditions d'utilisation, plan du site, contact.
 
 ### Mesure d'audience GA4 et consentement

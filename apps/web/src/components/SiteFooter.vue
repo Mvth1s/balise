@@ -7,7 +7,7 @@
           <li><RouterLink to="/confidentialite">Politique de confidentialité</RouterLink></li>
           <li><RouterLink to="/cookies">Gestion des cookies</RouterLink></li>
           <li>
-            <RouterLink to="/accessibilite">Accessibilité : partiellement conforme</RouterLink>
+            <RouterLink to="/accessibilite">Accessibilité : non conforme</RouterLink>
           </li>
           <li><RouterLink to="/conditions-utilisation">Conditions d’utilisation</RouterLink></li>
           <li><RouterLink to="/plan-du-site">Plan du site</RouterLink></li>
