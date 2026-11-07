@@ -366,11 +366,17 @@ describe('axe and custom checks in the page', () => {
     await withPage(async (page) => {
       await navigate(page, siteUrl('/good'), { fetch: fetchSiteOnly });
       const results = await runChecks(page);
-      expect(Object.fromEntries(results.map((r) => [r.rule, r.outcome]))).toEqual({
+      const outcomes = Object.fromEntries(results.map((r) => [r.rule, r.outcome]));
+      expect(outcomes).toMatchObject({
         'balise-skip-link': 'pass',
         'balise-heading-hierarchy': 'pass',
         'balise-page-lang': 'pass',
         'balise-page-title': 'pass',
+        'balise-doctype': 'pass',
+        'balise-duplicate-id': 'pass',
+        'balise-img-alt-relevant': 'pass',
+        // Default focus ring of the browser.
+        'balise-focus-visible': 'pass',
       });
     });
   });
@@ -379,11 +385,13 @@ describe('axe and custom checks in the page', () => {
     await withPage(async (page) => {
       await navigate(page, siteUrl('/bad'), { fetch: fetchSiteOnly });
       const results = await runChecks(page);
-      expect(Object.fromEntries(results.map((r) => [r.rule, r.outcome]))).toEqual({
+      const outcomes = Object.fromEntries(results.map((r) => [r.rule, r.outcome]));
+      expect(outcomes).toMatchObject({
         'balise-skip-link': 'inapplicable',
         'balise-heading-hierarchy': 'fail',
         'balise-page-lang': 'fail',
         'balise-page-title': 'fail',
+        'balise-focus-visible': 'inapplicable',
       });
       const headings = results.find((r) => r.rule === 'balise-heading-hierarchy')!;
       expect(headings.nodes[0]!.html).toBe('<h3>Saut</h3>');

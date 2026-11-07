@@ -17,7 +17,7 @@ Vous saisissez l'adresse d'une page web publique. Balise :
 
 1. vérifie que l'adresse désigne bien une page publique ;
 2. charge la page dans un navigateur Chromium headless, avec son JavaScript ;
-3. exécute axe-core et des contrôles maison (lien d'évitement, hiérarchie des titres, langue de la page, titre de page) ;
+3. exécute axe-core et une vingtaine de contrôles maison de détection d'erreurs (lien d'évitement, titres, langue, titre de page, type de document, identifiants, tableaux, images, liens génériques, étiquettes et regroupements de champs, focus visible, balises de présentation…) ;
 4. range les résultats par critère et par thématique du RGAA 4.1.2 ;
 5. affiche un score indicatif par thématique et un score global, toujours avec leur couverture (« 32 critères testés automatiquement sur 106 »).
 

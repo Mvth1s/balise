@@ -238,6 +238,107 @@ const PLAN_HTML =
           </a>
         </p>
       </section>
+
+      <section aria-labelledby="infos-pratiques" class="demo-block">
+        <h2 id="infos-pratiques">Infos pratiques</h2>
+        <template v-if="broken">
+          <!-- ERREUR 1.2 : image décorative (aria-hidden) qui porte un titre. -->
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" class="demo-icon">
+            <title>Décoration</title>
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          <!-- ERREUR 1.3 : alternative réduite au nom du fichier. -->
+          <img src="/demo/lecture.svg" width="120" height="60" alt="lecture.svg" />
+          <!-- ERREUR 8.2 : identifiant en double. -->
+          <p id="demo-infos">Accès gratuit, sans inscription.</p>
+          <p id="demo-infos">Wi-Fi disponible.</p>
+          <!-- ERREUR 8.9 : paragraphe vide servant d'espacement. -->
+          <p>&nbsp;</p>
+          <!-- ERREUR 8.10 : valeur de dir invalide. -->
+          <p dir="gauche">Prêt de 10 documents pour 3 semaines.</p>
+          <!-- ERREUR 10.1 : balise de présentation. -->
+          <!-- eslint-disable-next-line vue/no-deprecated-html-element-is -- intentional demo error -->
+          <center>Fermeture exceptionnelle le 1er mai.</center>
+          <!-- ERREUR 5.8 : tableau de mise en forme avec des en-têtes. -->
+          <table role="presentation">
+            <tr>
+              <th>Téléphone</th>
+              <td>01 23 45 67 89 (numéro fictif)</td>
+            </tr>
+          </table>
+          <!-- ERREUR 5.6 : tableau de données sans en-têtes. -->
+          <table>
+            <caption>
+              Tarifs
+            </caption>
+            <tr>
+              <td>Moins de 18 ans</td>
+              <td>Gratuit</td>
+            </tr>
+            <tr>
+              <td>Adultes</td>
+              <td>10 € par an</td>
+            </tr>
+          </table>
+          <!-- ERREUR 6.1 : intitulé de lien générique, sans contexte. -->
+          <div><a href="#programme">En savoir plus</a></div>
+          <!-- ERREUR 10.7 : prise de focus invisible. -->
+          <div><a href="#horaires" class="demo-nofocus">Horaires détaillés</a></div>
+        </template>
+        <template v-else>
+          <p id="demo-infos">Accès gratuit, sans inscription.</p>
+          <p>Wi-Fi disponible.</p>
+          <p>Prêt de 10 documents pour 3 semaines.</p>
+          <p>Fermeture exceptionnelle le 1er mai.</p>
+          <p>Téléphone : 01 23 45 67 89 (numéro fictif)</p>
+          <table>
+            <caption>
+              Tarifs
+            </caption>
+            <tr>
+              <th scope="row">Moins de 18 ans</th>
+              <td>Gratuit</td>
+            </tr>
+            <tr>
+              <th scope="row">Adultes</th>
+              <td>10 € par an</td>
+            </tr>
+          </table>
+          <div><a href="#programme">Découvrir le programme des ateliers</a></div>
+          <div><a href="#horaires">Horaires détaillés</a></div>
+        </template>
+      </section>
+
+      <section aria-labelledby="avis" class="demo-block">
+        <h2 id="avis">Votre avis</h2>
+        <form class="demo-form" @submit.prevent>
+          <template v-if="broken">
+            <!-- ERREUR 11.5 : boutons radio non regroupés. -->
+            <span class="demo-form__text">Avez-vous trouvé ce que vous cherchiez ?</span>
+            <label><input type="radio" name="demo-avis" value="oui" /> Oui</label>
+            <label><input type="radio" name="demo-avis" value="non" /> Non</label>
+            <!-- ERREUR 11.6 : regroupement de champs sans légende. -->
+            <fieldset class="demo-fieldset">
+              <label><input type="checkbox" name="demo-contact" /> Être recontacté</label>
+            </fieldset>
+            <!-- ERREUR 12.8 : tabindex positif. -->
+            <!-- eslint-disable-next-line vuejs-accessibility/tabindex-no-positive -- intentional demo error -->
+            <button type="submit" class="btn" tabindex="2">Envoyer</button>
+          </template>
+          <template v-else>
+            <fieldset class="demo-fieldset">
+              <legend>Avez-vous trouvé ce que vous cherchiez ?</legend>
+              <label><input type="radio" name="demo-avis" value="oui" /> Oui</label>
+              <label><input type="radio" name="demo-avis" value="non" /> Non</label>
+            </fieldset>
+            <fieldset class="demo-fieldset">
+              <legend>Suite</legend>
+              <label><input type="checkbox" name="demo-contact" /> Être recontacté</label>
+            </fieldset>
+            <button type="submit" class="btn">Envoyer</button>
+          </template>
+        </form>
+      </section>
     </div>
   </div>
 </template>
@@ -346,6 +447,34 @@ const PLAN_HTML =
 .demo-frame--focus {
   outline: 2px solid var(--color-brand);
   outline-offset: 2px;
+}
+
+/* Intentionally invisible focus (demo "avant" only). */
+.demo-nofocus:focus,
+.demo-nofocus:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.demo-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.demo-fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  flex-basis: 100%;
+  margin: 0;
+  padding: var(--space-2) 0;
+  border: 0;
+}
+
+.demo-fieldset legend {
+  font-weight: 700;
+  padding: 0;
 }
 
 .demo-icon-link {

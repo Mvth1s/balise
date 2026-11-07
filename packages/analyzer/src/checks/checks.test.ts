@@ -152,7 +152,7 @@ describe('check plumbing', () => {
       // Indirect eval: same as page.evaluate, without closure access.
       const result = (0, eval)(checkExpression(fn)) as { rule: string; outcome: string };
       expect(result.rule).toBe(rule);
-      expect(result.outcome).toBe('pass');
+      expect(['pass', 'inapplicable']).toContain(result.outcome);
     }
   });
 

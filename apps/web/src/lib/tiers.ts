@@ -54,8 +54,8 @@ export interface StatusInfo {
 export const STATUS_INFO: Record<CriterionStatus, StatusInfo> = {
   'non-conforme': {
     status: 'non-conforme',
-    label: 'Non conforme',
-    plural: 'Non conformes',
+    label: 'Non conforme (auto)',
+    plural: 'Non conformes (auto)',
     icon: 'cross',
     colorVar: '--color-score-bad',
   },
