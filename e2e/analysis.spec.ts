@@ -5,6 +5,7 @@ import {
   expect,
   expectNoAxeViolations,
   gotoReady,
+  openDisclosure,
   scriptProgress,
   submitUrl,
   test,
@@ -32,11 +33,11 @@ test.describe('Parcours d’analyse', () => {
     await expect(heading).toBeVisible();
     await expect(heading).toBeFocused();
     await expect(page.getByText('Analyse terminée. Le rapport est affiché.')).toBeAttached();
-    await expect(page.getByText(/^Scores indicatifs\./)).toBeVisible();
+    await expect(page.getByText(/Scores indicatifs\. Ils ne constituent pas/)).toBeVisible();
     await expect(
       page.getByRole('img', { name: /^Score global indicatif : \d+ sur 100/ }),
     ).toBeVisible();
-    await expect(page.locator('.theme-card')).toHaveCount(13);
+    await expect(page.locator('.theme-row')).toHaveCount(13);
     await expect(page.getByText(/critères? testés? automatiquement sur \d+/).first()).toBeVisible();
     await expect(page).toHaveTitle(/^Rapport : /);
 
@@ -84,13 +85,17 @@ test.describe('Parcours d’analyse', () => {
     await page.getByRole('link', { name: 'Essayer avec une page d’exemple' }).click();
     await expect(page).toHaveURL(/\/exemple\/avant$/);
     await expect(page.getByRole('heading', { level: 1, name: /^Rapport d’exemple/ })).toBeFocused();
-    await expect(page.locator('.theme-card')).toHaveCount(13);
+    await expect(page.locator('.theme-row')).toHaveCount(13);
   });
 });
 
 test.describe('Rapport', () => {
   test('filtres par statut et par thématique', async ({ page }) => {
     await gotoReady(page, '/exemple/avant');
+    // Level 1 shows the three priority fixes; the details only once opened.
+    await expect(page.locator('.report__fix-list > li')).toHaveCount(3);
+    await expect(page.locator('#details article').first()).toBeHidden();
+    await openDisclosure(page, /^Afficher le détail des/);
     const nonConformes = page.getByRole('button', { name: /^Non conformes \(auto\) \((\d+)\)$/ });
     const conformes = page.getByRole('button', { name: /^Conformes, test automatique/ });
     const counter = page.locator('#details [role="status"]');
@@ -130,9 +135,10 @@ test.describe('Rapport', () => {
 
   test('accordéon des éléments concernés', async ({ page }) => {
     await gotoReady(page, '/exemple/avant');
-    const summary = page.locator('#details summary').first();
+    await openDisclosure(page, /^Afficher le détail des/);
+    const summary = page.locator('#details article summary').first();
     await summary.click();
-    const details = page.locator('#details details').first();
+    const details = page.locator('#details article details').first();
     await expect(details).toHaveAttribute('open', '');
     await expect(details.locator('code').first()).toBeVisible();
     await expectNoAxeViolations(page);
@@ -163,12 +169,14 @@ test.describe('Rapport', () => {
 
   test('checklist manuelle conservée après rechargement', async ({ page }) => {
     await gotoReady(page, '/exemple/avant');
+    await openDisclosure(page, /^Afficher la liste des/);
     const boxes = page.locator('.checklist input[type="checkbox"]');
     await boxes.nth(0).check();
     await boxes.nth(2).check();
     await expect(page.getByText(/^2 sur \d+ cochés\./)).toBeVisible();
     await expectNoAxeViolations(page);
     await page.reload();
+    await openDisclosure(page, /^Afficher la liste des/);
     await expect(boxes.nth(0)).toBeChecked();
     await expect(boxes.nth(1)).not.toBeChecked();
     await expect(boxes.nth(2)).toBeChecked();

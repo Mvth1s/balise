@@ -103,3 +103,28 @@ export function safeHref(url: string | undefined): string | undefined {
     return undefined;
   }
 }
+
+export interface PriorityFix {
+  criterion: CriterionResult;
+  fix: string;
+  /** Affected elements for this criterion, all rules together. */
+  count: number;
+}
+
+/**
+ * The fixes to make first: non-compliant criteria with the most affected
+ * elements (ties keep the reference order), one fix per criterion — the one
+ * of its rule with the most occurrences.
+ */
+export function priorityFixes(report: AnalysisReport, limit = 3): PriorityFix[] {
+  return report.criteria
+    .filter((c) => c.status === 'non-conforme' && c.findings.length > 0)
+    .map((criterion, index) => {
+      const top = [...criterion.findings].sort((a, b) => b.count - a.count)[0]!;
+      const count = criterion.findings.reduce((sum, f) => sum + f.count, 0);
+      return { criterion, fix: top.fix, count, index };
+    })
+    .sort((a, b) => b.count - a.count || a.index - b.index)
+    .slice(0, limit)
+    .map(({ criterion, fix, count }) => ({ criterion, fix, count }));
+}
