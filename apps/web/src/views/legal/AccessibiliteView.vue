@@ -3,7 +3,7 @@
     - https://accessibilite.numerique.gouv.fr/obligations/declaration-accessibilite/ (consulté le 2026-11-05 : structure du modèle de déclaration)
     - https://www.defenseurdesdroits.fr/nous-contacter-355 (consulté le 2026-11-05 : formulaire, Acceo, délégués, téléphone, adresse Libre réponse)
   -->
-  <LegalPage title="Déclaration d’accessibilité" updated="2026-11-06">
+  <LegalPage title="Déclaration d’accessibilité" updated="2026-11-07">
     <p>
       Mvth1s s'engage à rendre son service Balise accessible, conformément à l'esprit de l'article
       47 de la loi n° 2005-102 du 11 février 2005.
@@ -17,12 +17,12 @@
 
     <h2>État de conformité</h2>
     <p>
-      Balise est <strong>partiellement conforme</strong> avec le référentiel général d'amélioration
-      de l'accessibilité (RGAA), version 4.1.2.
+      Balise est <strong>non conforme</strong> avec le référentiel général d'amélioration de
+      l'accessibilité (RGAA), version 4.1.2.
     </p>
     <p>
-      Ce statut est provisoire. L'audit manuel complet de Balise reste à réaliser. Tant qu'il n'est
-      pas fait, aucune conformité totale n'est revendiquée.
+      Aucun audit n'a encore été réalisé ; cela ne signifie pas que Balise comporte de nombreuses
+      erreurs. Ce statut sera revu après l'audit manuel complet.
     </p>
 
     <h2>Résultats des tests</h2>
