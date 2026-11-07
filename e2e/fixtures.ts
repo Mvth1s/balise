@@ -114,3 +114,10 @@ export async function expectNoHorizontalScroll(page: Page): Promise<void> {
   }));
   expect(scrollWidth, `horizontal scroll on ${page.url()}`).toBeLessThanOrEqual(clientWidth);
 }
+
+/** Opens a report disclosure (criterion details or manual checklist). */
+export async function openDisclosure(page: Page, name: RegExp): Promise<void> {
+  const summary = page.locator('summary').filter({ hasText: name });
+  await summary.click();
+  await expect(summary.locator('xpath=..')).toHaveAttribute('open', '');
+}
