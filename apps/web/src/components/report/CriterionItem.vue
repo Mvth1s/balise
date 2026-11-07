@@ -21,7 +21,7 @@ function onToggle(event: Event) {
 </script>
 
 <template>
-  <article class="criterion" :aria-labelledby="headingId">
+  <article class="card criterion" :aria-labelledby="headingId">
     <div class="criterion__meta">
       <StatusBadge :status="criterion.status" />
       <span class="small muted">{{ themeName }}</span>
@@ -80,8 +80,6 @@ function onToggle(event: Event) {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding-block: var(--space-6);
-  border-bottom: 1px solid var(--color-border);
 }
 
 .criterion__meta {
