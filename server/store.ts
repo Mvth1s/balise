@@ -14,16 +14,22 @@ export interface AnalysisStore {
   put(status: AnalysisStatus): Promise<void>;
   getScreenshot(id: string): Promise<Buffer | null>;
   putScreenshot(id: string, jpeg: Buffer): Promise<void>;
+  /** Stores the nonce of the single report token of an analysis. */
+  putToken(id: string, nonce: string, ttlSeconds: number): Promise<void>;
+  /** Atomically deletes the stored nonce; true only if it matched (single use). */
+  consumeToken(id: string, nonce: string): Promise<boolean>;
 }
 
 /** Subset of the @upstash/redis client used here (injectable in tests). */
 export interface RedisLike {
   get<T>(key: string): Promise<T | null>;
   set(key: string, value: unknown, options: { ex: number }): Promise<unknown>;
+  getdel<T>(key: string): Promise<T | null>;
 }
 
 const statusKey = (id: string): string => `balise:analysis:${id}`;
 const screenshotKey = (id: string): string => `balise:analysis:${id}:screenshot`;
+const tokenKey = (id: string): string => `balise:analysis:${id}:token`;
 
 export function createRedisStore(
   redis: RedisLike,
@@ -41,6 +47,11 @@ export function createRedisStore(
     putScreenshot: async (id, jpeg) => {
       await redis.set(screenshotKey(id), { jpeg: jpeg.toString('base64') }, { ex: ttlSeconds });
     },
+    putToken: async (id, nonce, ex) => {
+      await redis.set(tokenKey(id), { nonce }, { ex });
+    },
+    consumeToken: async (id, nonce) =>
+      (await redis.getdel<{ nonce?: unknown }>(tokenKey(id)))?.nonce === nonce,
   };
 }
 
@@ -54,6 +65,7 @@ export function createMemoryStore(
 ): AnalysisStore {
   const statuses = new Map<string, { value: string; expires: number }>();
   const screenshots = new Map<string, { value: Buffer; expires: number }>();
+  const tokens = new Map<string, { value: string; expires: number }>();
   const alive = <T extends { expires: number }>(
     map: Map<string, T>,
     key: string,
@@ -82,6 +94,14 @@ export function createMemoryStore(
     },
     putScreenshot: async (id, jpeg) => {
       screenshots.set(id, { value: Buffer.from(jpeg), expires: now() + ttlSeconds * 1000 });
+    },
+    putToken: async (id, nonce, ex) => {
+      tokens.set(id, { value: nonce, expires: now() + ex * 1000 });
+    },
+    consumeToken: async (id, nonce) => {
+      const entry = alive(tokens, id);
+      tokens.delete(id);
+      return entry?.value === nonce;
     },
   };
 }

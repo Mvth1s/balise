@@ -412,6 +412,8 @@ describe('routing', () => {
         put: async () => undefined,
         getScreenshot: async () => null,
         putScreenshot: async () => undefined,
+        putToken: async () => undefined,
+        consumeToken: async () => false,
       },
     });
     const res = await get('/api/analyses/inconnue123');
