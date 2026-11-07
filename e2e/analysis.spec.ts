@@ -91,7 +91,7 @@ test.describe('Parcours d’analyse', () => {
 test.describe('Rapport', () => {
   test('filtres par statut et par thématique', async ({ page }) => {
     await gotoReady(page, '/exemple/avant');
-    const nonConformes = page.getByRole('button', { name: /^Non conformes \((\d+)\)$/ });
+    const nonConformes = page.getByRole('button', { name: /^Non conformes \(auto\) \((\d+)\)$/ });
     const conformes = page.getByRole('button', { name: /^Conformes, test automatique/ });
     const counter = page.locator('#details [role="status"]');
     const items = page.locator('#details article');

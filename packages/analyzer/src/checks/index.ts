@@ -5,27 +5,24 @@ import { checkHeadingHierarchy, HEADING_HIERARCHY_RULE } from './heading-hierarc
 import { checkPageLang, PAGE_LANG_RULE } from './page-lang.js';
 import { checkPageTitle, PAGE_TITLE_RULE } from './page-title.js';
 import { checkSkipLink, SKIP_LINK_RULE } from './skip-link.js';
+import { EXTRA_CHECKS } from './extra.js';
 import type { CheckFn, CheckResult } from './types.js';
 
 export type { CheckFn, CheckOutcome, CheckResult, DescribeFn } from './types.js';
 export { describeElement } from './describe.js';
 export { checkHeadingHierarchy, checkPageLang, checkPageTitle, checkSkipLink };
+export * from './extra.js';
 
-/** Frozen ids of the Balise custom checks. */
-export const BALISE_RULES = [
-  SKIP_LINK_RULE,
-  HEADING_HIERARCHY_RULE,
-  PAGE_LANG_RULE,
-  PAGE_TITLE_RULE,
-] as const;
-export type BaliseRule = (typeof BALISE_RULES)[number];
-
-export const BALISE_CHECKS: ReadonlyArray<{ rule: BaliseRule; fn: CheckFn }> = [
+export const BALISE_CHECKS: ReadonlyArray<{ rule: string; fn: CheckFn }> = [
   { rule: SKIP_LINK_RULE, fn: checkSkipLink },
   { rule: HEADING_HIERARCHY_RULE, fn: checkHeadingHierarchy },
   { rule: PAGE_LANG_RULE, fn: checkPageLang },
   { rule: PAGE_TITLE_RULE, fn: checkPageTitle },
+  ...EXTRA_CHECKS,
 ];
+
+/** Ids of the Balise custom checks. */
+export const BALISE_RULES: readonly string[] = BALISE_CHECKS.map((c) => c.rule);
 
 /** Builds the expression evaluated in the page for one check. */
 export function checkExpression(fn: CheckFn): string {

@@ -62,18 +62,35 @@ Exemples de choix `partial` :
 - `frame-title` (2.1) : le test 2.1.1 exige un attribut `title`, alors que la règle accepte aussi `aria-label`.
 - `label` (11.1) : la règle accepte `placeholder` et ne vérifie pas la visibilité demandée par le test 11.1.3.
 
-Règles volontairement non reliées : les règles AAA ou WCAG 2.2 absentes du RGAA 4.1.2 (`color-contrast-enhanced`, `identical-links-same-purpose`, `meta-refresh-no-exceptions`, `target-size`), les règles obsolètes (`duplicate-id`, `duplicate-id-active`, `audio-caption`, `aria-roledescription`), les règles expérimentales (`css-orientation-lock`, `p-as-heading`, `td-has-header`, `table-fake-caption`, `focus-order-semantics`, `hidden-content`), les bonnes pratiques sans critère clair (`region`, `landmark-*`, `tabindex`, `accesskeys`, …), les doublons des contrôles maison (`heading-order`, `page-has-heading-one`), et `label-content-name-mismatch`, qui concerne à la fois les liens (6.1), les boutons (11.9) et les champs (11.2) sans qu’on puisse savoir lequel à partir de l’identifiant de règle.
+Depuis le 2026-11-07, Balise privilégie la **détection d’erreurs** : une règle qui ne couvre qu’une partie d’un critère y est reliée dès qu’un échec prouve la non-conformité (statut « Non conforme (auto) »), même si un succès ne prouve rien. C’est pourquoi `landmark-one-main`, `landmark-no-duplicate-main` (9.2), `page-has-heading-one`, `empty-heading`, `heading-order` (9.1), `empty-table-header` (5.6), `tabindex` (12.8), `css-orientation-lock` (13.9) et les règles de nom ARIA restantes (7.1) sont désormais reliées en `partial`.
+
+Règles volontairement non reliées : les règles AAA ou WCAG 2.2 absentes du RGAA 4.1.2 (`color-contrast-enhanced`, `identical-links-same-purpose`, `meta-refresh-no-exceptions`, `target-size`), les règles obsolètes (`duplicate-id`, `duplicate-id-active`, `audio-caption`, `aria-roledescription`), les règles expérimentales (`p-as-heading`, `td-has-header`, `table-fake-caption`, `focus-order-semantics`, `hidden-content`), les bonnes pratiques sans critère clair (`region`, `accesskeys`, …), et `label-content-name-mismatch`, qui concerne à la fois les liens (6.1), les boutons (11.9) et les champs (11.2) sans qu’on puisse savoir lequel à partir de l’identifiant de règle.
 
 ### Contrôles maison Balise
 
 Leurs identifiants sont figés, le moteur (`packages/analyzer`) les implémente :
 
-| Identifiant                | Critères | Couverture | Remarque                                                                                          |
-| -------------------------- | -------- | ---------- | ------------------------------------------------------------------------------------------------- |
-| `balise-skip-link`         | 12.7     | `partial`  | La place, l’ordre et la visibilité au focus dans l’ensemble des pages (12.7.2) restent à vérifier |
-| `balise-heading-hierarchy` | 9.1      | `partial`  | La pertinence des titres (9.1.2) et les passages non balisés (9.1.3) restent à vérifier           |
-| `balise-page-lang`         | 8.3, 8.4 | `partial`  | Échoue si la langue est absente (8.3) ou invalide (8.4) ; la pertinence du code reste à vérifier  |
-| `balise-page-title`        | 8.5      | `full`     | La pertinence du titre (8.6) reste à vérifier manuellement, d’où l’absence de lien vers 8.6       |
+| Identifiant                  | Critères | Couverture | Remarque                                                                                          |
+| ---------------------------- | -------- | ---------- | ------------------------------------------------------------------------------------------------- |
+| `balise-skip-link`           | 12.7     | `partial`  | La place, l’ordre et la visibilité au focus dans l’ensemble des pages (12.7.2) restent à vérifier |
+| `balise-heading-hierarchy`   | 9.1      | `partial`  | La pertinence des titres (9.1.2) et les passages non balisés (9.1.3) restent à vérifier           |
+| `balise-page-lang`           | 8.3, 8.4 | `partial`  | Échoue si la langue est absente (8.3) ou invalide (8.4) ; la pertinence du code reste à vérifier  |
+| `balise-page-title`          | 8.5      | `full`     | La pertinence du titre (8.6) reste à vérifier manuellement, d’où l’absence de lien vers 8.6       |
+| `balise-doctype`             | 8.1      | `full`     | Type de document présent, valide et déclaré avant `<html>`                                        |
+| `balise-duplicate-id`        | 8.2      | `partial`  | Identifiants en double ; le reste de la validité du code reste à vérifier                         |
+| `balise-page-title-relevant` | 8.6      | `partial`  | Titre générique (« Sans titre », « Accueil ») ou nom de fichier                                   |
+| `balise-empty-paragraph`     | 8.9      | `partial`  | Paragraphe vide servant d’espacement                                                              |
+| `balise-dir-valid`           | 8.10     | `partial`  | Valeur de `dir` différente de `ltr`, `rtl` ou `auto`                                              |
+| `balise-decorative-img`      | 1.2      | `partial`  | Image décorative (alt vide, `aria-hidden`) qui porte un `title`, un `aria-*` ou un titre SVG      |
+| `balise-img-alt-relevant`    | 1.3      | `partial`  | Alternative = nom de fichier ou mot générique ; alt vide sur la seule image d’un lien/bouton      |
+| `balise-data-table-headers`  | 5.6      | `partial`  | Tableau présenté comme tableau de données (titre, `thead`, nom) sans aucun en-tête                |
+| `balise-layout-table`        | 5.8      | `partial`  | Tableau `role="presentation"` contenant `th`, `caption`, `thead`, `scope`…                        |
+| `balise-link-generic`        | 6.1      | `partial`  | Intitulé générique (« En savoir plus ») sans contexte de paragraphe, de liste ou de cellule       |
+| `balise-presentation-markup` | 10.1     | `partial`  | Balises et attributs de présentation des tests 10.1.1 et 10.1.2                                   |
+| `balise-focus-visible`       | 10.7     | `partial`  | Aucun style ne change au focus (éléments avec transition ignorés) ; le contraste reste à juger    |
+| `balise-field-label`         | 11.1     | `partial`  | Champ sans étiquette ; un `placeholder` seul ne compte pas                                        |
+| `balise-radio-group`         | 11.5     | `partial`  | Boutons radio de même nom hors `fieldset` / `role="group"`                                        |
+| `balise-group-legend`        | 11.6     | `partial`  | `fieldset` ou `role="group"` sans légende                                                         |
 
 ## Ajouter ou modifier une règle
 

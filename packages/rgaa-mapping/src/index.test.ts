@@ -22,6 +22,21 @@ const BALISE_RULES = [
   'balise-heading-hierarchy',
   'balise-page-lang',
   'balise-page-title',
+  'balise-doctype',
+  'balise-duplicate-id',
+  'balise-presentation-markup',
+  'balise-dir-valid',
+  'balise-page-title-relevant',
+  'balise-link-generic',
+  'balise-data-table-headers',
+  'balise-layout-table',
+  'balise-decorative-img',
+  'balise-img-alt-relevant',
+  'balise-field-label',
+  'balise-radio-group',
+  'balise-group-legend',
+  'balise-empty-paragraph',
+  'balise-focus-visible',
 ];
 
 describe('loader API', () => {
