@@ -1,6 +1,6 @@
 ---
 name: frontend-dev
-description: Développe l'interface Vue 3 de Balise (apps/web) — composants, routes, animations, application stricte de la charte, pages légales, bandeau de consentement. À utiliser pour tout travail dans apps/web.
+description: Développe l'interface Vue 3 de Balise (apps/web) — composants, routes, animations, application stricte de la charte, pages légales, popup de consentement. À utiliser pour tout travail dans apps/web.
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: opus
 ---

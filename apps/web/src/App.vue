@@ -2,7 +2,7 @@
 import { useHead } from '@unhead/vue';
 import { nextTick, onMounted } from 'vue';
 import { isNavigationFailure, NavigationFailureType, useRouter } from 'vue-router';
-import ConsentBanner from '@/components/ConsentBanner.vue';
+import ConsentDialog from '@/components/ConsentDialog.vue';
 import SiteFooter from '@/components/SiteFooter.vue';
 import SiteHeader from '@/components/SiteHeader.vue';
 import { initConsent, pageView } from '@/composables/useConsent';
@@ -36,7 +36,7 @@ onMounted(() => {
 
 <template>
   <a class="skip-link" href="#contenu">Aller au contenu</a>
-  <ConsentBanner />
+  <ConsentDialog />
   <SiteHeader />
   <main id="contenu" class="site-main" tabindex="-1">
     <RouterView />

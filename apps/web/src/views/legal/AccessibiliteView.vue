@@ -100,7 +100,7 @@
       <li><RouterLink to="/mentions-legales">Mentions légales</RouterLink></li>
       <li><RouterLink to="/confidentialite">Politique de confidentialité</RouterLink></li>
       <li>
-        <RouterLink to="/cookies">Gestion des cookies</RouterLink>, avec le bandeau de consentement
+        <RouterLink to="/cookies">Gestion des cookies</RouterLink>, avec la fenêtre de consentement
       </li>
       <li><RouterLink to="/accessibilite">Déclaration d'accessibilité</RouterLink></li>
       <li><RouterLink to="/conditions-utilisation">Conditions d'utilisation</RouterLink></li>

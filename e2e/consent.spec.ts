@@ -27,11 +27,11 @@ test('balise de validation Search Console dans le <head> des pages pré-rendues'
 test.describe('Mesure d’audience', () => {
   test.skip(({ isMobile }) => isMobile, 'consent logic: desktop project is enough');
 
-  test('build sans VITE_GA_MEASUREMENT_ID : ni bandeau ni requête Google', async ({ page }) => {
+  test('build sans VITE_GA_MEASUREMENT_ID : ni popup ni requête Google', async ({ page }) => {
     const google = recordGoogleRequests(page);
     for (const path of ['/', '/exemple/avant', '/cookies']) {
       await gotoReady(page, path);
-      await expect(page.getByRole('region', { name: 'Mesure d’audience' })).toHaveCount(0);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
       await expect(page.getByRole('button', { name: 'Tout accepter' })).toHaveCount(0);
     }
     await expect(
@@ -68,52 +68,93 @@ test.describe('Mesure d’audience', () => {
       );
     });
 
-    const banner = (page: Page) => page.getByRole('region', { name: 'Mesure d’audience' });
+    const dialog = (page: Page) => page.getByRole('dialog', { name: 'Mesure d’audience' });
+    const liveStatus = (page: Page) => page.locator('p.visually-hidden[role="status"]');
 
-    test('bandeau affiché, accessible, sans script Google avant choix', async ({ page }) => {
+    test('popup modale accessible, sans script Google avant choix', async ({ page }) => {
       await gotoReady(page, '/');
-      await expect(banner(page)).toBeVisible();
-      const refuse = page.getByRole('button', { name: 'Tout refuser' });
-      const accept = page.getByRole('button', { name: 'Tout accepter' });
+      const modal = dialog(page);
+      await expect(modal).toBeVisible();
+      await expect(modal).toHaveAttribute('aria-modal', 'true');
+      // Initial focus on the text, which describes the dialog.
+      await expect(modal.locator('#consent-text')).toBeFocused();
+      await expect(modal).toHaveAccessibleDescription(/Google Analytics/);
+      const refuse = modal.getByRole('button', { name: 'Tout refuser' });
+      const accept = modal.getByRole('button', { name: 'Tout accepter' });
       // Same look for both buttons.
       expect(await refuse.getAttribute('class')).toBe(await accept.getAttribute('class'));
-      await expect(
-        banner(page).getByRole('link', { name: 'Personnaliser mes choix' }),
-      ).toBeVisible();
-      // Not blocking: the form stays usable.
-      await page.getByLabel('Adresse de la page à analyser').fill('https://www.exemple.fr/');
+      const customize = modal.getByRole('link', { name: 'Personnaliser mes choix' });
+      await expect(customize).toBeVisible();
+      // Focus trapped: Tab cycles link → refuse → accept → link, Shift+Tab goes back.
+      for (const target of [customize, refuse, accept, customize]) {
+        await page.keyboard.press('Tab');
+        await expect(target).toBeFocused();
+      }
+      await page.keyboard.press('Shift+Tab');
+      await expect(accept).toBeFocused();
+      // The page behind is inert.
+      await expect(page.getByLabel('Adresse de la page à analyser')).not.toBeFocused();
       expect(gtagLoads).toEqual([]);
       await expectNoAxeViolations(page);
     });
 
-    test('refus : aucun script Google, choix mémorisé', async ({ page }) => {
+    test('refus : focus rendu à la page, annonce invisible, choix mémorisé', async ({ page }) => {
       await gotoReady(page, '/');
-      await page.getByRole('button', { name: 'Tout refuser' }).click();
-      const confirmation = page
-        .getByRole('status')
-        .filter({ hasText: 'mesure d’audience refusée' });
-      await expect(confirmation).toBeFocused();
+      await dialog(page).getByRole('button', { name: 'Tout refuser' }).click();
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(liveStatus(page)).toHaveText(/mesure d’audience refusée/);
+      // No visual confirmation: the visually hidden live region is the only copy.
+      await expect(page.getByText('mesure d’audience refusée')).toHaveCount(1);
+      // Opened on load (no opener): the focus goes back to the page heading.
+      await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
       await expectNoAxeViolations(page);
-      await page.getByRole('button', { name: 'Fermer ce message' }).click();
-      await expect(confirmation).toHaveCount(0);
       await gotoReady(page, '/exemple');
-      await expect(banner(page)).toHaveCount(0);
+      await expect(dialog(page)).toHaveCount(0);
       expect(gtagLoads).toEqual([]);
       const stored = await page.evaluate(() => localStorage.getItem('balise:consent'));
       expect(JSON.parse(stored ?? '{}')).toMatchObject({ value: 'denied' });
     });
 
+    test('Échap vaut refus', async ({ page }) => {
+      await gotoReady(page, '/');
+      await expect(dialog(page)).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+      await expect(liveStatus(page)).toHaveText(/mesure d’audience refusée/);
+      const stored = await page.evaluate(() => localStorage.getItem('balise:consent'));
+      expect(JSON.parse(stored ?? '{}')).toMatchObject({ value: 'denied' });
+      expect(gtagLoads).toEqual([]);
+    });
+
+    test('« Personnaliser mes choix » ouvre la gestion des cookies sans choisir', async ({
+      page,
+    }) => {
+      await gotoReady(page, '/');
+      await dialog(page).getByRole('link', { name: 'Personnaliser mes choix' }).click();
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Gestion des cookies');
+      await expect(dialog(page)).toHaveCount(0);
+      expect(await page.evaluate(() => localStorage.getItem('balise:consent'))).toBeNull();
+      await expectNoAxeViolations(page);
+      // Still no choice: the dialog comes back elsewhere.
+      await page
+        .getByRole('contentinfo')
+        .getByRole('link', { name: /^Accessibilité/ })
+        .click();
+      await expect(dialog(page)).toBeVisible();
+    });
+
     test('acceptation puis retrait depuis « Gestion des cookies »', async ({ page }) => {
       await gotoReady(page, '/');
       await page.getByRole('button', { name: 'Tout accepter' }).click();
-      await expect(page.getByText('mesure d’audience acceptée')).toBeVisible();
+      await expect(liveStatus(page)).toHaveText(/mesure d’audience acceptée/);
       await expect.poll(() => gtagLoads.length).toBe(1);
       expect(gtagLoads[0]).toContain(`id=${TEST_ID}`);
 
-      // Granted consent survives a reload: gtag.js is loaded again, no banner.
+      // Granted consent survives a reload: gtag.js is loaded again, no dialog.
       await page.reload();
       await waitHydrated(page);
-      await expect(banner(page)).toHaveCount(0);
+      await expect(dialog(page)).toHaveCount(0);
       await expect.poll(() => gtagLoads.length).toBe(2);
 
       // Client-side navigation.
@@ -153,13 +194,13 @@ test.describe('Mesure d’audience', () => {
       await expect(page.getByRole('switch', { name: /Mesure d’audience/ })).toBeChecked();
     });
 
-    test('choix expiré après 6 mois : le bandeau revient', async ({ page }) => {
+    test('choix expiré après 6 mois : la popup revient', async ({ page }) => {
       await page.addInitScript(() => {
         const old = new Date(Date.now() - 200 * 24 * 3600 * 1000).toISOString();
         localStorage.setItem('balise:consent', JSON.stringify({ value: 'granted', date: old }));
       });
       await gotoReady(page, '/');
-      await expect(banner(page)).toBeVisible();
+      await expect(dialog(page)).toBeVisible();
       expect(gtagLoads).toEqual([]);
     });
   });

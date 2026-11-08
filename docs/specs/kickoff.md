@@ -113,10 +113,10 @@ Rédige le contenu complet de chaque page en français (agent `docs-writer`) :
 
 ### Mesure d'audience GA4 et consentement
 
-- Identifiant dans la variable `VITE_GA_MEASUREMENT_ID`. Si elle est absente, aucun code GA4 n'est chargé et le bandeau ne s'affiche pas.
-- Bandeau maison (pas de bibliothèque tierce) : non bloquant, « Tout refuser » et « Tout accepter » de même apparence, lien « Personnaliser mes choix », aucune case pré-cochée, choix conservé 6 mois, retrait via « Gestion des cookies ». Aucun script Google avant consentement (Consent Mode en mode basique).
+- Identifiant dans la variable `VITE_GA_MEASUREMENT_ID`. Si elle est absente, aucun code GA4 n'est chargé et la popup de consentement ne s'affiche pas.
+- Popup modale maison (pas de bibliothèque tierce ; remplace le bandeau non bloquant depuis le 2026-11-07, voir ADR 0004) : « Tout refuser » et « Tout accepter » de même apparence, lien « Personnaliser mes choix », aucune case pré-cochée, choix conservé 6 mois, retrait via « Gestion des cookies ». Aucun script Google avant consentement (Consent Mode en mode basique).
 - Configuration GA4 : signaux Google et personnalisation publicitaire désactivés, durée des cookies limitée à 13 mois maximum.
-- Le bandeau respecte le RGAA (clavier, focus, contraste, zoom, lecteurs d'écran).
+- La popup respecte le RGAA (clavier, focus, contraste, zoom, lecteurs d'écran).
 
 ## 5. Exigences non fonctionnelles non négociables
 
@@ -149,7 +149,7 @@ Lighthouse (performance, bonnes pratiques, SEO) à 90 minimum sur l'accueil, mes
 
 - Unitaire : validation d'URL et filtre SSRF (cas limites IPv4, IPv6, redirections), calcul des scores, mapping RGAA (chaque règle mappée vers un critère existant du référentiel), utilitaires.
 - Intégration : moteur d'analyse sur les pages de démo servies localement, comparaison avec les rapports attendus.
-- E2E Playwright : parcours complet, démo, filtres, copie du lien, bandeau cookies (refus, acceptation, retrait), pages légales, erreurs (URL invalide, IP privée refusée, limite atteinte, page inaccessible).
+- E2E Playwright : parcours complet, démo, filtres, copie du lien, popup cookies (refus, Échap, acceptation, retrait), pages légales, erreurs (URL invalide, IP privée refusée, limite atteinte, page inaccessible).
 - Couverture minimale 80 % sur `packages/analyzer` et le mapping.
 
 ## 7. Dépôt GitHub et pipeline
