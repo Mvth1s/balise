@@ -103,6 +103,7 @@ const HTTP_STATUS: Partial<Record<AnalysisErrorCode, number>> = {
   dns_failure: 422,
   rate_limited: 429,
   not_found: 404,
+  preview_disabled: 503,
 };
 
 const JSON_HEADERS = {
@@ -358,6 +359,15 @@ export function createHandlers(deps: HandlerDeps): ApiHandler {
   }
 
   async function create(request: Request): Promise<Response> {
+    // The worker only reports to the production API (BALISE_API_ORIGIN), and
+    // previews sit behind Vercel deployment protection: no analysis there.
+    if (deps.env.VERCEL_ENV === 'preview') {
+      return errorResponse(
+        503,
+        'preview_disabled',
+        'L’analyse est désactivée sur les déploiements de préversion. Utilisez https://balise-tau.vercel.app.',
+      );
+    }
     // Browsers always send Sec-Fetch-Site: refuse submissions from other sites.
     if (request.headers.get('sec-fetch-site') === 'cross-site') {
       return errorResponse(

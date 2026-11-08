@@ -41,6 +41,7 @@ describe('api client', () => {
 
   it('describes every error in French', () => {
     expect(describeError('forbidden_target').title).toBe('Adresse refusée');
+    expect(describeError('preview_disabled').message).toContain('https://balise-tau.vercel.app');
     expect(describeError('rate_limited', 120).message).toContain('2 minutes');
     expect(describeError('unreachable').message).toMatch(/charger cette page/);
   });

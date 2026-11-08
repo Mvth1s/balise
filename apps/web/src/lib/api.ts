@@ -42,6 +42,7 @@ const KNOWN_CODES: readonly AnalysisErrorCode[] = [
   'too_large',
   'not_html',
   'not_found',
+  'preview_disabled',
   'internal',
 ];
 
@@ -182,6 +183,12 @@ export function describeError(
         title: 'Analyse introuvable ou expirée',
         message:
           'Cette analyse n’existe pas ou a été supprimée : les rapports sont conservés 30 jours. Vous pouvez relancer une analyse de la page.',
+      };
+    case 'preview_disabled':
+      return {
+        title: 'Analyse désactivée sur cette préversion',
+        message:
+          'Les déploiements de préversion de Balise n’exécutent pas d’analyse. Utilisez le site en production, https://balise-tau.vercel.app, ou consultez la page d’exemple.',
       };
     case 'network':
       return {
