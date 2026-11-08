@@ -20,17 +20,17 @@ Les plateformes de gestion du consentement (CMP) du marché chargent souvent un 
 
 ## Décision
 
-Un bandeau développé dans Balise, sans bibliothèque tierce :
+Une fenêtre de consentement développée dans Balise, sans bibliothèque tierce (d'abord un bandeau non bloquant, remplacé le 2026-11-07 par une popup modale à la demande de l'éditeur) :
 
-- **Affiché seulement si `VITE_GA_MEASUREMENT_ID` est défini.** Sans identifiant, aucun code GA4 n'est chargé et aucun bandeau n'apparaît.
-- **Non bloquant** : la page reste lisible et utilisable.
+- **Affiché seulement si `VITE_GA_MEASUREMENT_ID` est défini.** Sans identifiant, aucun code GA4 n'est chargé et aucune popup n'apparaît.
+- **Popup modale** : `<dialog>` natif ouvert avec `showModal()` (rôle `dialog`, `aria-modal="true"`, titre `aria-labelledby`, texte `aria-describedby`) ; le reste de la page est inerte jusqu'au choix. Pas affichée sur « Gestion des cookies », qui propose le même choix.
 - **Boutons « Tout refuser » et « Tout accepter » de même apparence** et même niveau ; lien « Personnaliser mes choix » vers la page « Gestion des cookies ».
 - **Aucune case pré-cochée.**
 - **Choix conservé 6 mois** dans le stockage local, avec sa date ; à l'échéance, la question est reposée.
 - **Retrait à tout moment** depuis la page « Gestion des cookies » (interrupteur), lien présent dans le pied de page de chaque page. Au retrait, Balise repasse le consentement à « refusé », désactive GA4 (`ga-disable-<ID>`) et efface les cookies `_ga` et `_ga_<ID>` qu'il peut atteindre (`apps/web/src/lib/analytics.ts`).
-- **Aucun script Google avant consentement** : `gtag.js` n'est injecté qu'après acceptation (Consent Mode en mode basique). La CSP est un en-tête statique (`vercel.json`) : elle autorise en permanence les domaines de Google Analytics, faute de pouvoir changer d'en-tête selon le choix de l'utilisateur. La garantie « aucun appel avant consentement » repose donc sur le code du front ; les tests e2e du bandeau doivent vérifier qu'aucune requête ne part vers Google avant acceptation.
+- **Aucun script Google avant consentement** : `gtag.js` n'est injecté qu'après acceptation (Consent Mode en mode basique). La CSP est un en-tête statique (`vercel.json`) : elle autorise en permanence les domaines de Google Analytics, faute de pouvoir changer d'en-tête selon le choix de l'utilisateur. La garantie « aucun appel avant consentement » repose donc sur le code du front ; les tests e2e de la popup doivent vérifier qu'aucune requête ne part vers Google avant acceptation.
 - **Configuration GA4** : signaux Google et personnalisation publicitaire désactivés, durée des cookies limitée à 13 mois (la durée par défaut de Google est de 2 ans : https://support.google.com/analytics/answer/11397207?hl=fr, consulté le 2026-11-05).
-- **Accessibilité** : région nommée, ordre de tabulation logique, focus visible, aucune capture du focus, textes au contraste suffisant, fonctionnement à 200 % de zoom et à 320 px. Couvert par les tests e2e (refus, acceptation, retrait) avec axe.
+- **Accessibilité** : focus initial sur le texte, focus enfermé dans la popup (Tab et Maj+Tab bouclent), Échap vaut « Tout refuser », retour du focus à la fermeture (élément précédent, sinon titre de la page), focus visible, contraste suffisant, 200 % de zoom et 320 px. Aucun message de confirmation visible après le choix : une région `role="status"` masquée visuellement l'annonce aux lecteurs d'écran. Couvert par les tests e2e (refus, Échap, personnalisation, acceptation, retrait) avec axe.
 
 ## Conséquences
 

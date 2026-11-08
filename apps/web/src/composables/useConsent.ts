@@ -11,14 +11,14 @@ import {
 
 const measurementId = (import.meta.env.VITE_GA_MEASUREMENT_ID ?? '').trim();
 
-/** GA4 is configured for this build. When false: no GA4 code path, no banner. */
+/** GA4 is configured for this build. When false: no GA4 code path, no consent dialog. */
 export const analyticsConfigured = isValidMeasurementId(measurementId);
 
 interface ConsentState {
-  /** Client initialised (never true during SSR: the banner is client-only). */
+  /** Client initialised (never true during SSR: the dialog is client-only). */
   ready: boolean;
   consent: ConsentValue | null;
-  /** Set after a choice made in the banner, to show its confirmation. */
+  /** Set after a choice made in the dialog, for its live-region announcement. */
   lastChoice: ConsentValue | null;
 }
 
@@ -31,11 +31,11 @@ export function initConsent(): void {
   if (state.consent === 'granted') loadAnalytics(measurementId);
 }
 
-export function setConsent(value: ConsentValue, fromBanner = false): void {
+export function setConsent(value: ConsentValue, fromDialog = false): void {
   if (!analyticsConfigured) return;
   writeConsent(value);
   state.consent = value;
-  if (fromBanner) state.lastChoice = value;
+  if (fromDialog) state.lastChoice = value;
   if (value === 'granted') {
     loadAnalytics(measurementId);
     trackPageView(window.location.pathname, document.title);
@@ -44,14 +44,10 @@ export function setConsent(value: ConsentValue, fromBanner = false): void {
   }
 }
 
-export function dismissConfirmation(): void {
-  state.lastChoice = null;
-}
-
 export function pageView(path: string): void {
   if (analyticsConfigured && state.consent === 'granted') trackPageView(path, document.title);
 }
 
 export function useConsent() {
-  return { state: readonly(state), analyticsConfigured, setConsent, dismissConfirmation };
+  return { state: readonly(state), analyticsConfigured, setConsent };
 }

@@ -19,7 +19,7 @@ Il n'y a ni serveur à administrer, ni worker séparé : l'analyse se poursuit a
 
 | Composant           | Dossier                  | Rôle                                                                                                                                                             |
 | ------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Front               | `apps/web/`              | Vue 3, Vite, vue-router, vite-ssg. Formulaire, écran d'analyse, rapport, démo, pages légales, bandeau de consentement. Client d'API dans `src/lib/api.ts`.       |
+| Front               | `apps/web/`              | Vue 3, Vite, vue-router, vite-ssg. Formulaire, écran d'analyse, rapport, démo, pages légales, popup de consentement. Client d'API dans `src/lib/api.ts`.         |
 | Points d'entrée API | `api/`                   | Fichiers minces : un fichier = une fonction Vercel. Ils délèguent à `server/`.                                                                                   |
 | Logique API         | `server/`                | Handlers `Request` → `Response`, validation, limitation de débit, stockage (`AnalysisStore`), lancement de l'analyse. Testable sans Vercel.                      |
 | Moteur              | `packages/analyzer/`     | Filtre SSRF, client HTTP sûr, lancement de Chromium, navigation interceptée, axe-core, contrôles maison, correspondance RGAA, scores.                            |
