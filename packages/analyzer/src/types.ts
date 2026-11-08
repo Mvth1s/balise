@@ -120,6 +120,7 @@ export type AnalysisErrorCode =
   | 'too_large'
   | 'not_html'
   | 'not_found'
+  | 'preview_disabled' // Vercel preview deployment: no worker can report back to it
   | 'internal';
 
 /** Payload of GET /api/analyses/:id */

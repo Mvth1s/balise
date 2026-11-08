@@ -11,6 +11,7 @@ export const ERROR_MESSAGES: Record<AnalysisErrorCode, string> = {
   too_large: 'La page dépasse les limites de taille ou de nombre de ressources autorisées.',
   not_html: "L'adresse ne renvoie pas une page HTML.",
   not_found: "Cette analyse n'existe pas ou a expiré.",
+  preview_disabled: "L'analyse est désactivée sur les déploiements de préversion.",
   internal: "Une erreur interne est survenue pendant l'analyse.",
 };
 

@@ -203,6 +203,21 @@ describe('POST /api/analyses', () => {
     expect(globalKeys).toEqual(['global', 'global', 'global']);
   });
 
+  it('refuses analyses on Vercel preview deployments', async () => {
+    let analyzed = false;
+    const { post } = setup({
+      env: { VERCEL_ENV: 'preview' },
+      analyze: async (url, options) => {
+        analyzed = true;
+        return okAnalyze(url, options);
+      },
+    });
+    const res = await post({ url: 'https://exemple.fr/' });
+    expect(res.status).toBe(503);
+    expect((await body<{ error: { code: string } }>(res)).error.code).toBe('preview_disabled');
+    expect(analyzed).toBe(false);
+  });
+
   it('requires JSON and refuses cross-site submissions', async () => {
     const { post } = setup({ analyze: okAnalyze });
     const plain = await post('{"url":"https://exemple.fr/"}', { 'content-type': 'text/plain' });
