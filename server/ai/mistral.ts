@@ -6,8 +6,12 @@
  * No SDK dependency: one fetch call.
  */
 export const MISTRAL_URL = 'https://api.mistral.ai/v1/chat/completions';
-/** Mistral Small 4 (2026-03), multimodal; pinned, override with MISTRAL_MODEL. */
-export const DEFAULT_MISTRAL_MODEL = 'mistral-small-2603';
+/**
+ * Mistral Large 4, multimodal, with reasoning. The Experiment (free) plan
+ * gives 0 request/min on mistral-small/medium and 2/min on ministral, 50/min
+ * on this one (checked 2026-11-08). Override with MISTRAL_MODEL.
+ */
+export const DEFAULT_MISTRAL_MODEL = 'mistral-large-4';
 
 export interface MistralDeps {
   apiKey: string;
@@ -46,6 +50,19 @@ export function resetMistralThrottle(): void {
 
 const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+/** Answer text: a string, or the `text` chunks of a reasoning answer (thinking chunks dropped). */
+export function answerText(content: unknown): string | null {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return null;
+  const text = content
+    .filter(
+      (c): c is { type: 'text'; text: string } => c?.type === 'text' && typeof c.text === 'string',
+    )
+    .map((c) => c.text)
+    .join('');
+  return text || null;
+}
+
 /** Sends one chat request and returns the parsed JSON content of the answer. */
 export async function chatJson(
   deps: MistralDeps,
@@ -62,7 +79,10 @@ export async function chatJson(
     model: deps.model,
     messages,
     temperature: 0,
-    max_tokens: 2000,
+    // Greedy sampling requires top_p 1; reasoning cannot be disabled on Large 4.
+    top_p: 1,
+    reasoning_effort: 'low',
+    max_tokens: 8000,
     response_format: { type: 'json_schema', json_schema: { ...schema, strict: true } },
   });
 
@@ -87,8 +107,8 @@ export async function chatJson(
       const data = (await res.json()) as {
         choices?: Array<{ message?: { content?: unknown } }>;
       };
-      const content = data.choices?.[0]?.message?.content;
-      if (typeof content !== 'string') throw new MistralError('réponse sans contenu');
+      const content = answerText(data.choices?.[0]?.message?.content);
+      if (content === null) throw new MistralError('réponse sans contenu');
       try {
         return JSON.parse(content) as unknown;
       } catch {
