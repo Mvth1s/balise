@@ -56,3 +56,20 @@
 
 - Refonte UX : accueil épuré, rapport en trois niveaux (#13). Balise de validation Search Console (#14) ; consentement GA4 vérifié en production (aucune requête Google avant acceptation).
 - En attente : worker Chromium isolé (#18, projet Vercel `balise-worker` à créer) et jugement par IA Mistral (#19, empilée sur #18, clé à fournir). L'objectif de 86 critères évalués sur 106 n'est pas atteint par les seuls tests automatiques ; l'IA ajoute au plus 11 critères.
+
+## Étape 9 — Retour au design initial, popup de consentement, worker isolé, IA (2026-11-08)
+
+- Refonte UX annulée par `git revert` (#21) : accueil et rapport d'avant #13 ; #14, #15 et #17 conservés (aucun conflit).
+- Consentement : popup modale `<dialog>` (focus initial sur le texte, focus enfermé, Échap = refus, retour du focus), annonce invisible `role="status"` à la place du message de confirmation (#22). Vérifié en production : aucune requête Google avant choix, `gtag.js` chargé après acceptation, zéro violation axe.
+- Worker Chromium isolé (#23, remplace #18) : projet Vercel `balise-worker` (racine `worker/`, région `cdg1`, relié au dépôt, sans Upstash), variables `BALISE_TOKEN_PUBLIC_KEY` et `BALISE_API_ORIGIN` seulement ; `balise` reçoit `BALISE_TOKEN_PRIVATE_KEY` et `BALISE_WORKER_URL`. Build du worker : 41 s, fonction `api/run` de 136 Mo en `cdg1`. Analyse réelle de service-public.fr en production via le worker : terminée en 15 s, capture servie.
+- Jugement par IA Mistral (#24, remplace #19), fusionné. Évaluation `scripts/ai-eval.ts` impossible : l'espace La Plateforme répond 429 avec une limite de 0 requête par minute (plan gratuit non activé). Couche IA donc inactive en pratique.
+- Critères évalués (sans IA) :
+
+  | Page               | Évalués | Auto (C / NC) | IA  | Non applicable | À vérifier |
+  | ------------------ | ------- | ------------- | --- | -------------- | ---------- |
+  | /demo/avant        | 41      | 31 (5 / 26)   | 0   | 10             | 65         |
+  | /demo/apres        | 17      | 6 (6 / 0)     | 0   | 11             | 89         |
+  | service-public.fr  | 36      | 8 (6 / 2)     | 0   | 28             | 70         |
+  | fr.wikipedia.org   | 30      | 12 (4 / 8)    | 0   | 18             | 76         |
+  | legifrance.gouv.fr | 28      | 8 (6 / 2)     | 0   | 20             | 78         |
+  | lemonde.fr         | 45      | 16 (4 / 12)   | 0   | 29             | 61         |
