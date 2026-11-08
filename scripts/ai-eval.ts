@@ -30,6 +30,7 @@ const origin = `http://127.0.0.1:${(server.address() as { port: number }).port}`
 let ok = 0;
 let wrong = 0;
 let missing = 0;
+let auto = 0;
 for (const page of EVAL_PAGES) {
   const { report, pack } = await analyzePage(`${origin}${page.path}`, {
     allowPrivateHosts: true,
@@ -46,8 +47,11 @@ for (const page of EVAL_PAGES) {
         : c.status === 'non-conforme-ia'
           ? 'non-conforme'
           : null;
-    const mark = got === null ? '∅' : got === expected ? '✓' : '✗';
-    if (got === null) missing += 1;
+    // An automatic result wins over the AI: not part of the AI score.
+    const isAuto = c.status === 'conforme' || c.status === 'non-conforme';
+    const mark = isAuto ? '·' : got === null ? '∅' : got === expected ? '✓' : '✗';
+    if (isAuto) auto += 1;
+    else if (got === null) missing += 1;
     else if (got === expected) ok += 1;
     else wrong += 1;
     console.log(
@@ -57,6 +61,6 @@ for (const page of EVAL_PAGES) {
 }
 const total = ok + wrong + missing;
 console.log(
-  `\nJustes : ${ok}/${total}, faux : ${wrong}, non jugés : ${missing}. Précision sur les jugés : ${ok + wrong ? Math.round((100 * ok) / (ok + wrong)) : 0} %.`,
+  `\nJustes : ${ok}/${total}, faux : ${wrong}, non jugés : ${missing} (hors ${auto} déjà tranchés par les tests automatiques). Précision sur les jugés : ${ok + wrong ? Math.round((100 * ok) / (ok + wrong)) : 0} %.`,
 );
 server.close();

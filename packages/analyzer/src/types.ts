@@ -79,7 +79,7 @@ export interface AiJudgement {
   justification: string;
   /** 0 to 1, as reported by the model. */
   confidence: number;
-  /** Model identifier, e.g. "mistral-small-2603". */
+  /** Model identifier, e.g. "mistral-large-4". */
   model: string;
   /** Elements concerned (selectors from the analysed page, raw). */
   selectors: string[];

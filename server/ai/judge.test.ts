@@ -1,7 +1,7 @@
 import type { AnalysisReport, CriterionResult, JudgePack } from '@balise/analyzer';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { enrichWithAi, validateJudgements } from './judge.ts';
-import { chatJson, MISTRAL_URL, resetMistralThrottle } from './mistral.ts';
+import { answerText, chatJson, MISTRAL_URL, resetMistralThrottle } from './mistral.ts';
 
 const crit = (id: string, status: CriterionResult['status'] = 'a-verifier'): CriterionResult => ({
   id,
@@ -101,7 +101,7 @@ describe('enrichWithAi', () => {
     const out = await enrichWithAi(r, pack, { MISTRAL_API_KEY: 'k' }, m);
     expect(m.calls).toHaveLength(2);
     expect(m.calls[1]!.at - m.calls[0]!.at).toBeGreaterThanOrEqual(1000);
-    expect(m.calls[0]!.body.model).toBe('mistral-small-2603');
+    expect(m.calls[0]!.body.model).toBe('mistral-large-4');
     expect(JSON.stringify(m.calls[0]!.body.messages)).toContain('data:image/jpeg;base64,/9j/AA==');
     expect(m.calls[0]!.body.response_format).toMatchObject({
       type: 'json_schema',
@@ -110,7 +110,7 @@ describe('enrichWithAi', () => {
     const byId = new Map(out.criteria.map((c) => [c.id, c]));
     expect(byId.get('1.3')).toMatchObject({
       status: 'non-conforme-ia',
-      ai: { confidence: 0.9, model: 'mistral-small-2603', selectors: ['#logo'] },
+      ai: { confidence: 0.9, model: 'mistral-large-4', selectors: ['#logo'] },
     });
     expect(byId.get('6.1')?.status).toBe('non-conforme-ia');
     expect(byId.get('8.6')?.status).toBe('a-verifier'); // confidence below threshold
@@ -180,5 +180,20 @@ describe('validateJudgements', () => {
         AbortSignal.timeout(1000),
       ),
     ).rejects.toThrow('réponse non JSON');
+  });
+});
+
+describe('answerText', () => {
+  it('keeps the text chunks of a reasoning answer', () => {
+    expect(
+      answerText([
+        { type: 'thinking', thinking: [{ type: 'text', text: 'hmm' }] },
+        { type: 'text', text: '{"criteria":' },
+        { type: 'text', text: '[]}' },
+      ]),
+    ).toBe('{"criteria":[]}');
+    expect(answerText('{"a":1}')).toBe('{"a":1}');
+    expect(answerText([{ type: 'thinking', thinking: [] }])).toBeNull();
+    expect(answerText(undefined)).toBeNull();
   });
 });
